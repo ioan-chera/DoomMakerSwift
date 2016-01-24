@@ -14,6 +14,8 @@
 		4FA0A7551C54C65E009F3980 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A7531C54C65E009F3980 /* MainMenu.xib */; };
 		4FA0A7601C54C65E009F3980 /* DoomMakerSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A75F1C54C65E009F3980 /* DoomMakerSwiftTests.swift */; };
 		4FA0A76B1C54C65E009F3980 /* DoomMakerSwiftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A76A1C54C65E009F3980 /* DoomMakerSwiftUITests.swift */; };
+		4FA0A7791C54CA42009F3980 /* Wad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A7781C54CA42009F3980 /* Wad.swift */; };
+		4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,8 @@
 		4FA0A7661C54C65E009F3980 /* DoomMakerSwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DoomMakerSwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0A76A1C54C65E009F3980 /* DoomMakerSwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoomMakerSwiftUITests.swift; sourceTree = "<group>"; };
 		4FA0A76C1C54C65E009F3980 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4FA0A7781C54CA42009F3980 /* Wad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wad.swift; sourceTree = "<group>"; };
+		4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,8 +101,7 @@
 		4FA0A7491C54C65E009F3980 /* DoomMakerSwift */ = {
 			isa = PBXGroup;
 			children = (
-				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
-				4FA0A74C1C54C65E009F3980 /* Document.swift */,
+				4FA0A77A1C54CA53009F3980 /* swift */,
 				4FA0A74E1C54C65E009F3980 /* Document.xib */,
 				4FA0A7511C54C65E009F3980 /* Assets.xcassets */,
 				4FA0A7531C54C65E009F3980 /* MainMenu.xib */,
@@ -123,6 +126,17 @@
 				4FA0A76C1C54C65E009F3980 /* Info.plist */,
 			);
 			path = DoomMakerSwiftUITests;
+			sourceTree = "<group>";
+		};
+		4FA0A77A1C54CA53009F3980 /* swift */ = {
+			isa = PBXGroup;
+			children = (
+				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
+				4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */,
+				4FA0A74C1C54C65E009F3980 /* Document.swift */,
+				4FA0A7781C54CA42009F3980 /* Wad.swift */,
+			);
+			name = swift;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -256,6 +270,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA0A7791C54CA42009F3980 /* Wad.swift in Sources */,
+				4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */,
 				4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */,
 				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,
 			);

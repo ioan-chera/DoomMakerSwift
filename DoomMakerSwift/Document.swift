@@ -8,19 +8,30 @@
 
 import Cocoa
 
-class Document: NSDocument {
+class Document: NSDocument, NSWindowDelegate
+{
+    var wad = Wad()
 
-    override init() {
+    override init()
+    {
         super.init()
-        // Add your subclass-specific initialization here.
+        // Add your subclass-specific initialization here
     }
 
-    override func windowControllerDidLoadNib(aController: NSWindowController) {
+    override func windowControllerDidLoadNib(aController: NSWindowController)
+    {
         super.windowControllerDidLoadNib(aController)
         // Add any code here that needs to be executed once the windowController has loaded the document's window.
     }
 
-    override class func autosavesInPlace() -> Bool {
+//    override func makeWindowControllers()
+//    {
+//        let controller = NSWindowController(windowNibName: "Document")
+//        addWindowController(controller)
+//    }
+
+    override class func autosavesInPlace() -> Bool
+    {
         return true
     }
 
@@ -40,7 +51,14 @@ class Document: NSDocument {
         // Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
         // You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
         // If you override either of these, you should also override -isEntireFileLoaded to return false if the contents are lazily loaded.
-        throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
+        do
+        {
+            try wad.read(data)
+        }
+        catch Wad.ReadError.Info(let info)
+        {
+            throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: [NSLocalizedDescriptionKey: info])
+        }
     }
 
 

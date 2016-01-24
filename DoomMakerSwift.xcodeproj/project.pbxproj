@@ -1,0 +1,510 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */; };
+		4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74C1C54C65E009F3980 /* Document.swift */; };
+		4FA0A7501C54C65E009F3980 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A74E1C54C65E009F3980 /* Document.xib */; };
+		4FA0A7521C54C65E009F3980 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A7511C54C65E009F3980 /* Assets.xcassets */; };
+		4FA0A7551C54C65E009F3980 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A7531C54C65E009F3980 /* MainMenu.xib */; };
+		4FA0A7601C54C65E009F3980 /* DoomMakerSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A75F1C54C65E009F3980 /* DoomMakerSwiftTests.swift */; };
+		4FA0A76B1C54C65E009F3980 /* DoomMakerSwiftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A76A1C54C65E009F3980 /* DoomMakerSwiftUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4FA0A75C1C54C65E009F3980 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FA0A73F1C54C65E009F3980 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FA0A7461C54C65E009F3980;
+			remoteInfo = DoomMakerSwift;
+		};
+		4FA0A7671C54C65E009F3980 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FA0A73F1C54C65E009F3980 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FA0A7461C54C65E009F3980;
+			remoteInfo = DoomMakerSwift;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoomMakerSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		4FA0A74C1C54C65E009F3980 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		4FA0A74F1C54C65E009F3980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
+		4FA0A7511C54C65E009F3980 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4FA0A7541C54C65E009F3980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		4FA0A7561C54C65E009F3980 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4FA0A75B1C54C65E009F3980 /* DoomMakerSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DoomMakerSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FA0A75F1C54C65E009F3980 /* DoomMakerSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoomMakerSwiftTests.swift; sourceTree = "<group>"; };
+		4FA0A7611C54C65E009F3980 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4FA0A7661C54C65E009F3980 /* DoomMakerSwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DoomMakerSwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FA0A76A1C54C65E009F3980 /* DoomMakerSwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoomMakerSwiftUITests.swift; sourceTree = "<group>"; };
+		4FA0A76C1C54C65E009F3980 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4FA0A7441C54C65E009F3980 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FA0A7581C54C65E009F3980 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FA0A7631C54C65E009F3980 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4FA0A73E1C54C65E009F3980 = {
+			isa = PBXGroup;
+			children = (
+				4FA0A7491C54C65E009F3980 /* DoomMakerSwift */,
+				4FA0A75E1C54C65E009F3980 /* DoomMakerSwiftTests */,
+				4FA0A7691C54C65E009F3980 /* DoomMakerSwiftUITests */,
+				4FA0A7481C54C65E009F3980 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4FA0A7481C54C65E009F3980 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */,
+				4FA0A75B1C54C65E009F3980 /* DoomMakerSwiftTests.xctest */,
+				4FA0A7661C54C65E009F3980 /* DoomMakerSwiftUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4FA0A7491C54C65E009F3980 /* DoomMakerSwift */ = {
+			isa = PBXGroup;
+			children = (
+				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
+				4FA0A74C1C54C65E009F3980 /* Document.swift */,
+				4FA0A74E1C54C65E009F3980 /* Document.xib */,
+				4FA0A7511C54C65E009F3980 /* Assets.xcassets */,
+				4FA0A7531C54C65E009F3980 /* MainMenu.xib */,
+				4FA0A7561C54C65E009F3980 /* Info.plist */,
+			);
+			path = DoomMakerSwift;
+			sourceTree = "<group>";
+		};
+		4FA0A75E1C54C65E009F3980 /* DoomMakerSwiftTests */ = {
+			isa = PBXGroup;
+			children = (
+				4FA0A75F1C54C65E009F3980 /* DoomMakerSwiftTests.swift */,
+				4FA0A7611C54C65E009F3980 /* Info.plist */,
+			);
+			path = DoomMakerSwiftTests;
+			sourceTree = "<group>";
+		};
+		4FA0A7691C54C65E009F3980 /* DoomMakerSwiftUITests */ = {
+			isa = PBXGroup;
+			children = (
+				4FA0A76A1C54C65E009F3980 /* DoomMakerSwiftUITests.swift */,
+				4FA0A76C1C54C65E009F3980 /* Info.plist */,
+			);
+			path = DoomMakerSwiftUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4FA0A7461C54C65E009F3980 /* DoomMakerSwift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FA0A76F1C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwift" */;
+			buildPhases = (
+				4FA0A7431C54C65E009F3980 /* Sources */,
+				4FA0A7441C54C65E009F3980 /* Frameworks */,
+				4FA0A7451C54C65E009F3980 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DoomMakerSwift;
+			productName = DoomMakerSwift;
+			productReference = 4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4FA0A75A1C54C65E009F3980 /* DoomMakerSwiftTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FA0A7721C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwiftTests" */;
+			buildPhases = (
+				4FA0A7571C54C65E009F3980 /* Sources */,
+				4FA0A7581C54C65E009F3980 /* Frameworks */,
+				4FA0A7591C54C65E009F3980 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4FA0A75D1C54C65E009F3980 /* PBXTargetDependency */,
+			);
+			name = DoomMakerSwiftTests;
+			productName = DoomMakerSwiftTests;
+			productReference = 4FA0A75B1C54C65E009F3980 /* DoomMakerSwiftTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4FA0A7651C54C65E009F3980 /* DoomMakerSwiftUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FA0A7751C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwiftUITests" */;
+			buildPhases = (
+				4FA0A7621C54C65E009F3980 /* Sources */,
+				4FA0A7631C54C65E009F3980 /* Frameworks */,
+				4FA0A7641C54C65E009F3980 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4FA0A7681C54C65E009F3980 /* PBXTargetDependency */,
+			);
+			name = DoomMakerSwiftUITests;
+			productName = DoomMakerSwiftUITests;
+			productReference = 4FA0A7661C54C65E009F3980 /* DoomMakerSwiftUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4FA0A73F1C54C65E009F3980 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0710;
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = "Ioan Chera";
+				TargetAttributes = {
+					4FA0A7461C54C65E009F3980 = {
+						CreatedOnToolsVersion = 7.1.1;
+					};
+					4FA0A75A1C54C65E009F3980 = {
+						CreatedOnToolsVersion = 7.1.1;
+						TestTargetID = 4FA0A7461C54C65E009F3980;
+					};
+					4FA0A7651C54C65E009F3980 = {
+						CreatedOnToolsVersion = 7.1.1;
+						TestTargetID = 4FA0A7461C54C65E009F3980;
+					};
+				};
+			};
+			buildConfigurationList = 4FA0A7421C54C65E009F3980 /* Build configuration list for PBXProject "DoomMakerSwift" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4FA0A73E1C54C65E009F3980;
+			productRefGroup = 4FA0A7481C54C65E009F3980 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4FA0A7461C54C65E009F3980 /* DoomMakerSwift */,
+				4FA0A75A1C54C65E009F3980 /* DoomMakerSwiftTests */,
+				4FA0A7651C54C65E009F3980 /* DoomMakerSwiftUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4FA0A7451C54C65E009F3980 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA0A7521C54C65E009F3980 /* Assets.xcassets in Resources */,
+				4FA0A7501C54C65E009F3980 /* Document.xib in Resources */,
+				4FA0A7551C54C65E009F3980 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FA0A7591C54C65E009F3980 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FA0A7641C54C65E009F3980 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4FA0A7431C54C65E009F3980 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */,
+				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FA0A7571C54C65E009F3980 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA0A7601C54C65E009F3980 /* DoomMakerSwiftTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FA0A7621C54C65E009F3980 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FA0A76B1C54C65E009F3980 /* DoomMakerSwiftUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4FA0A75D1C54C65E009F3980 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FA0A7461C54C65E009F3980 /* DoomMakerSwift */;
+			targetProxy = 4FA0A75C1C54C65E009F3980 /* PBXContainerItemProxy */;
+		};
+		4FA0A7681C54C65E009F3980 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FA0A7461C54C65E009F3980 /* DoomMakerSwift */;
+			targetProxy = 4FA0A7671C54C65E009F3980 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4FA0A74E1C54C65E009F3980 /* Document.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4FA0A74F1C54C65E009F3980 /* Base */,
+			);
+			name = Document.xib;
+			sourceTree = "<group>";
+		};
+		4FA0A7531C54C65E009F3980 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4FA0A7541C54C65E009F3980 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4FA0A76D1C54C65E009F3980 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4FA0A76E1C54C65E009F3980 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4FA0A7701C54C65E009F3980 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = DoomMakerSwift/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4FA0A7711C54C65E009F3980 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = DoomMakerSwift/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		4FA0A7731C54C65E009F3980 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = DoomMakerSwiftTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwiftTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DoomMakerSwift.app/Contents/MacOS/DoomMakerSwift";
+			};
+			name = Debug;
+		};
+		4FA0A7741C54C65E009F3980 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = DoomMakerSwiftTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwiftTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DoomMakerSwift.app/Contents/MacOS/DoomMakerSwift";
+			};
+			name = Release;
+		};
+		4FA0A7761C54C65E009F3980 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = DoomMakerSwiftUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwiftUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = DoomMakerSwift;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		4FA0A7771C54C65E009F3980 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = DoomMakerSwiftUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwiftUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = DoomMakerSwift;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4FA0A7421C54C65E009F3980 /* Build configuration list for PBXProject "DoomMakerSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FA0A76D1C54C65E009F3980 /* Debug */,
+				4FA0A76E1C54C65E009F3980 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FA0A76F1C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FA0A7701C54C65E009F3980 /* Debug */,
+				4FA0A7711C54C65E009F3980 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4FA0A7721C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwiftTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FA0A7731C54C65E009F3980 /* Debug */,
+				4FA0A7741C54C65E009F3980 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4FA0A7751C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwiftUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FA0A7761C54C65E009F3980 /* Debug */,
+				4FA0A7771C54C65E009F3980 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4FA0A73F1C54C65E009F3980 /* Project object */;
+}

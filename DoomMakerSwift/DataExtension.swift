@@ -8,6 +8,40 @@
 
 import Foundation
 
+func cString(data: [UInt8], loc: Int, len: Int) -> String
+{
+    var ret = ""
+    for u in data
+    {
+        if u == 0
+        {
+            break
+        }
+        ret.append(UnicodeScalar(Int(u)))
+    }
+    return ret
+}
+
+func doubleFromInt16(data: [UInt8], loc: Int) -> Double
+{
+    return Double(Int(Int8(data[0])) + (Int(Int8(data[1])) << 8))
+}
+
+func intFromInt16(data: [UInt8], loc: Int) -> Int
+{
+    return Int(Int8(data[0])) + (Int(Int8(data[1])) << 8)
+}
+
+func subArray<T>(array: [T], loc: Int, len: Int) -> [T]
+{
+    return Array(array[loc...loc + len - 1])
+}
+
+private func cStringRaw(data: [UInt8], loc: Int, len: Int) -> String
+{
+    return cString(data, loc: loc, len: len)
+}
+
 extension NSData
 {
     func string(loc: Int, len: Int) -> String
@@ -21,16 +55,7 @@ extension NSData
     {
         var raw = Array<UInt8>(count: len, repeatedValue: 0)
         getBytes(&raw, range: NSMakeRange(loc, len))
-        var ret = ""
-        for u in raw
-        {
-            if u == 0
-            {
-                break
-            }
-            ret.append(UnicodeScalar(Int(u)))
-        }
-        return ret
+        return cStringRaw(raw, loc: loc, len: len)
     }
 
     func int32(loc: Int) -> Int32
@@ -44,3 +69,4 @@ extension NSData
         return ret
     }
 }
+

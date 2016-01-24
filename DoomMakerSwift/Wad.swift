@@ -8,6 +8,9 @@
 
 import Foundation
 
+///
+/// Wad lump. Contains the actual data and the name.
+///
 class Lump
 {
     var name: String
@@ -27,14 +30,23 @@ class Lump
     }
 }
 
+///
+/// Wad file data. Contains the kind (IWAD or PWAD) and lump list (array)
+///
 class Wad
 {
+    ///
+    /// IWAD or PWAD, based on file header
+    ///
     enum Type
     {
         case Iwad
         case Pwad
     }
 
+    ///
+    /// Read error throwable
+    ///
     enum ReadError: ErrorType
     {
         case Info(text: String)
@@ -49,6 +61,9 @@ class Wad
         lumps = []
     }
 
+    ///
+    /// Reads from NSData. Throws ReadError.Info(text) on failure.
+    ///
     func read(data: NSData) throws
     {
         if data.length < 12 || data.length > 0x7fffffff  // also handle int32 overflows

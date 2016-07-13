@@ -8,27 +8,7 @@
 
 import Foundation
 
-///
-/// Wad lump. Contains the actual data and the name.
-///
-class Lump
-{
-    var name: String
-    var data: [UInt8]
 
-    init(name: String)
-    {
-        self.name = name.uppercaseString
-        data = []
-    }
-
-    init(name: String, data: NSData)
-    {
-        self.name = name.uppercaseString
-        self.data = Array<UInt8>(count: data.length, repeatedValue: 0)
-        data.getBytes(&self.data, length: data.length)
-    }
-}
 
 ///
 /// Wad file data. Contains the kind (IWAD or PWAD) and lump list (array)
@@ -52,8 +32,8 @@ class Wad
         case Info(text: String)
     }
 
-    var type: Type
-    var lumps: [Lump]
+    private(set) var type: Type
+    private(set) var lumps: [Lump]
 
     init(inType: Type = Type.Pwad)
     {
@@ -86,22 +66,28 @@ class Wad
 
         var newLumps: [Lump] = []
 
-        for var i = 0; i < Int(numLumps); ++i
+        for i in 0..<Int(numLumps)
         {
             let address = Int(infoTableOfs + 16 * i)
             let filepos = data.int32(address)
             let size = data.int32(address + 4)
-            let name = data.cString(address + 8, len: 8)
+            let nameData = data.subdataWithRange(NSMakeRange(address + 8, 8))
+
             // check validity
             if size < 0 || size > 0 && (filepos < 0 || filepos + size > Int32(data.length) || filepos + size < 0)
             {
-                throw ReadError.Info(text: "WAD file is corrupted at lump " + name)
+                throw ReadError.Info(text: "WAD file is corrupted at lump '\(String(nameData))' index \(i)")
             }
-            newLumps.append(Lump(name: name, data: data.subdataWithRange(NSMakeRange(Int(filepos), Int(size)))))
+
+            let data = data.subdataWithRange(NSMakeRange(Int(filepos), Int(size)))
+            
+            newLumps.append(Lump(nameData: nameData, data: data))
         }
 
         // ok
-        type = newType
-        lumps = newLumps
+        self.type = newType
+        self.lumps = newLumps
     }
+
+
 }

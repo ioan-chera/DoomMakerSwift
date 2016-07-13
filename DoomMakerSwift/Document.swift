@@ -54,11 +54,14 @@ class Document: NSDocument, NSWindowDelegate
         do
         {
             try wad.read(data)
+            LevelEditor(wad: self.wad)
         }
         catch Wad.ReadError.Info(let info)
         {
             throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: [NSLocalizedDescriptionKey: info])
         }
+
+        
     }
 
 

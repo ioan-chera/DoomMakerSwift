@@ -24,12 +24,12 @@ func cString(data: [UInt8], loc: Int, len: Int) -> String
 
 func doubleFromInt16(data: [UInt8], loc: Int) -> Double
 {
-    return Double(Int(Int8(data[0])) + (Int(Int8(data[1])) << 8))
+    return Double(Int(Int8(data[loc])) + (Int(Int8(data[loc + 1])) << 8))
 }
 
 func intFromInt16(data: [UInt8], loc: Int) -> Int
 {
-    return Int(Int8(data[0])) + (Int(Int8(data[1])) << 8)
+    return Int(Int8(bitPattern:data[loc])) + (Int(Int8(bitPattern:data[loc + 1])) << 8)
 }
 
 func subArray<T>(array: [T], loc: Int, len: Int) -> [T]
@@ -67,6 +67,12 @@ extension NSData
         ret |= Int32(raw[2]) << 16
         ret |= Int32(raw[3]) << 24
         return ret
+    }
+
+    func asArray() -> [UInt8] {
+        var result = Array<UInt8>(count: self.length, repeatedValue: 0)
+        self.getBytes(&result, length: self.length)
+        return result
     }
 }
 

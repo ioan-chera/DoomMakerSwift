@@ -24,7 +24,7 @@ func cString(data: [UInt8], loc: Int, len: Int) -> String
 
 func doubleFromInt16(data: [UInt8], loc: Int) -> Double
 {
-    return Double(Int(Int8(data[loc])) + (Int(Int8(data[loc + 1])) << 8))
+    return Double(Int(Int8(bitPattern:data[loc])) + (Int(Int8(bitPattern:data[loc + 1])) << 8))
 }
 
 func intFromInt16(data: [UInt8], loc: Int) -> Int

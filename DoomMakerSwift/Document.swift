@@ -10,10 +10,12 @@ import Cocoa
 
 class Document: NSDocument, NSWindowDelegate
 {
-    var wad = Wad()
+    let wad = Wad()
+    let editor: LevelEditor
 
     override init()
     {
+        self.editor = LevelEditor(wad: self.wad)
         super.init()
         // Add your subclass-specific initialization here
     }
@@ -53,8 +55,8 @@ class Document: NSDocument, NSWindowDelegate
         // If you override either of these, you should also override -isEntireFileLoaded to return false if the contents are lazily loaded.
         do
         {
-            try wad.read(data)
-            LevelEditor(wad: self.wad)
+            try self.wad.read(data)
+            self.editor.updateFromWad()
         }
         catch Wad.ReadError.Info(let info)
         {

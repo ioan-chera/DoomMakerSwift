@@ -150,6 +150,10 @@ import Foundation
 //
 //struct Se
 
+private protocol MapItem {
+    init(data: [UInt8])
+}
+
 ///
 /// Level processed data
 ///
@@ -197,7 +201,7 @@ class Level
         .Blockmap: LumpDefinition(name: "BLOCKMAP", recordSize: 2)
     ]
 
-    struct Thing {
+    struct Thing: MapItem {
         var x = 0
         var y = 0
         var angle = 0
@@ -213,7 +217,7 @@ class Level
         }
     }
 
-    struct Linedef {
+    struct Linedef: MapItem {
         var v1 = 0
         var v2 = 0
         var flags = 0
@@ -233,7 +237,7 @@ class Level
         }
     }
 
-    struct Sidedef {
+    struct Sidedef: MapItem {
         var xOffset = 0
         var yOffset = 0
         var upper: [UInt8] = []
@@ -251,7 +255,7 @@ class Level
         }
     }
 
-    struct Vertex {
+    struct Vertex: MapItem {
         var x = 0
         var y = 0
 
@@ -261,7 +265,7 @@ class Level
         }
     }
 
-    struct Seg {
+    struct Seg: MapItem {
         var v1 = 0
         var v2 = 0
         var angle = 0
@@ -279,7 +283,7 @@ class Level
         }
     }
 
-    struct Subsector {
+    struct Subsector: MapItem {
         var segCount = 0
         var firstSeg = 0
 
@@ -289,7 +293,7 @@ class Level
         }
     }
 
-    struct Node {
+    struct Node: MapItem {
         var x0 = 0
         var y0 = 0
         var dx = 0
@@ -317,7 +321,7 @@ class Level
         }
     }
 
-    struct Sector {
+    struct Sector: MapItem {
         var floorheight = 0
         var ceilingheight = 0
         var floor: [UInt8] = []
@@ -364,96 +368,35 @@ class Level
         self.blockmap = []
 
         let thingsData = wad.lumps[lumpIndex + LumpOffset.Things.rawValue].data
-        self.loadThings(thingsData)
+        self.things = self.loadItems(.Things, data: thingsData)
         let linedefsData = wad.lumps[lumpIndex + LumpOffset.Linedefs.rawValue].data
-        self.loadLinedefs(linedefsData)
+        self.linedefs = self.loadItems(.Linedefs, data: linedefsData)
         let sidedefsData = wad.lumps[lumpIndex + LumpOffset.Sidedefs.rawValue].data
-        self.loadSidedefs(sidedefsData)
+        self.sidedefs = self.loadItems(.Sidedefs, data: sidedefsData)
         let verticesData = wad.lumps[lumpIndex + LumpOffset.Vertices.rawValue].data
-        self.loadVertices(verticesData)
+        self.vertices = self.loadItems(.Vertices, data: verticesData)
         let segsData = wad.lumps[lumpIndex + LumpOffset.Segs.rawValue].data
-        self.loadSegs(segsData)
+        self.segs = self.loadItems(.Segs, data: segsData)
         let subsectorsData = wad.lumps[lumpIndex + LumpOffset.Subsectors.rawValue].data
-        self.loadSubsectors(subsectorsData)
+        self.subsectors = self.loadItems(.Subsectors, data: subsectorsData)
         let nodesData = wad.lumps[lumpIndex + LumpOffset.Nodes.rawValue].data
-        self.loadNodes(nodesData)
+        self.nodes = self.loadItems(.Nodes, data: nodesData)
         let sectorsData = wad.lumps[lumpIndex + LumpOffset.Sectors.rawValue].data
-        self.loadSectors(sectorsData)
+        self.sectors = self.loadItems(.Sectors, data: sectorsData)
+
         self.reject = wad.lumps[lumpIndex + LumpOffset.Reject.rawValue].data
         let blockmapData = wad.lumps[lumpIndex + LumpOffset.Blockmap.rawValue].data
         self.loadBlockmap(blockmapData)
     }
 
-    private func loadThings(thingsData: [UInt8]) {
-        self.things = []
-        let recordSize = Level.lumpMap[.Things]!.recordSize
-        for i in 0.stride(to: thingsData.count, by: recordSize) {
-            let slice = thingsData[i ..< i + recordSize]
-            self.things.append(Thing(data: Array(slice)))
+    private func loadItems<T: MapItem>(type: LumpOffset, data: [UInt8]) -> [T] {
+        var list: [T] = []
+        let recordSize = Level.lumpMap[type]!.recordSize
+        for i in 0.stride(to: data.count, by: recordSize) {
+            let slice = data[i ..< i + recordSize]
+            list.append(T(data: Array(slice)))
         }
-    }
-
-    private func loadLinedefs(linedefsData: [UInt8]) {
-        self.linedefs = []
-        let recordSize = Level.lumpMap[.Linedefs]!.recordSize
-        for i in 0.stride(to: linedefsData.count, by: recordSize) {
-            let slice = linedefsData[i ..< i + recordSize]
-            self.linedefs.append(Linedef(data: Array(slice)))
-        }
-    }
-
-    private func loadSidedefs(sidedefsData: [UInt8]) {
-        self.sidedefs = []
-        let recordSize = Level.lumpMap[.Sidedefs]!.recordSize
-        for i in 0.stride(to: sidedefsData.count, by: recordSize) {
-            let slice = sidedefsData[i ..< i + recordSize]
-            self.sidedefs.append(Sidedef(data: Array(slice)))
-        }
-    }
-
-    private func loadVertices(verticesData: [UInt8]) {
-        self.vertices = []
-        let recordSize = Level.lumpMap[.Vertices]!.recordSize
-        for i in 0.stride(to: verticesData.count, by: recordSize) {
-            let slice = verticesData[i ..< i + recordSize]
-            self.vertices.append(Vertex(data: Array(slice)))
-        }
-    }
-
-    private func loadSegs(segsData: [UInt8]) {
-        self.segs = []
-        let recordSize = Level.lumpMap[.Segs]!.recordSize
-        for i in 0.stride(to: segsData.count, by: recordSize) {
-            let slice = segsData[i ..< i + recordSize]
-            self.segs.append(Seg(data: Array(slice)))
-        }
-    }
-
-    private func loadSubsectors(subsectorsData: [UInt8]) {
-        self.subsectors = []
-        let recordSize = Level.lumpMap[.Subsectors]!.recordSize
-        for i in 0.stride(to: subsectorsData.count, by: recordSize) {
-            let slice = subsectorsData[i ..< i + recordSize]
-            self.subsectors.append(Subsector(data: Array(slice)))
-        }
-    }
-
-    private func loadNodes(nodesData: [UInt8]) {
-        self.nodes = []
-        let recordSize = Level.lumpMap[.Nodes]!.recordSize
-        for i in 0.stride(to: nodesData.count, by: recordSize) {
-            let slice = nodesData[i ..< i + recordSize]
-            self.nodes.append(Node(data: Array(slice)))
-        }
-    }
-
-    private func loadSectors(sectorsData: [UInt8]) {
-        self.sectors = []
-        let recordSize = Level.lumpMap[.Sectors]!.recordSize
-        for i in 0.stride(to: sectorsData.count, by: recordSize) {
-            let slice = sectorsData[i ..< i + recordSize]
-            self.sectors.append(Sector(data: Array(slice)))
-        }
+        return list
     }
 
     private func loadBlockmap(blockmapData: [UInt8]) {

@@ -28,6 +28,16 @@ class LevelEditor {
         return levels[index].name
     }
 
+    func levelAtIndex(index: Int) -> Level? {
+        return levels[index].level
+    }
+
+    func loadLevelAtIndex(index: Int) -> Level {
+        let level = Level(wad: wad, lumpIndex: levels[index].lumpIndex)
+        self.levels[index].level = level
+        return level
+    }
+
     init(wad: Wad) {
         self.wad = wad
         self.levels = []

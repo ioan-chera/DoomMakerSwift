@@ -73,7 +73,21 @@ class Document: NSDocument, NSWindowDelegate
         self.levelChooser.removeAllItems()
         for i in 0 ..< self.editor.levelCount {
             self.levelChooser.addItemWithTitle(self.editor.levelName(i))
+            let item = self.levelChooser.itemAtIndex(i)!
+            item.action = #selector(Document.levelChooserClicked(_:))
+            item.target = self
+            item.tag = i
         }
+
+        // Check now if a level was added
+        if let selected = self.levelChooser?.selectedItem {
+            self.levelChooserClicked(selected)
+        }
+    }
+
+    func levelChooserClicked(sender: AnyObject?) {
+        let index = (sender as! NSMenuItem).tag
+        self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)
     }
 }
 

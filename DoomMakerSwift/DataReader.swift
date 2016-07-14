@@ -23,7 +23,7 @@ class DataReader {
     }
 
     func lumpName(inout val: [UInt8]) -> DataReader {
-        val = Lump.truncateZero(Array(val[pos ..< pos + 8]))
+        val = Lump.truncateZero(Array(data[pos ..< pos + 8]))
         pos += 8
         return self
     }

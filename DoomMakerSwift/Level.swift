@@ -303,7 +303,7 @@ class Level
         }
     }
 
-    private var name: String
+    private(set) var name: String
 
     private var things: [Thing]
     private var linedefs: [Linedef]

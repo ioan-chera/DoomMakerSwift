@@ -9,12 +9,28 @@
 import Foundation
 
 class LevelEditor {
+    struct Entry {
+        let lumpIndex: Int
+        let name: String
+        var level: Level?
+    }
+
     let wad: Wad
-    private var levels: [Int: Level?]   // maps lump index to level
+    private var levels: [Entry]
+
+    var levelCount: Int {
+        get {
+            return levels.count
+        }
+    }
+
+    func levelName(index: Int) -> String {
+        return levels[index].name
+    }
 
     init(wad: Wad) {
         self.wad = wad
-        self.levels = [:]
+        self.levels = []
 
         if self.wad.lumps.count > 0 {
             self.findLevels()
@@ -26,9 +42,9 @@ class LevelEditor {
     }
 
     private func findLevels() {
-        self.levels = [:]   // TODO: keep old level references
+        self.levels = []   // TODO: keep old level references
         var index = 0
-        for _ in wad.lumps {
+        for levelLump in wad.lumps {
             if index + Level.lumpMap.count >= wad.lumps.count {
                 break
             }
@@ -41,7 +57,7 @@ class LevelEditor {
                 }
             }
             if found {
-                self.levels[index] = nil    // add the slot as a key but don't open it
+                self.levels.append(Entry(lumpIndex: index, name: levelLump.name, level: nil))
             }
             index += 1
         }

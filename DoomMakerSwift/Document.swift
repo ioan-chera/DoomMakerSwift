@@ -10,8 +10,13 @@ import Cocoa
 
 class Document: NSDocument, NSWindowDelegate
 {
-    let wad = Wad()
-    let editor: LevelEditor
+    private let wad = Wad()
+    private let editor: LevelEditor
+
+    @IBOutlet var docWindow: NSWindow!
+    @IBOutlet var levelChooser: NSPopUpButton!
+
+    private weak var currentLevel: Level?
 
     override init()
     {
@@ -23,7 +28,7 @@ class Document: NSDocument, NSWindowDelegate
     override func windowControllerDidLoadNib(aController: NSWindowController)
     {
         super.windowControllerDidLoadNib(aController)
-        // Add any code here that needs to be executed once the windowController has loaded the document's window.
+        self.updateLevelChooser()
     }
 
 //    override func makeWindowControllers()
@@ -62,10 +67,13 @@ class Document: NSDocument, NSWindowDelegate
         {
             throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: [NSLocalizedDescriptionKey: info])
         }
-
-        
     }
 
-
+    private func updateLevelChooser() {
+        self.levelChooser.removeAllItems()
+        for i in 0 ..< self.editor.levelCount {
+            self.levelChooser.addItemWithTitle(self.editor.levelName(i))
+        }
+    }
 }
 

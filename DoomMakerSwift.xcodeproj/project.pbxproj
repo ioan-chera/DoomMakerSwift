@@ -40,12 +40,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4F7788341D36C2030012EFC6 /* Lump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lump.swift; sourceTree = "<group>"; };
-		4F7788361D36C8C50012EFC6 /* LevelEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelEditor.swift; sourceTree = "<group>"; };
-		4F7788381D37F5DD0012EFC6 /* DataReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataReader.swift; sourceTree = "<group>"; };
+		4F7788341D36C2030012EFC6 /* Lump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lump.swift; path = DoomMakerSwift/Lump.swift; sourceTree = SOURCE_ROOT; };
+		4F7788361D36C8C50012EFC6 /* LevelEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LevelEditor.swift; path = DoomMakerSwift/LevelEditor.swift; sourceTree = SOURCE_ROOT; };
+		4F7788381D37F5DD0012EFC6 /* DataReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataReader.swift; path = DoomMakerSwift/DataReader.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoomMakerSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4FA0A74C1C54C65E009F3980 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DoomMakerSwift/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
+		4FA0A74C1C54C65E009F3980 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Document.swift; path = DoomMakerSwift/Document.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A74F1C54C65E009F3980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
 		4FA0A7511C54C65E009F3980 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4FA0A7541C54C65E009F3980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -56,9 +56,9 @@
 		4FA0A7661C54C65E009F3980 /* DoomMakerSwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DoomMakerSwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0A76A1C54C65E009F3980 /* DoomMakerSwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoomMakerSwiftUITests.swift; sourceTree = "<group>"; };
 		4FA0A76C1C54C65E009F3980 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4FA0A7781C54CA42009F3980 /* Wad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wad.swift; sourceTree = "<group>"; };
-		4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataExtension.swift; sourceTree = "<group>"; };
-		4FA0A77D1C54E5E1009F3980 /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
+		4FA0A7781C54CA42009F3980 /* Wad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wad.swift; path = DoomMakerSwift/Wad.swift; sourceTree = SOURCE_ROOT; };
+		4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataExtension.swift; path = DoomMakerSwift/DataExtension.swift; sourceTree = SOURCE_ROOT; };
+		4FA0A77D1C54E5E1009F3980 /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Level.swift; path = DoomMakerSwift/Level.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +86,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F77883A1D3811120012EFC6 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				4FA0A7531C54C65E009F3980 /* MainMenu.xib */,
+				4FA0A74E1C54C65E009F3980 /* Document.xib */,
+			);
+			name = ui;
+			sourceTree = "<group>";
+		};
+		4F77883E1D3814590012EFC6 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = ui;
+			sourceTree = "<group>";
+		};
 		4FA0A73E1C54C65E009F3980 = {
 			isa = PBXGroup;
 			children = (
@@ -109,10 +125,9 @@
 		4FA0A7491C54C65E009F3980 /* DoomMakerSwift */ = {
 			isa = PBXGroup;
 			children = (
+				4F77883A1D3811120012EFC6 /* ui */,
 				4FA0A77A1C54CA53009F3980 /* swift */,
-				4FA0A74E1C54C65E009F3980 /* Document.xib */,
 				4FA0A7511C54C65E009F3980 /* Assets.xcassets */,
-				4FA0A7531C54C65E009F3980 /* MainMenu.xib */,
 				4FA0A7561C54C65E009F3980 /* Info.plist */,
 			);
 			path = DoomMakerSwift;
@@ -139,6 +154,7 @@
 		4FA0A77A1C54CA53009F3980 /* swift */ = {
 			isa = PBXGroup;
 			children = (
+				4F77883E1D3814590012EFC6 /* ui */,
 				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
 				4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */,
 				4F7788381D37F5DD0012EFC6 /* DataReader.swift */,

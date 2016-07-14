@@ -209,11 +209,7 @@ class Level
         var flags = 0
 
         init(data: [UInt8]) {
-            x = intFromInt16(data, loc: 0)
-            y = intFromInt16(data, loc: 2)
-            angle = intFromInt16(data, loc: 4)
-            type = intFromInt16(data, loc: 6)
-            flags = intFromInt16(data, loc: 8)
+            DataReader(data).short(&x).short(&y).short(&angle).short(&type).short(&flags)
         }
     }
 
@@ -227,13 +223,7 @@ class Level
         var s2 = 0
 
         init(data: [UInt8]) {
-            v1 = intFromInt16(data, loc: 0)
-            v2 = intFromInt16(data, loc: 2)
-            flags = intFromInt16(data, loc: 4)
-            special = intFromInt16(data, loc: 6)
-            tag = intFromInt16(data, loc: 8)
-            s1 = intFromInt16(data, loc: 10)
-            s2 = intFromInt16(data, loc: 12)
+            DataReader(data).short(&v1).short(&v2).short(&flags).short(&special).short(&tag).short(&s1).short(&s2)
         }
     }
 
@@ -246,12 +236,7 @@ class Level
         var sector = 0
 
         init(data: [UInt8]) {
-            xOffset = intFromInt16(data, loc: 0)
-            yOffset = intFromInt16(data, loc: 2)
-            upper = Lump.truncateZero(Array(data[4..<12]))
-            lower = Lump.truncateZero(Array(data[12..<20]))
-            middle = Lump.truncateZero(Array(data[20..<28]))
-            sector = intFromInt16(data, loc: 28)
+            DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper).lumpName(&lower).lumpName(&middle).short(&sector)
         }
     }
 
@@ -260,8 +245,7 @@ class Level
         var y = 0
 
         init(data: [UInt8]) {
-            x = intFromInt16(data, loc: 0)
-            y = intFromInt16(data, loc: 2)
+            DataReader(data).short(&x).short(&y)
         }
     }
 
@@ -274,12 +258,7 @@ class Level
         var offset = 0
 
         init(data: [UInt8]) {
-            v1 = intFromInt16(data, loc: 0)
-            v2 = intFromInt16(data, loc: 2)
-            angle = intFromInt16(data, loc: 4)
-            line = intFromInt16(data, loc: 6)
-            dir = intFromInt16(data, loc: 8)
-            offset = intFromInt16(data, loc: 10)
+            DataReader(data).short(&v1).short(&v2).short(&angle).short(&line).short(&dir).short(&offset)
         }
     }
 
@@ -288,8 +267,7 @@ class Level
         var firstSeg = 0
 
         init(data: [UInt8]) {
-            segCount = intFromInt16(data, loc: 0)
-            firstSeg = intFromInt16(data, loc: 2)
+            DataReader(data).short(&segCount).short(&firstSeg)
         }
     }
 
@@ -304,20 +282,10 @@ class Level
         var leftChild = 0
 
         init(data: [UInt8]) {
-            x0 = intFromInt16(data, loc: 0)
-            y0 = intFromInt16(data, loc: 2)
-            dx = intFromInt16(data, loc: 4)
-            dy = intFromInt16(data, loc: 6)
-            rightBox.top = intFromInt16(data, loc: 8)
-            rightBox.bottom = intFromInt16(data, loc: 10)
-            rightBox.left = intFromInt16(data, loc: 12)
-            rightBox.right = intFromInt16(data, loc: 14)
-            leftBox.top = intFromInt16(data, loc: 16)
-            leftBox.bottom = intFromInt16(data, loc: 18)
-            leftBox.left = intFromInt16(data, loc: 20)
-            leftBox.right = intFromInt16(data, loc: 22)
-            rightChild = intFromInt16(data, loc: 24)
-            leftChild = intFromInt16(data, loc: 26)
+            DataReader(data).short(&x0).short(&y0).short(&dx).short(&dy)
+                .short(&rightBox.top).short(&rightBox.bottom).short(&rightBox.left).short(&rightBox.right)
+                .short(&leftBox.top).short(&leftBox.bottom).short(&leftBox.left).short(&leftBox.right)
+                .short(&rightChild).short(&leftChild)
         }
     }
 
@@ -331,13 +299,7 @@ class Level
         var tag = 0
 
         init(data: [UInt8]) {
-            floorheight = intFromInt16(data, loc: 0)
-            ceilingheight = intFromInt16(data, loc: 2)
-            floor = Lump.truncateZero(Array(data[4..<12]))
-            ceiling = Lump.truncateZero(Array(data[12..<20]))
-            light = intFromInt16(data, loc: 20)
-            special = intFromInt16(data, loc: 22)
-            tag = intFromInt16(data, loc: 24)
+            DataReader(data).short(&floorheight).short(&ceilingheight).lumpName(&floor).lumpName(&ceiling).short(&light).short(&special).short(&tag)
         }
     }
 
@@ -355,48 +317,31 @@ class Level
     private var blockmap: [Int]
 
     init(wad: Wad, lumpIndex: Int) {
-        self.name = wad.lumps[lumpIndex].name
-        self.things = []
-        self.linedefs = []
-        self.sidedefs = []
-        self.vertices = []
-        self.segs = []
-        self.subsectors = []
-        self.nodes = []
-        self.sectors = []
-        self.reject = []
-        self.blockmap = []
+        func loadItems<T: MapItem>(type: LumpOffset) -> [T] {
+            let data = wad.lumps[lumpIndex + type.rawValue].data
+            var list: [T] = []
+            let recordSize = Level.lumpMap[type]!.recordSize
+            for i in 0.stride(to: data.count, by: recordSize) {
+                let slice = data[i ..< i + recordSize]
+                list.append(T(data: Array(slice)))
+            }
+            return list
+        }
 
-        let thingsData = wad.lumps[lumpIndex + LumpOffset.Things.rawValue].data
-        self.things = self.loadItems(.Things, data: thingsData)
-        let linedefsData = wad.lumps[lumpIndex + LumpOffset.Linedefs.rawValue].data
-        self.linedefs = self.loadItems(.Linedefs, data: linedefsData)
-        let sidedefsData = wad.lumps[lumpIndex + LumpOffset.Sidedefs.rawValue].data
-        self.sidedefs = self.loadItems(.Sidedefs, data: sidedefsData)
-        let verticesData = wad.lumps[lumpIndex + LumpOffset.Vertices.rawValue].data
-        self.vertices = self.loadItems(.Vertices, data: verticesData)
-        let segsData = wad.lumps[lumpIndex + LumpOffset.Segs.rawValue].data
-        self.segs = self.loadItems(.Segs, data: segsData)
-        let subsectorsData = wad.lumps[lumpIndex + LumpOffset.Subsectors.rawValue].data
-        self.subsectors = self.loadItems(.Subsectors, data: subsectorsData)
-        let nodesData = wad.lumps[lumpIndex + LumpOffset.Nodes.rawValue].data
-        self.nodes = self.loadItems(.Nodes, data: nodesData)
-        let sectorsData = wad.lumps[lumpIndex + LumpOffset.Sectors.rawValue].data
-        self.sectors = self.loadItems(.Sectors, data: sectorsData)
+        self.name = wad.lumps[lumpIndex].name
+
+        self.things = loadItems(.Things)
+        self.linedefs = loadItems(.Linedefs)
+        self.sidedefs = loadItems(.Sidedefs)
+        self.vertices = loadItems(.Vertices)
+        self.segs = loadItems(.Segs)
+        self.subsectors = loadItems(.Subsectors)
+        self.nodes = loadItems(.Nodes)
+        self.sectors = loadItems(.Sectors)
 
         self.reject = wad.lumps[lumpIndex + LumpOffset.Reject.rawValue].data
-        let blockmapData = wad.lumps[lumpIndex + LumpOffset.Blockmap.rawValue].data
-        self.loadBlockmap(blockmapData)
-    }
-
-    private func loadItems<T: MapItem>(type: LumpOffset, data: [UInt8]) -> [T] {
-        var list: [T] = []
-        let recordSize = Level.lumpMap[type]!.recordSize
-        for i in 0.stride(to: data.count, by: recordSize) {
-            let slice = data[i ..< i + recordSize]
-            list.append(T(data: Array(slice)))
-        }
-        return list
+        self.blockmap = []
+        self.loadBlockmap(wad.lumps[lumpIndex + LumpOffset.Blockmap.rawValue].data)
     }
 
     private func loadBlockmap(blockmapData: [UInt8]) {

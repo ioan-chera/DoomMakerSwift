@@ -15,8 +15,14 @@ class Document: NSDocument, NSWindowDelegate
 
     @IBOutlet var docWindow: NSWindow!
     @IBOutlet var levelChooser: NSPopUpButton!
+    @IBOutlet var mapView: MapView!
 
-    private weak var currentLevel: Level?
+    private weak var currentLevel: Level? {
+        didSet {
+            self.mapView.hidden = self.currentLevel == nil
+            self.mapView.level = self.currentLevel
+        }
+    }
 
     override init()
     {
@@ -28,6 +34,7 @@ class Document: NSDocument, NSWindowDelegate
     override func windowControllerDidLoadNib(aController: NSWindowController)
     {
         super.windowControllerDidLoadNib(aController)
+        self.mapView.hidden = self.currentLevel == nil
         self.updateLevelChooser()
     }
 

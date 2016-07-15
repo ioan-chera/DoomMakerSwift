@@ -8,6 +8,7 @@
             <connections>
                 <outlet property="docWindow" destination="xOd-HO-29H" id="yer-mD-L7q"/>
                 <outlet property="levelChooser" destination="Exa-al-wkZ" id="tfa-Il-NSS"/>
+                <outlet property="mapView" destination="N6F-5h-iwV" id="6T8-wV-pLm"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
         </customObject>
@@ -22,6 +23,12 @@
             <view key="contentView" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="507" height="413"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <customView id="N6F-5h-iwV" customClass="MapView" customModule="DoomMakerSwift" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="507" height="413"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </customView>
+                </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="7CDB3DEA-DEB5-4F57-B470-79481DE03E3F" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="6Xu-yi-JBS">
                 <allowedToolbarItems>

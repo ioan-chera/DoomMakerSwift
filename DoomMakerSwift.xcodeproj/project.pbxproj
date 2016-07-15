@@ -10,6 +10,8 @@
 		4F7788351D36C2030012EFC6 /* Lump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788341D36C2030012EFC6 /* Lump.swift */; };
 		4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788361D36C8C50012EFC6 /* LevelEditor.swift */; };
 		4F7788391D37F5DD0012EFC6 /* DataReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788381D37F5DD0012EFC6 /* DataReader.swift */; };
+		4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788431D38A59A0012EFC6 /* MapView.swift */; };
+		4F7788461D38AF590012EFC6 /* Geom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788451D38AF590012EFC6 /* Geom.swift */; };
 		4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */; };
 		4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74C1C54C65E009F3980 /* Document.swift */; };
 		4FA0A7501C54C65E009F3980 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A74E1C54C65E009F3980 /* Document.xib */; };
@@ -43,6 +45,8 @@
 		4F7788341D36C2030012EFC6 /* Lump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lump.swift; path = DoomMakerSwift/Lump.swift; sourceTree = SOURCE_ROOT; };
 		4F7788361D36C8C50012EFC6 /* LevelEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LevelEditor.swift; path = DoomMakerSwift/LevelEditor.swift; sourceTree = SOURCE_ROOT; };
 		4F7788381D37F5DD0012EFC6 /* DataReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataReader.swift; path = DoomMakerSwift/DataReader.swift; sourceTree = SOURCE_ROOT; };
+		4F7788431D38A59A0012EFC6 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		4F7788451D38AF590012EFC6 /* Geom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Geom.swift; sourceTree = "<group>"; };
 		4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoomMakerSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DoomMakerSwift/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A74C1C54C65E009F3980 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Document.swift; path = DoomMakerSwift/Document.swift; sourceTree = SOURCE_ROOT; };
@@ -91,13 +95,6 @@
 			children = (
 				4FA0A7531C54C65E009F3980 /* MainMenu.xib */,
 				4FA0A74E1C54C65E009F3980 /* Document.xib */,
-			);
-			name = ui;
-			sourceTree = "<group>";
-		};
-		4F77883E1D3814590012EFC6 /* ui */ = {
-			isa = PBXGroup;
-			children = (
 			);
 			name = ui;
 			sourceTree = "<group>";
@@ -154,14 +151,15 @@
 		4FA0A77A1C54CA53009F3980 /* swift */ = {
 			isa = PBXGroup;
 			children = (
-				4F77883E1D3814590012EFC6 /* ui */,
 				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
 				4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */,
 				4F7788381D37F5DD0012EFC6 /* DataReader.swift */,
 				4FA0A74C1C54C65E009F3980 /* Document.swift */,
+				4F7788451D38AF590012EFC6 /* Geom.swift */,
 				4FA0A77D1C54E5E1009F3980 /* Level.swift */,
 				4F7788361D36C8C50012EFC6 /* LevelEditor.swift */,
 				4F7788341D36C2030012EFC6 /* Lump.swift */,
+				4F7788431D38A59A0012EFC6 /* MapView.swift */,
 				4FA0A7781C54CA42009F3980 /* Wad.swift */,
 			);
 			name = swift;
@@ -303,8 +301,10 @@
 				4F7788351D36C2030012EFC6 /* Lump.swift in Sources */,
 				4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */,
 				4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */,
+				4F7788461D38AF590012EFC6 /* Geom.swift in Sources */,
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,
 				4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */,
+				4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */,
 				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

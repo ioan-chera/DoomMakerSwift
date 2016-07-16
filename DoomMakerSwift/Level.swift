@@ -201,7 +201,7 @@ class Level
         .Blockmap: LumpDefinition(name: "BLOCKMAP", recordSize: 2)
     ]
 
-    struct Thing: MapItem {
+    final class Thing: MapItem {
         var x = 0
         var y = 0
         var angle = 0
@@ -213,7 +213,7 @@ class Level
         }
     }
 
-    struct Linedef: MapItem {
+    final class Linedef: MapItem {
         var v1 = 0
         var v2 = 0
         var flags = 0
@@ -227,7 +227,7 @@ class Level
         }
     }
 
-    struct Sidedef: MapItem {
+    final class Sidedef: MapItem {
         var xOffset = 0
         var yOffset = 0
         var upper: [UInt8] = []
@@ -240,16 +240,18 @@ class Level
         }
     }
 
-    struct Vertex: MapItem {
+    final class Vertex: MapItem {
         var x = 0
         var y = 0
+
+        var degree = 0  // number of adjacent lines
 
         init(data: [UInt8]) {
             DataReader(data).short(&x).short(&y)
         }
     }
 
-    struct Seg: MapItem {
+    final class Seg: MapItem {
         var v1 = 0
         var v2 = 0
         var angle = 0
@@ -262,7 +264,7 @@ class Level
         }
     }
 
-    struct Subsector: MapItem {
+    final class Subsector: MapItem {
         var segCount = 0
         var firstSeg = 0
 
@@ -271,7 +273,7 @@ class Level
         }
     }
 
-    struct Node: MapItem {
+    final class Node: MapItem {
         var x0 = 0
         var y0 = 0
         var dx = 0
@@ -289,7 +291,7 @@ class Level
         }
     }
 
-    struct Sector: MapItem {
+    final class Sector: MapItem {
         var floorheight = 0
         var ceilingheight = 0
         var floor: [UInt8] = []
@@ -342,6 +344,8 @@ class Level
         self.reject = wad.lumps[lumpIndex + LumpOffset.Reject.rawValue].data
         self.blockmap = []
         self.loadBlockmap(wad.lumps[lumpIndex + LumpOffset.Blockmap.rawValue].data)
+
+        postprocess()
     }
 
     private func loadBlockmap(blockmapData: [UInt8]) {
@@ -349,6 +353,16 @@ class Level
         let recordSize = Level.lumpMap[.Blockmap]!.recordSize
         for i in 0.stride(to: blockmapData.count, by: recordSize) {
             self.blockmap.append(intFromInt16(blockmapData, loc: i))
+        }
+    }
+
+    private func postprocess() {
+        for line in linedefs {
+            if line.v1 < 0 || line.v1 >= vertices.count || line.v2 < 0 || line.v2 >= vertices.count {
+                continue
+            }
+            vertices[line.v1].degree += 1
+            vertices[line.v2].degree += 1
         }
     }
 

@@ -96,5 +96,12 @@ class Document: NSDocument, NSWindowDelegate
         let index = (sender as! NSMenuItem).tag
         self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)
     }
+
+    override func validateMenuItem(menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(MapView.validateMenuItem(_:)) {
+            return self.currentLevel != nil
+        }
+        return super.validateMenuItem(menuItem)
+    }
 }
 

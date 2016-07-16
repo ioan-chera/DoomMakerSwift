@@ -8,6 +8,9 @@
 
 import Foundation
 
+let π = M_PI
+let πf = Float(M_PI)
+
 class Geom {
 
     // https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
@@ -70,5 +73,46 @@ class Geom {
                 outcode1 = computeOutCode(p1)
             }
         }
+    }
+}
+
+func + (left: NSPoint, right: NSPoint) -> NSPoint {
+    return NSPoint(x: left.x + right.x, y: left.y + right.y)
+}
+
+func - (left: NSPoint, right: NSPoint) -> NSPoint {
+    return NSPoint(x: left.x - right.x, y: left.y - right.y)
+}
+
+func / (left: NSPoint, right: CGFloat) -> NSPoint {
+    return NSPoint(x: left.x / right, y: left.y / right)
+}
+
+func / (left: NSPoint, right: Double) -> NSPoint {
+    return left / CGFloat(right)
+}
+
+func * (left: NSPoint, right: CGFloat) -> NSPoint {
+    return NSPoint(x: left.x * right, y: left.y * right)
+}
+
+func * (left: NSPoint, right: Double) -> NSPoint {
+    return left * CGFloat(right)
+}
+
+func floor(point: NSPoint) -> NSPoint {
+    return NSPoint(x: floor(point.x), y: floor(point.y))
+}
+
+func ceil(point: NSPoint) -> NSPoint {
+    return NSPoint(x: ceil(point.x), y: ceil(point.y))
+}
+
+extension NSPoint {
+    func rotated(degrees: Float) -> NSPoint {
+        let rad = degrees / 180 * πf
+        let nx = Float(x) * cos(rad) - Float(y) * sin(rad)
+        let ny = Float(x) * sin(rad) + Float(y) * cos(rad)
+        return NSPoint(x: CGFloat(nx), y: CGFloat(ny))
     }
 }

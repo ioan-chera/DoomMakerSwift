@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class Document: NSDocument, NSWindowDelegate
+class Document: NSDocument, NSWindowDelegate, MapViewDelegate
 {
     private let wad = Wad()
     private let editor: LevelEditor
@@ -16,12 +16,23 @@ class Document: NSDocument, NSWindowDelegate
     @IBOutlet var docWindow: NSWindow!
     @IBOutlet var levelChooser: NSPopUpButton!
     @IBOutlet var mapView: MapView!
+    @IBOutlet var gridLabel: NSTextField!
+    @IBOutlet var zoomLabel: NSTextField!
 
     private weak var currentLevel: Level? {
         didSet {
-            self.mapView.hidden = self.currentLevel == nil
-            self.mapView.level = self.currentLevel
+            self.levelUpdated()
         }
+    }
+
+    private func levelUpdated() {
+        let haveLevel = self.currentLevel != nil
+        self.mapView.hidden = !haveLevel
+        self.gridLabel.hidden = !haveLevel
+        self.zoomLabel.hidden = !haveLevel
+
+        self.mapView.level = self.currentLevel
+        self.mapView.delegate = haveLevel ? self : nil
     }
 
     override init()
@@ -34,8 +45,21 @@ class Document: NSDocument, NSWindowDelegate
     override func windowControllerDidLoadNib(aController: NSWindowController)
     {
         super.windowControllerDidLoadNib(aController)
-        self.mapView.hidden = self.currentLevel == nil
+
+        self.levelUpdated()
+
         self.updateLevelChooser()
+    }
+
+    //
+    // DELEGATE METHODS
+    //
+    func mapViewGridSizeUpdated() {
+        self.gridLabel.setText("Grid Size: \(self.mapView.gridSize)")
+    }
+
+    func mapViewScaleUpdated() {
+        self.zoomLabel.setText("Zoom: \(Int(round(self.mapView.scale * 100)))%")
     }
 
 //    override func makeWindowControllers()

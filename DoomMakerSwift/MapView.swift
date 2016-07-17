@@ -8,16 +8,35 @@
 
 import Cocoa
 
+protocol MapViewDelegate: class {
+    func mapViewGridSizeUpdated()
+    func mapViewScaleUpdated()
+}
+
 class MapView: NSView {
+    weak var delegate: MapViewDelegate? {
+        didSet {
+            delegate?.mapViewGridSizeUpdated()
+            delegate?.mapViewScaleUpdated()
+        }
+    }
 
     private var translate = NSPoint()
-    private var scale = CGFloat(1)
+    private(set) var scale = CGFloat(1) {
+        didSet {
+            delegate?.mapViewScaleUpdated()
+        }
+    }
     private var rotate = Float(0)
     private var rotatingGesture = false
 
     private var lastUpdate = NSTimeInterval()
 
-    private var gridSize = 8
+    private(set) var gridSize = 8 {
+        didSet {
+            delegate?.mapViewGridSizeUpdated()
+        }
+    }
 
     private var sortedLines: [Level.Linedef] = Array()
 
@@ -37,7 +56,6 @@ class MapView: NSView {
     weak var level: Level? {
         didSet {
             self.setNeedsDisplayInRect(self.bounds)
-
         }
     }
 

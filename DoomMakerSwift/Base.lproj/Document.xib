@@ -7,9 +7,11 @@
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="DoomMakerSwift" customModuleProvider="target">
             <connections>
                 <outlet property="docWindow" destination="xOd-HO-29H" id="yer-mD-L7q"/>
+                <outlet property="gridLabel" destination="vih-O7-0As" id="wCW-X0-X8C"/>
                 <outlet property="levelChooser" destination="Exa-al-wkZ" id="tfa-Il-NSS"/>
                 <outlet property="mapView" destination="N6F-5h-iwV" id="6T8-wV-pLm"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
+                <outlet property="zoomLabel" destination="BqO-0V-uEC" id="Thc-gv-zcA"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -25,9 +27,27 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <customView id="N6F-5h-iwV" customClass="MapView" customModule="DoomMakerSwift" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="507" height="413"/>
+                        <rect key="frame" x="0.0" y="22" width="507" height="391"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="vih-O7-0As">
+                        <rect key="frame" x="4" y="4" width="78" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Grid Size:" id="mPl-Sl-saq">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="BqO-0V-uEC">
+                        <rect key="frame" x="94" y="4" width="61" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Zoom:" id="5SQ-uu-dRI">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="7CDB3DEA-DEB5-4F57-B470-79481DE03E3F" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="6Xu-yi-JBS">
@@ -54,6 +74,7 @@
                     <toolbarItem reference="Ij4-b3-krh"/>
                 </defaultToolbarItems>
             </toolbar>
+            <contentBorderThickness minY="22"/>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>

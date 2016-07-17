@@ -279,4 +279,20 @@ class MapView: NSView {
             NSBeep()
         }
     }
+
+    override func validateMenuItem(menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
+            return self.gridSize > Const.gridMin
+        }
+        if menuItem.action == #selector(MapView.decreaseGridDensity(_:)) {
+            return self.gridSize < Const.gridMax
+        }
+        if menuItem.action == #selector(MapView.zoomIn(_:)) {
+            return self.scale < Const.scaleMax
+        }
+        if menuItem.action == #selector(MapView.zoomOut(_:)) {
+            return self.scale > Const.scaleMin
+        }
+        return super.validateMenuItem(menuItem)
+    }
 }

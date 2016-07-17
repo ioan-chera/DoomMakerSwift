@@ -31,6 +31,18 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.gridLabel.hidden = !haveLevel
         self.zoomLabel.hidden = !haveLevel
 
+        if haveLevel {
+            let defaults = NSUserDefaults.standardUserDefaults()
+            self.mapView.gridSize = defaults.integerForKey(Preferences.gridSize)
+            if self.mapView.gridSize == 0 {
+                self.mapView.gridSize = MapView.Const.gridDefault
+            }
+            self.mapView.scale = CGFloat(defaults.doubleForKey(Preferences.zoom))
+            if self.mapView.scale == 0 {
+                self.mapView.scale = 1
+            }
+        }
+
         self.mapView.level = self.currentLevel
         self.mapView.delegate = haveLevel ? self : nil
     }
@@ -56,10 +68,12 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     //
     func mapViewGridSizeUpdated() {
         self.gridLabel.setText("Grid Size: \(self.mapView.gridSize)")
+        NSUserDefaults.standardUserDefaults().setInteger(self.mapView.gridSize, forKey: Preferences.gridSize)
     }
 
     func mapViewScaleUpdated() {
         self.zoomLabel.setText("Zoom: \(Int(round(self.mapView.scale * 100)))%")
+        NSUserDefaults.standardUserDefaults().setDouble(Double(self.mapView.scale), forKey: Preferences.zoom)
     }
 
 //    override func makeWindowControllers()

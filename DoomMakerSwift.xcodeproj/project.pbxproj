@@ -13,6 +13,7 @@
 		4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788431D38A59A0012EFC6 /* MapView.swift */; };
 		4F7788461D38AF590012EFC6 /* Geom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788451D38AF590012EFC6 /* Geom.swift */; };
 		4F81A8761D3B7FD500D9EBA4 /* NSTextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */; };
+		4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */; };
 		4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */; };
 		4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74C1C54C65E009F3980 /* Document.swift */; };
 		4FA0A7501C54C65E009F3980 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A74E1C54C65E009F3980 /* Document.xib */; };
@@ -49,6 +50,7 @@
 		4F7788431D38A59A0012EFC6 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		4F7788451D38AF590012EFC6 /* Geom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Geom.swift; sourceTree = "<group>"; };
 		4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTextFieldExtension.swift; sourceTree = "<group>"; };
+		4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoomMakerSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DoomMakerSwift/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A74C1C54C65E009F3980 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Document.swift; path = DoomMakerSwift/Document.swift; sourceTree = SOURCE_ROOT; };
@@ -163,6 +165,7 @@
 				4F7788341D36C2030012EFC6 /* Lump.swift */,
 				4F7788431D38A59A0012EFC6 /* MapView.swift */,
 				4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */,
+				4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */,
 				4FA0A7781C54CA42009F3980 /* Wad.swift */,
 			);
 			name = swift;
@@ -301,6 +304,7 @@
 			files = (
 				4F81A8761D3B7FD500D9EBA4 /* NSTextFieldExtension.swift in Sources */,
 				4F7788391D37F5DD0012EFC6 /* DataReader.swift in Sources */,
+				4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */,
 				4FA0A7791C54CA42009F3980 /* Wad.swift in Sources */,
 				4F7788351D36C2030012EFC6 /* Lump.swift in Sources */,
 				4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */,

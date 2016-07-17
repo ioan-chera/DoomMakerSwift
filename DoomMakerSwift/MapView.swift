@@ -22,7 +22,7 @@ class MapView: NSView {
     }
 
     private var translate = NSPoint()
-    private(set) var scale = CGFloat(1) {
+    var scale = CGFloat(1) {
         didSet {
             delegate?.mapViewScaleUpdated()
         }
@@ -32,7 +32,7 @@ class MapView: NSView {
 
     private var lastUpdate = NSTimeInterval()
 
-    private(set) var gridSize = 8 {
+    var gridSize = Const.gridDefault {
         didSet {
             delegate?.mapViewGridSizeUpdated()
         }
@@ -40,13 +40,14 @@ class MapView: NSView {
 
     private var sortedLines: [Level.Linedef] = Array()
 
-    private struct Const {
+    struct Const {
         private static let gridWidth = CGFloat(1) / (NSScreen.mainScreen()?.backingScaleFactor ?? 1)
         private static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
         private static let linedefWidth = CGFloat(1)
         private static let vertexRadius = CGFloat(1.5)
         private static let movePeriod = 1.0 / 30
         private static let gridMin = 2
+        static let gridDefault = 8
         private static let gridMax = 1024
         private static let scaleMin = CGFloat(0.1)
         private static let scaleMax = CGFloat(10)

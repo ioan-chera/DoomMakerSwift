@@ -28,25 +28,16 @@ class MapView: NSView {
         private static let movePeriod = 1.0 / 30
         private static let gridMin = 2
         private static let gridMax = 1024
+        private static let scaleMin = CGFloat(0.1)
+        private static let scaleMax = CGFloat(10)
         private static let rotateSnapDegrees = Float(5)
     }
 
     weak var level: Level? {
         didSet {
-            self.acceptsTouchEvents = true
             self.setNeedsDisplayInRect(self.bounds)
 
         }
-    }
-
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        self.acceptsTouchEvents = true
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        self.acceptsTouchEvents = true
     }
 
     private func drawGrid(dirtyRect: NSRect) {
@@ -191,27 +182,26 @@ class MapView: NSView {
 
     override func magnifyWithEvent(event: NSEvent) {
 
+        if (event.magnification > 0 && self.scale >= Const.scaleMax) ||
+           (event.magnification < 0 && self.scale <= Const.scaleMin)
+        {
+            return
+        }
+
         self.snapRotation(false, event: event)
 
         let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
         let center = (cursorpos - self.translate) / self.scale
         self.scale *= 1 + event.magnification
+        if self.scale >= Const.scaleMax {
+            self.scale = Const.scaleMax
+        } else if self.scale <= Const.scaleMin {
+            self.scale = Const.scaleMin
+        }
         let center2 = (cursorpos - self.translate) / self.scale
         self.translate = self.translate + (center2 - center) * self.scale
 
         self.setNeedsDisplayInRect(self.bounds)
-    }
-
-    override func rotateWithEvent(event: NSEvent) {
-        self.setRotation(self.rotate + event.rotation, event: event)
-        self.rotatingGesture = true
-        self.setNeedsDisplayInRect(self.bounds)
-    }
-
-    override func touchesEndedWithEvent(event: NSEvent) {
-        if event.touchesMatchingPhase(.Touching, inView: nil).count == 1 {
-            self.snapRotation(true, event: event)
-        }
     }
 
     //

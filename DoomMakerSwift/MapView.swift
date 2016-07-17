@@ -192,6 +192,13 @@ class MapView: NSView {
         let scale = NSScreen.mainScreen()?.backingScaleFactor ?? 1
 
         // TODO: add scaling and rotation with the mouse wheel
+
+        if theEvent.modifierFlags.contains(.AlternateKeyMask) {
+            // Negative means move map towards me
+            self.doMagnification(theEvent.scrollingDeltaY / 40, event: theEvent)
+            return
+        }
+
         // TODO: also add hotkeys
 
         translate.x += theEvent.scrollingDeltaX * scale
@@ -199,10 +206,9 @@ class MapView: NSView {
         self.setNeedsDisplayInRect(self.bounds)
     }
 
-    override func magnifyWithEvent(event: NSEvent) {
-
-        if (event.magnification > 0 && self.scale >= Const.scaleMax) ||
-           (event.magnification < 0 && self.scale <= Const.scaleMin)
+    private func doMagnification(amount: CGFloat, event: NSEvent) {
+        if (amount > 0 && self.scale >= Const.scaleMax) ||
+            (amount < 0 && self.scale <= Const.scaleMin)
         {
             return
         }
@@ -211,7 +217,7 @@ class MapView: NSView {
 
         let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
         let center = (cursorpos - self.translate) / self.scale
-        self.scale *= 1 + event.magnification
+        self.scale *= 1 + amount
         if self.scale >= Const.scaleMax {
             self.scale = Const.scaleMax
         } else if self.scale <= Const.scaleMin {
@@ -221,6 +227,10 @@ class MapView: NSView {
         self.translate = self.translate + (center2 - center) * self.scale
 
         self.setNeedsDisplayInRect(self.bounds)
+    }
+
+    override func magnifyWithEvent(event: NSEvent) {
+        self.doMagnification(event.magnification, event: event)
     }
 
     //

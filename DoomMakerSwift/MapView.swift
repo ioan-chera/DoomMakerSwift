@@ -32,13 +32,13 @@ class MapView: NSView {
 
     private var lastUpdate = NSTimeInterval()
 
+    private var trackingArea: NSTrackingArea?
+
     var gridSize = Const.gridDefault {
         didSet {
             delegate?.mapViewGridSizeUpdated()
         }
     }
-
-    private var sortedLines: [Level.Linedef] = Array()
 
     struct Const {
         private static let gridWidth = CGFloat(1) / (NSScreen.mainScreen()?.backingScaleFactor ?? 1)
@@ -53,6 +53,32 @@ class MapView: NSView {
         private static let scaleMax = CGFloat(10)
         private static let rotateSnapDegrees = Float(5)
         private static let zoomKeyAmount = CGFloat(0.25)
+    }
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        commonInit()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        commonInit()
+    }
+
+    private func commonInit() {
+        let area = NSTrackingArea(rect: self.bounds, options: [.ActiveInKeyWindow, .InVisibleRect, .MouseMoved], owner: self, userInfo: nil)
+        trackingArea = area
+        self.addTrackingArea(area)
+    }
+
+    override func updateTrackingAreas() {
+        guard var area = trackingArea else {
+            return super.updateTrackingAreas()
+        }
+        removeTrackingArea(area)
+        area = NSTrackingArea(rect: self.bounds, options: [.ActiveInKeyWindow, .InVisibleRect, .MouseMoved], owner: self, userInfo: nil)
+        trackingArea = area
+        addTrackingArea(area)
     }
 
     weak var level: Level? {
@@ -233,6 +259,11 @@ class MapView: NSView {
     override func magnifyWithEvent(event: NSEvent) {
         let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
         self.doMagnification(event.magnification, cursorpos: cursorpos)
+    }
+
+    override func mouseMoved(theEvent: NSEvent) {
+        let cursorpos = self.convertPoint(theEvent.locationInWindow, fromView: nil)
+        // TODO: apply inverse transform
     }
 
     //

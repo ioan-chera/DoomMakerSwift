@@ -68,6 +68,8 @@ class MapView: NSView {
     }
 
     private func commonInit() {
+        self.wantsLayer = true
+        self.layer?.backgroundColor = NSColor.blackColor().CGColor
         let area = NSTrackingArea(rect: self.bounds, options: [.ActiveInKeyWindow, .InVisibleRect, .MouseMoved], owner: self, userInfo: nil)
         trackingArea = area
         self.addTrackingArea(area)
@@ -183,9 +185,6 @@ class MapView: NSView {
     override func drawRect(dirtyRect: NSRect) {
         super.drawRect(dirtyRect)
 
-        NSColor.blackColor().setFill()
-        NSRectFill(dirtyRect)
-
         drawGrid(dirtyRect)
         drawLines(dirtyRect)
     }
@@ -205,6 +204,7 @@ class MapView: NSView {
         self.rotate = value
         let center2 = gamePos(cursorpos)
         self.translate = self.translate + (center2 - center).rotated(self.rotate) * self.scale
+        capTranslation()
     }
 
     private func snapRotation(updateDisplay: Bool, cursorpos: NSPoint) {
@@ -221,8 +221,24 @@ class MapView: NSView {
     // Events
     //
 
+    private func capTranslation() {
+        if translate.x / scale > 32768 {
+            translate.x = 32768 * scale
+        }
+        else if (translate.x - self.bounds.width) / scale < -32767 {
+            translate.x = -32767 * scale + self.bounds.width
+        }
+
+        if translate.y / scale > 32768 {
+            translate.y = 32768 * scale
+        }
+        else if (translate.y - self.bounds.height) / scale < -32767 {
+            translate.y = -32767 * scale + self.bounds.height
+        }
+    }
+
     override func scrollWheel(theEvent: NSEvent) {
-        let scale = NSScreen.mainScreen()?.backingScaleFactor ?? 1
+        let pixelScale = NSScreen.mainScreen()?.backingScaleFactor ?? 1
 
         // TODO: add scaling and rotation with the mouse wheel
 
@@ -235,8 +251,15 @@ class MapView: NSView {
 
         // TODO: also add hotkeys
 
-        translate.x += theEvent.scrollingDeltaX * scale
-        translate.y -= theEvent.scrollingDeltaY * scale
+        translate.x += theEvent.scrollingDeltaX * pixelScale
+        translate.y -= theEvent.scrollingDeltaY * pixelScale
+
+        capTranslation()
+
+        // Also update position for the map
+        let position = gamePos(self.convertPoint(theEvent.locationInWindow, fromView: nil))
+        delegate?.mapViewPositionUpdated(position)
+
         self.setNeedsDisplayInRect(self.bounds)
     }
 
@@ -258,6 +281,7 @@ class MapView: NSView {
         }
         let center2 = (cursorpos - self.translate) / self.scale
         self.translate = self.translate + (center2 - center) * self.scale
+        capTranslation()
 
         self.setNeedsDisplayInRect(self.bounds)
     }

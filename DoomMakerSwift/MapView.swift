@@ -136,9 +136,11 @@ class MapView: NSView {
         let solids = NSBezierPath()
         let passables = NSBezierPath()
         let vertices = NSBezierPath()
+        let things = NSBezierPath()
         solids.lineWidth = Const.linedefWidth
         passables.lineWidth = Const.linedefWidth
         vertices.lineWidth = Const.linedefWidth
+        things.lineWidth = Const.linedefWidth
 
         for line in level.linedefs {
             if line.v1 < 0 || line.v1 >= level.vertices.count || line.v2 < 0 || line.v2 >= level.vertices.count || line.v1 == line.v2 {
@@ -180,6 +182,19 @@ class MapView: NSView {
 
         NSColor.greenColor().setFill()
         vertices.fill()
+
+        let thingRadius = 16 * scale
+        let biggerRect = NSRectFromCGRect(CGRectInset(NSRectToCGRect(dirtyRect), -thingRadius, -thingRadius))
+        for thing in level.things {
+            let p = transformed(NSPoint(x: thing.x, y: thing.y))
+            if !NSPointInRect(p, biggerRect) {
+                continue
+            }
+            things.appendBezierPathWithOvalInRect(NSRect(x: p.x - thingRadius, y: p.y - thingRadius, width: 2 * thingRadius, height: 2 * thingRadius))
+        }
+
+        NSColor(red: 1, green: 0, blue: 0, alpha: 0.75).setFill()
+        things.fill()
     }
 
     override func drawRect(dirtyRect: NSRect) {

@@ -160,7 +160,7 @@ class Level
 
     private(set) var name: String
 
-    private var things: [Thing]
+    private(set) var things: [Thing]
     private(set) var linedefs: [Linedef]
     private var sidedefs: [Sidedef]
     private(set) var vertices: [Vertex]

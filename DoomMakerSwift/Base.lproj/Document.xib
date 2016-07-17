@@ -11,6 +11,7 @@
                 <outlet property="levelChooser" destination="Exa-al-wkZ" id="tfa-Il-NSS"/>
                 <outlet property="mapView" destination="N6F-5h-iwV" id="6T8-wV-pLm"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
+                <outlet property="xyLabel" destination="PLd-Kj-3Ia" id="jYj-vd-xkM"/>
                 <outlet property="zoomLabel" destination="BqO-0V-uEC" id="Thc-gv-zcA"/>
             </connections>
         </customObject>
@@ -43,6 +44,15 @@
                         <rect key="frame" x="94" y="4" width="61" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Zoom:" id="5SQ-uu-dRI">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="PLd-Kj-3Ia">
+                        <rect key="frame" x="178" y="4" width="37" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="X: Y:" id="D2w-ub-f2A">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

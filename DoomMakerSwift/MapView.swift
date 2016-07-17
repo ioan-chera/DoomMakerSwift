@@ -11,6 +11,7 @@ import Cocoa
 protocol MapViewDelegate: class {
     func mapViewGridSizeUpdated()
     func mapViewScaleUpdated()
+    func mapViewPositionUpdated(position: NSPoint)
 }
 
 class MapView: NSView {
@@ -18,6 +19,7 @@ class MapView: NSView {
         didSet {
             delegate?.mapViewGridSizeUpdated()
             delegate?.mapViewScaleUpdated()
+            delegate?.mapViewPositionUpdated(NSPoint())
         }
     }
 
@@ -194,10 +196,14 @@ class MapView: NSView {
         }
     }
 
+    private func gamePos(cursorPos: NSPoint) -> NSPoint {
+        return ((cursorPos - self.translate) / self.scale).rotated(-self.rotate)
+    }
+
     private func setRotation(value: Float, cursorpos: NSPoint) {
-        let center = ((cursorpos - self.translate) / self.scale).rotated(-self.rotate)
+        let center = gamePos(cursorpos)
         self.rotate = value
-        let center2 = ((cursorpos - self.translate) / self.scale).rotated(-self.rotate)
+        let center2 = gamePos(cursorpos)
         self.translate = self.translate + (center2 - center).rotated(self.rotate) * self.scale
     }
 
@@ -262,8 +268,8 @@ class MapView: NSView {
     }
 
     override func mouseMoved(theEvent: NSEvent) {
-        let cursorpos = self.convertPoint(theEvent.locationInWindow, fromView: nil)
-        // TODO: apply inverse transform
+        let position = gamePos(self.convertPoint(theEvent.locationInWindow, fromView: nil))
+        delegate?.mapViewPositionUpdated(position)
     }
 
     //

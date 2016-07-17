@@ -18,6 +18,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     @IBOutlet var mapView: MapView!
     @IBOutlet var gridLabel: NSTextField!
     @IBOutlet var zoomLabel: NSTextField!
+    @IBOutlet var xyLabel: NSTextField!
 
     private weak var currentLevel: Level? {
         didSet {
@@ -30,6 +31,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.mapView.hidden = !haveLevel
         self.gridLabel.hidden = !haveLevel
         self.zoomLabel.hidden = !haveLevel
+        self.xyLabel.hidden = !haveLevel
 
         if haveLevel {
             let defaults = NSUserDefaults.standardUserDefaults()
@@ -74,6 +76,10 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     func mapViewScaleUpdated() {
         self.zoomLabel.setText("Zoom: \(Int(round(self.mapView.scale * 100)))%")
         NSUserDefaults.standardUserDefaults().setDouble(Double(self.mapView.scale), forKey: Preferences.zoom)
+    }
+
+    func mapViewPositionUpdated(position: NSPoint) {
+        self.xyLabel.setText("X: \(Int(round(position.x)))  Y: \(Int(round(position.y)))")
     }
 
 //    override func makeWindowControllers()

@@ -50,7 +50,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="PLd-Kj-3Ia">
-                        <rect key="frame" x="178" y="4" width="37" height="14"/>
+                        <rect key="frame" x="184" y="4" width="37" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="X: Y:" id="D2w-ub-f2A">
                             <font key="font" metaFont="smallSystem"/>

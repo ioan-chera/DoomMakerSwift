@@ -25,6 +25,7 @@ class MapView: NSView {
         private static let gridWidth = CGFloat(1) / (NSScreen.mainScreen()?.backingScaleFactor ?? 1)
         private static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
         private static let linedefWidth = CGFloat(1)
+        private static let vertexRadius = CGFloat(1.5)
         private static let movePeriod = 1.0 / 30
         private static let gridMin = 2
         private static let gridMax = 1024
@@ -124,7 +125,7 @@ class MapView: NSView {
             if !NSPointInRect(p, dirtyRect) {
                 continue
             }
-            vertices.appendBezierPathWithOvalInRect(NSRect(x: p.x - 1.5, y: p.y - 1.5, width: 3, height: 3))
+            vertices.appendBezierPathWithOvalInRect(NSRect(x: p.x - Const.vertexRadius, y: p.y - Const.vertexRadius, width: Const.vertexRadius * 2, height: Const.vertexRadius * 2))
         }
 
         NSColor.greenColor().setFill()

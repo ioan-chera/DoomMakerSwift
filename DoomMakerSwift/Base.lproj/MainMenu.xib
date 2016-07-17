@@ -633,6 +633,18 @@
                                     <action selector="decreaseGridDensity:" target="-1" id="zul-3x-Ovh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Zoom In" keyEquivalent="=" id="xFn-Gz-Qo1">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="zoomIn:" target="-1" id="4Oz-6F-UE8"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Zoom Out" keyEquivalent="-" id="Rwl-x4-mA4">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="zoomOut:" target="-1" id="Dp4-Ux-0xa"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

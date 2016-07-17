@@ -51,6 +51,7 @@ class MapView: NSView {
         private static let scaleMin = CGFloat(0.1)
         private static let scaleMax = CGFloat(10)
         private static let rotateSnapDegrees = Float(5)
+        private static let zoomKeyAmount = CGFloat(0.25)
     }
 
     weak var level: Level? {
@@ -166,17 +167,16 @@ class MapView: NSView {
         }
     }
 
-    private func setRotation(value: Float, event: NSEvent) {
-        let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
+    private func setRotation(value: Float, cursorpos: NSPoint) {
         let center = ((cursorpos - self.translate) / self.scale).rotated(-self.rotate)
         self.rotate = value
         let center2 = ((cursorpos - self.translate) / self.scale).rotated(-self.rotate)
         self.translate = self.translate + (center2 - center).rotated(self.rotate) * self.scale
     }
 
-    private func snapRotation(updateDisplay: Bool, event: NSEvent) {
+    private func snapRotation(updateDisplay: Bool, cursorpos: NSPoint) {
         if self.rotatingGesture {
-            self.setRotation(round(self.rotate / Const.rotateSnapDegrees) * Const.rotateSnapDegrees, event: event)
+            self.setRotation(round(self.rotate / Const.rotateSnapDegrees) * Const.rotateSnapDegrees, cursorpos: cursorpos)
             self.rotatingGesture = false
             if updateDisplay {
                 self.setNeedsDisplayInRect(self.bounds)
@@ -195,7 +195,8 @@ class MapView: NSView {
 
         if theEvent.modifierFlags.contains(.AlternateKeyMask) {
             // Negative means move map towards me
-            self.doMagnification(theEvent.scrollingDeltaY / 40, event: theEvent)
+            let cursorpos = self.convertPoint(theEvent.locationInWindow, fromView: nil)
+            self.doMagnification(theEvent.scrollingDeltaY / 40, cursorpos: cursorpos)
             return
         }
 
@@ -206,16 +207,15 @@ class MapView: NSView {
         self.setNeedsDisplayInRect(self.bounds)
     }
 
-    private func doMagnification(amount: CGFloat, event: NSEvent) {
+    private func doMagnification(amount: CGFloat, cursorpos: NSPoint) {
         if (amount > 0 && self.scale >= Const.scaleMax) ||
             (amount < 0 && self.scale <= Const.scaleMin)
         {
             return
         }
 
-        self.snapRotation(false, event: event)
+        self.snapRotation(false, cursorpos: cursorpos)
 
-        let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
         let center = (cursorpos - self.translate) / self.scale
         self.scale *= 1 + amount
         if self.scale >= Const.scaleMax {
@@ -230,7 +230,8 @@ class MapView: NSView {
     }
 
     override func magnifyWithEvent(event: NSEvent) {
-        self.doMagnification(event.magnification, event: event)
+        let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
+        self.doMagnification(event.magnification, cursorpos: cursorpos)
     }
 
     //
@@ -248,6 +249,31 @@ class MapView: NSView {
     @IBAction func decreaseGridDensity(sender: AnyObject?) {
         if gridSize < Const.gridMax {
             gridSize *= 2
+            self.setNeedsDisplayInRect(self.bounds)
+        } else {
+            NSBeep()
+        }
+    }
+
+    private func pointerPosition() -> NSPoint {
+        guard let windowPos = self.window?.mouseLocationOutsideOfEventStream else {
+            return NSPoint(x: self.bounds.size.width / 2, y: self.bounds.size.height / 2)   // default to centre
+        }
+        return self.convertPoint(windowPos, fromView: nil)
+    }
+
+    @IBAction func zoomIn(sender: AnyObject?) {
+        if scale < Const.scaleMax {
+            doMagnification(Const.zoomKeyAmount, cursorpos: self.pointerPosition())
+            self.setNeedsDisplayInRect(self.bounds)
+        } else {
+            NSBeep()
+        }
+    }
+
+    @IBAction func zoomOut(sender: AnyObject?) {
+        if scale > Const.scaleMin {
+            doMagnification(-Const.zoomKeyAmount, cursorpos: self.pointerPosition())
             self.setNeedsDisplayInRect(self.bounds)
         } else {
             NSBeep()

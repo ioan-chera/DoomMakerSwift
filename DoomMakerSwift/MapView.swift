@@ -36,6 +36,13 @@ class MapView: NSView {
 
     fileprivate var trackingArea: NSTrackingArea?
 
+    private var mouseViewPos = NSPoint()
+    private var mouseGamePos = NSPoint() {
+        didSet {
+            delegate?.mapViewPositionUpdated(mouseGamePos)
+        }
+    }
+
     var gridSize = Const.gridDefault {
         didSet {
             delegate?.mapViewGridSizeUpdated()
@@ -43,10 +50,11 @@ class MapView: NSView {
     }
 
     struct Const {
+        static let clickRange = CGFloat(16)
         fileprivate static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
         fileprivate static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
         fileprivate static let linedefWidth = CGFloat(1)
-        fileprivate static let vertexRadius = CGFloat(1.5)
+        fileprivate static let vertexRadius = CGFloat(/*1.5*/2)
         fileprivate static let movePeriod = 1.0 / 30
         fileprivate static let gridMin = 2
         static let gridDefault = 8
@@ -105,9 +113,9 @@ class MapView: NSView {
 
         let disp = translate - floor(translate / gridf) * gridf
 
-        let minx = ceil(dirtyRect.origin.x / gridf) * gridf
+        let minx = ceil(dirtyRect.origin.x / gridf) * gridf - gridf
         let maxx = floor(dirtyRect.origin.x + dirtyRect.size.width / gridf) * gridf + 2 * gridf
-        let miny = ceil(dirtyRect.origin.y / gridf) * gridf
+        let miny = ceil(dirtyRect.origin.y / gridf) * gridf - gridf
         let maxy = floor(dirtyRect.origin.y + dirtyRect.size.height / gridf) * gridf + 2 * gridf
 
         var p: NSPoint
@@ -147,7 +155,11 @@ class MapView: NSView {
             let p1 = transformed(NSPoint(x: v1.x, y: v1.y))
             let p2 = transformed(NSPoint(x: v2.x, y: v2.y))
 
-            if p1.x < 0 && p2.x < 0 || p1.x >= dirtyRect.width && p2.x >= dirtyRect.width || p1.y < 0 && p2.y < 0 || p1.y >= dirtyRect.height && p2.y >= dirtyRect.height {
+            if p1.x < dirtyRect.minX && p2.x < dirtyRect.minX ||
+                p1.x >= dirtyRect.maxX && p2.x >= dirtyRect.maxX ||
+                p1.y < dirtyRect.minY && p2.y < dirtyRect.minY ||
+                p1.y >= dirtyRect.maxY && p2.y >= dirtyRect.maxY
+            {
                 continue
             }
 
@@ -171,8 +183,13 @@ class MapView: NSView {
                 continue
             }
             let p = transformed(NSPoint(x: vertex.x, y: vertex.y))
-            if !NSPointInRect(p, dirtyRect) {
+            if !NSPointInRect(p, dirtyRect.insetBy(dx: -Const.vertexRadius, dy: -Const.vertexRadius)) {
                 continue
+            }
+            if abs(mouseViewPos.x - p.x) < Const.clickRange && abs(mouseViewPos.y - p.y) < Const.clickRange {
+                context.setFillColor(NSColor.orange.cgColor)
+            } else {
+                context.setFillColor(NSColor.green.cgColor)
             }
             context.fillEllipse(in: NSRect(x: p.x - Const.vertexRadius, y: p.y - Const.vertexRadius, width: Const.vertexRadius * 2, height: Const.vertexRadius * 2))
         }
@@ -270,8 +287,8 @@ class MapView: NSView {
         capTranslation()
 
         // Also update position for the map
-        let position = gamePos(self.convert(theEvent.locationInWindow, from: nil))
-        delegate?.mapViewPositionUpdated(position)
+        mouseViewPos = self.convert(theEvent.locationInWindow, from: nil)
+        mouseGamePos = gamePos(mouseViewPos)
 
         self.setNeedsDisplay(self.bounds)
     }
@@ -305,8 +322,15 @@ class MapView: NSView {
     }
 
     override func mouseMoved(with theEvent: NSEvent) {
-        let position = gamePos(self.convert(theEvent.locationInWindow, from: nil))
-        delegate?.mapViewPositionUpdated(position)
+        let oldViewPos = mouseViewPos
+        mouseViewPos = self.convert(theEvent.locationInWindow, from: nil)
+        mouseGamePos = gamePos(mouseViewPos)
+        var a = NSRect(x: oldViewPos.x, y: oldViewPos.y, width: 0, height: 0)
+        a.pointAdd(mouseViewPos)
+        a = a.insetBy(dx: -Const.clickRange - Const.vertexRadius, dy: -Const.clickRange - Const.vertexRadius)
+        Swift.print("\(a)")
+        
+        self.setNeedsDisplay(a)
     }
 
     //

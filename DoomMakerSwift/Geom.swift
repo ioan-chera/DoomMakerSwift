@@ -116,3 +116,21 @@ extension NSPoint {
         return NSPoint(x: CGFloat(nx), y: CGFloat(ny))
     }
 }
+
+extension NSRect {
+    mutating func pointAdd(_ point: NSPoint) {
+        if point.x > self.maxX {
+            self.size.width = point.x - self.minX
+        } else if point.x < self.minX {
+            self.size.width = self.maxX - point.x
+            self.origin.x = point.x
+        }
+        if point.y > self.maxY {
+            self.size.height = point.y - self.minY
+        } else if point.y < self.minY {
+            self.size.height = self.maxY - point.y
+            self.origin.y = point.y
+        }
+    }
+}
+

@@ -171,6 +171,8 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
+    private var selectedVertices = NSMutableIndexSet()
+
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
             let data = wad.lumps[lumpIndex + type.rawValue].data

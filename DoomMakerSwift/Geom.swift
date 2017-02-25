@@ -115,6 +115,9 @@ extension NSPoint {
         let ny = Float(x) * sin(rad) + Float(y) * cos(rad)
         return NSPoint(x: CGFloat(nx), y: CGFloat(ny))
     }
+    func distance(point: NSPoint) -> CGFloat {
+        return sqrt(pow(point.x - self.x, 2) + pow(point.y - self.y, 2))
+    }
 }
 
 extension NSRect {

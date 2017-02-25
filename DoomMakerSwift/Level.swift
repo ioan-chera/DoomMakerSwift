@@ -93,7 +93,7 @@ class Level
         }
     }
 
-    final class Vertex: MapItem, Hashable {
+    final class Vertex: MapItem {
         var x = 0
         var y = 0
 
@@ -103,15 +103,6 @@ class Level
             DataReader(data).short(&x).short(&y)
         }
 
-        var hashValue: Int {
-            get {
-                return x.hashValue ^ y.hashValue
-            }
-        }
-
-        static func == (lhs: Vertex, rhs: Vertex) -> Bool {
-            return lhs.x == rhs.x && lhs.y == rhs.y
-        }
     }
 
     final class Seg: MapItem {
@@ -181,6 +172,22 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
+    /// the vertex currently highlighted by the mouse
+    private(set) weak var highlightedVertex : Vertex?
+
+    /// the vertex the user started holding down the mouse
+    private(set) weak var clickedDownVertex: Vertex?
+
+    /// the map position the user started holding down the mouse
+    private var clickedDownOffset = NSSize()
+
+    /// The grid rotation. Changed from UI.
+    var gridRotation = Float(0.0)
+
+    /// The grid size. Changed from UI.
+    var gridSize = CGFloat(0.0)
+
+
     var selectedVertices = Set<Int>()
 
     init(wad: Wad, lumpIndex: Int) {
@@ -229,6 +236,79 @@ class Level
             vertices[line.v1].degree += 1
             vertices[line.v2].degree += 1
         }
+    }
+
+    //==========================================================================
+    //
+    // USER ACTIONS
+    //
+
+    ///
+    /// Finds the nearest vertex to a point, within a radius
+    ///
+    private func findNearestVertex(position: NSPoint, radius: CGFloat) -> Vertex? {
+        var minDistance = CGFloat.greatestFiniteMagnitude
+        var nearestVertex: Vertex? = nil
+        for vertex in vertices {
+            let vertexPosition = NSPoint(x: vertex.x, y: vertex.y)
+            let distance = position.distance(point: vertexPosition)
+            if distance < radius && distance < minDistance {
+                minDistance = distance
+                nearestVertex = vertex
+            }
+        }
+        return nearestVertex
+    }
+
+    ///
+    /// Highlights the vertex closest to a point, within a radius.
+    /// Returns true if the highlighted vertex has changed.
+    /// Can return "nothing"
+    ///
+    func highlightVertex(position: NSPoint, radius: CGFloat) -> Bool {
+        let oldHighlightedVertex = highlightedVertex
+        highlightedVertex = findNearestVertex(position: position, radius: radius)
+        return highlightedVertex !== oldHighlightedVertex
+    }
+
+    ///
+    /// Marks a vertex which has been started clicking.
+    ///
+    func clickDownVertex(position: NSPoint) {
+        clickedDownVertex = highlightedVertex
+        if let vertex = clickedDownVertex {
+            clickedDownOffset = NSSize(width: position.x - CGFloat(vertex.x),
+                                       height: position.y - CGFloat(vertex.y))
+        }
+    }
+
+    ///
+    /// Drags vertices to a new position. Returns true if the view should be
+    /// updated.
+    ///
+    func dragVertices(position: NSPoint) -> Bool {
+        guard let clickedDownVertex = self.clickedDownVertex else {
+            return false
+        }
+        var actualPosition: NSPoint
+        if Int(round(self.gridRotation)) % 90 != 0 {
+            actualPosition = position.rotated(self.gridRotation)
+            actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
+            actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
+            actualPosition = actualPosition.rotated(-self.gridRotation)
+        } else {
+            actualPosition = position
+            actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
+            actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
+        }
+
+        let oldPositionX = clickedDownVertex.x
+        let oldPositionY = clickedDownVertex.y
+
+        clickedDownVertex.x = Int(round(actualPosition.x))
+        clickedDownVertex.y = Int(round(actualPosition.y))
+
+        return clickedDownVertex.x != oldPositionX || clickedDownVertex.y != oldPositionY
     }
 
     func moveSelectedVertices(pos: NSPoint, snappedVertex: Vertex) {

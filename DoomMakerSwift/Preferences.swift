@@ -11,4 +11,5 @@ import Foundation
 struct Preferences {
     static let gridSize = "gridSize"
     static let zoom = "zoom"
+    static let rotation = "rotation"
 }

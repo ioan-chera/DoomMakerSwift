@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="DoomMakerSwift" customModuleProvider="target">
@@ -10,6 +11,7 @@
                 <outlet property="gridLabel" destination="vih-O7-0As" id="wCW-X0-X8C"/>
                 <outlet property="levelChooser" destination="Exa-al-wkZ" id="tfa-Il-NSS"/>
                 <outlet property="mapView" destination="N6F-5h-iwV" id="6T8-wV-pLm"/>
+                <outlet property="rotationLabel" destination="GlP-NL-OfC" id="i6A-s5-tQ2"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
                 <outlet property="xyLabel" destination="PLd-Kj-3Ia" id="jYj-vd-xkM"/>
                 <outlet property="zoomLabel" destination="BqO-0V-uEC" id="Thc-gv-zcA"/>
@@ -58,6 +60,15 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="NO" id="GlP-NL-OfC">
+                        <rect key="frame" x="319" y="4" width="55" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Rotation: " id="PSB-pY-QG5">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <toolbar key="toolbar" implicitIdentifier="7CDB3DEA-DEB5-4F57-B470-79481DE03E3F" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="6Xu-yi-JBS">
@@ -88,6 +99,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
+            <point key="canvasLocation" x="131.5" y="123.5"/>
         </window>
     </objects>
 </document>

@@ -19,6 +19,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     @IBOutlet var gridLabel: NSTextField!
     @IBOutlet var zoomLabel: NSTextField!
     @IBOutlet var xyLabel: NSTextField!
+    @IBOutlet var rotationLabel: NSTextField!
 
     fileprivate weak var currentLevel: Level? {
         didSet {
@@ -32,6 +33,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.gridLabel.isHidden = !haveLevel
         self.zoomLabel.isHidden = !haveLevel
         self.xyLabel.isHidden = !haveLevel
+        self.rotationLabel.isHidden = !haveLevel
 
         if haveLevel {
             let defaults = UserDefaults.standard
@@ -43,6 +45,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
             if self.mapView.scale == 0 {
                 self.mapView.scale = 1
             }
+            self.mapView.rotate = defaults.float(forKey: Preferences.rotation)
         }
 
         self.mapView.level = self.currentLevel
@@ -76,6 +79,11 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     func mapViewScaleUpdated() {
         self.zoomLabel.setText("Zoom: \(Int(round(self.mapView.scale * 100)))%")
         UserDefaults.standard.set(Double(self.mapView.scale), forKey: Preferences.zoom)
+    }
+
+    func mapViewRotationUpdated() {
+        self.rotationLabel.setText("Rotation: \(Int(round(self.mapView.rotate / MapView.Const.rotateSnapDegrees) * MapView.Const.rotateSnapDegrees))˚")
+        UserDefaults.standard.set(self.mapView.rotate, forKey: Preferences.rotation)
     }
 
     func mapViewPositionUpdated(_ position: NSPoint) {

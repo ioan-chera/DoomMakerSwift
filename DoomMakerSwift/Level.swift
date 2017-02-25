@@ -93,7 +93,7 @@ class Level
         }
     }
 
-    final class Vertex: MapItem {
+    final class Vertex: MapItem, Hashable {
         var x = 0
         var y = 0
 
@@ -103,6 +103,15 @@ class Level
             DataReader(data).short(&x).short(&y)
         }
 
+        var hashValue: Int {
+            get {
+                return x.hashValue ^ y.hashValue
+            }
+        }
+
+        static func == (lhs: Vertex, rhs: Vertex) -> Bool {
+            return lhs === rhs
+        }
     }
 
     final class Seg: MapItem {
@@ -173,10 +182,10 @@ class Level
     fileprivate var blockmap: [Int]
 
     /// the vertex currently highlighted by the mouse
-    private(set) weak var highlightedVertex : Vertex?
+    private(set) var highlightedVertexIndex: Int?
 
     /// the vertex the user started holding down the mouse
-    private(set) weak var clickedDownVertex: Vertex?
+    private(set) var clickedDownVertexIndex: Int?
 
     /// the map position the user started holding down the mouse
     private var clickedDownOffset = NSSize()
@@ -187,8 +196,10 @@ class Level
     /// The grid size. Changed from UI.
     var gridSize = CGFloat(0.0)
 
+    /// Whether a vertex or more got dragged
+    private var vertexDragged = false
 
-    var selectedVertices = Set<Int>()
+    var selectedVertexIndices = Set<Int>()
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
@@ -246,18 +257,32 @@ class Level
     ///
     /// Finds the nearest vertex to a point, within a radius
     ///
-    private func findNearestVertex(position: NSPoint, radius: CGFloat) -> Vertex? {
+    private func findNearestVertex(position: NSPoint, radius: CGFloat) -> Int? {
         var minDistance = CGFloat.greatestFiniteMagnitude
-        var nearestVertex: Vertex? = nil
+        var nearestVertex: Int? = nil
+        var index = -1
         for vertex in vertices {
+            index += 1
             let vertexPosition = NSPoint(x: vertex.x, y: vertex.y)
             let distance = position.distance(point: vertexPosition)
             if distance < radius && distance < minDistance {
                 minDistance = distance
-                nearestVertex = vertex
+                nearestVertex = index
             }
         }
         return nearestVertex
+    }
+
+    ///
+    /// Gets a vertex if the index is valid
+    ///
+    private func getVertex(index: Int?) -> Vertex? {
+        if let ind = index {
+            if ind >= 0 && ind < vertices.count {
+                return vertices[ind]
+            }
+        }
+        return nil
     }
 
     ///
@@ -266,19 +291,23 @@ class Level
     /// Can return "nothing"
     ///
     func highlightVertex(position: NSPoint, radius: CGFloat) -> Bool {
-        let oldHighlightedVertex = highlightedVertex
-        highlightedVertex = findNearestVertex(position: position, radius: radius)
-        return highlightedVertex !== oldHighlightedVertex
+        let oldHighlightedVertexIndex = highlightedVertexIndex
+        highlightedVertexIndex = findNearestVertex(position: position, radius: radius)
+        return highlightedVertexIndex != oldHighlightedVertexIndex
     }
 
     ///
     /// Marks a vertex which has been started clicking.
     ///
     func clickDownVertex(position: NSPoint) {
-        clickedDownVertex = highlightedVertex
-        if let vertex = clickedDownVertex {
-            clickedDownOffset = NSSize(width: position.x - CGFloat(vertex.x),
-                                       height: position.y - CGFloat(vertex.y))
+        clickedDownVertexIndex = highlightedVertexIndex
+        vertexDragged = false
+        if let index = clickedDownVertexIndex {
+            if index >= 0 && index < vertices.count {
+                let vertex = vertices[index]
+                clickedDownOffset = NSSize(width: position.x - CGFloat(vertex.x),
+                                           height: position.y - CGFloat(vertex.y))
+            }
         }
     }
 
@@ -287,7 +316,7 @@ class Level
     /// updated.
     ///
     func dragVertices(position: NSPoint) -> Bool {
-        guard let clickedDownVertex = self.clickedDownVertex else {
+        guard let clickedDownVertex = self.getVertex(index: self.clickedDownVertexIndex) else {
             return false
         }
         var actualPosition = position - self.clickedDownOffset
@@ -310,18 +339,38 @@ class Level
         clickedDownVertex.x = Int(round(actualPosition.x))
         clickedDownVertex.y = Int(round(actualPosition.y))
 
-        return clickedDownVertex.x != oldPositionX || clickedDownVertex.y != oldPositionY
+        if clickedDownVertex.x != oldPositionX || clickedDownVertex.y != oldPositionY {
+            vertexDragged = true
+            for index in selectedVertexIndices {
+                if index == clickedDownVertexIndex {
+                    continue
+                }
+                guard let vertex = getVertex(index: index) else {
+                    continue
+                }
+                vertex.x += clickedDownVertex.x - oldPositionX
+                vertex.y += clickedDownVertex.y - oldPositionY
+            }
+            return true
+        }
+
+        return false
     }
 
-    func moveSelectedVertices(pos: NSPoint, snappedVertex: Vertex) {
-        let px = Int(round(pos.x))
-        let py = Int(round(pos.y))
-        let svx = snappedVertex.x
-        let svy = snappedVertex.y
-        for index in selectedVertices {
-            let vertex = vertices[index]
-            vertex.x = px + vertex.x - svx
-            vertex.y = py + vertex.y - svy
+    func clickUpVertex() -> Bool {
+        guard let clickedDownVertexIndex = self.clickedDownVertexIndex else {
+            return false
         }
+        if vertexDragged {
+            return false
+        }
+        if selectedVertexIndices.contains(clickedDownVertexIndex) {
+            selectedVertexIndices.remove(clickedDownVertexIndex)
+            return true
+        }
+
+        selectedVertexIndices.insert(clickedDownVertexIndex)
+        print("Size is \(selectedVertexIndices.count)")
+        return true
     }
 }

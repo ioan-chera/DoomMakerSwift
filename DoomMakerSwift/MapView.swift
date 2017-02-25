@@ -202,9 +202,9 @@ class MapView: NSView {
                 continue
             }
 
-            if vertex === level.highlightedVertex {
+            if index == level.highlightedVertexIndex {
                 context.setFillColor(NSColor.orange.cgColor)
-            } else if level.selectedVertices.contains(index) {
+            } else if level.selectedVertexIndices.contains(index) {
                 context.setFillColor(NSColor.red.cgColor)
             } else {
                 context.setFillColor(NSColor.green.cgColor)
@@ -403,10 +403,19 @@ class MapView: NSView {
             return
         }
         updatePosition(event: event)
-        if level.clickedDownVertex != nil {
+        if level.clickedDownVertexIndex != nil {
             if level.dragVertices(position: mouseGamePos) {
                 self.setNeedsDisplay(self.bounds)
             }
+        }
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        guard let level = self.level else {
+            return
+        }
+        if level.clickUpVertex() {
+            self.setNeedsDisplay(self.bounds)
         }
     }
 

@@ -357,6 +357,9 @@ class Level
         return false
     }
 
+    ///
+    /// When a vertex has been unclicked
+    ///
     func clickUpVertex() -> Bool {
         guard let clickedDownVertexIndex = self.clickedDownVertexIndex else {
             return false
@@ -370,7 +373,40 @@ class Level
         }
 
         selectedVertexIndices.insert(clickedDownVertexIndex)
-        print("Size is \(selectedVertexIndices.count)")
         return true
+    }
+
+    ///
+    /// Selects all vertices
+    ///
+    func selectAllVertices() -> Bool {
+        for i in 0..<vertices.count {
+            selectedVertexIndices.insert(i)
+        }
+        return true
+    }
+
+    ///
+    /// Deselects all
+    ///
+    func clearSelection() -> Bool {
+        selectedVertexIndices = []
+        return true
+    }
+
+    func boxSelect(startPos: NSPoint, endPos: NSPoint) {
+        var index = -1
+        let rotatedStart = startPos.rotated(self.gridRotation)
+        let rotatedEnd = endPos.rotated(self.gridRotation)
+        var rotatedRect = NSRect(origin: rotatedStart, size: CGSize())
+        rotatedRect.pointAdd(rotatedEnd)
+        for vertex in vertices {
+            index += 1
+            var rotated = NSPoint(x: vertex.x, y: vertex.y)
+            rotated = rotated.rotated(self.gridRotation)
+            if NSPointInRect(rotated, rotatedRect) {
+                self.selectedVertexIndices.insert(index)
+            }
+        }
     }
 }

@@ -47,6 +47,9 @@ class MapView: NSView {
         }
     }
 
+    private var dragViewStart = NSPoint()
+    private var dragSelect = false
+
     var gridSize = Const.gridDefault {
         didSet {
             level?.gridSize = CGFloat(self.gridSize)
@@ -54,16 +57,13 @@ class MapView: NSView {
         }
     }
 
-    private weak var clickedVertex : Level.Vertex?
-    private var clickedStartGamePos = NSPoint()
-    private var clickedStartVertexPos = NSPoint()
-
     struct Const {
         static let clickRange = CGFloat(16)
         static let fps = 120.0
         fileprivate static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
         fileprivate static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
         fileprivate static let linedefWidth = CGFloat(1)
+        fileprivate static let selectWidth = CGFloat(1.5)
         fileprivate static let vertexRadius = CGFloat(2)
         fileprivate static let movePeriod = 1.0 / 30
         fileprivate static let gridMin = 2
@@ -236,6 +236,16 @@ class MapView: NSView {
 
         drawGrid(dirtyRect, context: context)
         drawLines(dirtyRect, context: context)
+
+        if dragSelect {
+            let rect = CGRect(x: dragViewStart.x, y: dragViewStart.y,
+                              width: mouseViewPos.x - dragViewStart.x, height: mouseViewPos.y - dragViewStart.y)
+
+            context.setLineWidth(Const.selectWidth)
+            context.setStrokeColor(NSColor.orange.cgColor)
+            context.addRect(rect)
+            context.strokePath()
+        }
     }
 
     override var acceptsFirstResponder: Bool {
@@ -396,6 +406,7 @@ class MapView: NSView {
             return
         }
         level.clickDownVertex(position: mouseGamePos)
+        dragViewStart = mouseViewPos
     }
 
     override func mouseDragged(with event: NSEvent) {
@@ -407,14 +418,22 @@ class MapView: NSView {
             if level.dragVertices(position: mouseGamePos) {
                 self.setNeedsDisplay(self.bounds)
             }
+        } else {
+            dragSelect = true
+            self.setNeedsDisplay(self.bounds)
         }
     }
 
     override func mouseUp(with event: NSEvent) {
         guard let level = self.level else {
+            dragSelect = false
             return
         }
-        if level.clickUpVertex() {
+        if level.clickUpVertex() || dragSelect {
+            if dragSelect {
+                level.boxSelect(startPos: gamePos(self.dragViewStart), endPos: self.mouseGamePos)
+                dragSelect = false
+            }
             self.setNeedsDisplay(self.bounds)
         }
     }
@@ -504,6 +523,25 @@ class MapView: NSView {
         }
     }
 
+    override func selectAll(_ sender: Any?) {
+        guard let level = self.level else {
+            return
+        }
+        if level.selectAllVertices() {
+            self.setNeedsDisplay(self.bounds)
+        }
+        
+    }
+
+    @IBAction func clearSelection(_ sender: Any?) {
+        guard let level = self.level else {
+            return
+        }
+        if level.clearSelection() {
+            self.setNeedsDisplay(self.bounds)
+        }
+    }
+
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -516,6 +554,11 @@ class MapView: NSView {
         }
         if menuItem.action == #selector(MapView.zoomOut(_:)) {
             return self.scale > Const.scaleMin
+        }
+        if menuItem.action == #selector(MapView.selectAll(_:)) ||
+            menuItem.action == #selector(MapView.clearSelection(_:))
+        {
+            return self.level != nil
         }
         return super.validateMenuItem(menuItem)
     }

@@ -93,7 +93,7 @@ class Level
         }
     }
 
-    final class Vertex: MapItem {
+    final class Vertex: MapItem, Hashable {
         var x = 0
         var y = 0
 
@@ -101,6 +101,16 @@ class Level
 
         init(data: [UInt8]) {
             DataReader(data).short(&x).short(&y)
+        }
+
+        var hashValue: Int {
+            get {
+                return x.hashValue ^ y.hashValue
+            }
+        }
+
+        static func == (lhs: Vertex, rhs: Vertex) -> Bool {
+            return lhs.x == rhs.x && lhs.y == rhs.y
         }
     }
 
@@ -171,7 +181,7 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
-    private var selectedVertices = NSMutableIndexSet()
+    var selectedVertices = Set<Vertex>()
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {

@@ -49,6 +49,8 @@ class MapView: NSView {
         }
     }
 
+    var highlightedVertices = Set<Level.Vertex>()
+
     struct Const {
         static let clickRange = CGFloat(16)
         fileprivate static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
@@ -178,6 +180,7 @@ class MapView: NSView {
         }
 
         context.setFillColor(NSColor.green.cgColor)
+        highlightedVertices = []
         for vertex in level.vertices {
             if vertex.degree == 0 {
                 continue
@@ -188,6 +191,9 @@ class MapView: NSView {
             }
             if abs(mouseViewPos.x - p.x) < Const.clickRange && abs(mouseViewPos.y - p.y) < Const.clickRange {
                 context.setFillColor(NSColor.orange.cgColor)
+                highlightedVertices.insert(vertex)
+            } else if level.selectedVertices.contains(vertex) {
+                context.setFillColor(NSColor.red.cgColor)
             } else {
                 context.setFillColor(NSColor.green.cgColor)
             }
@@ -325,11 +331,21 @@ class MapView: NSView {
         let oldViewPos = mouseViewPos
         mouseViewPos = self.convert(theEvent.locationInWindow, from: nil)
         mouseGamePos = gamePos(mouseViewPos)
+
         var a = NSRect(x: oldViewPos.x, y: oldViewPos.y, width: 0, height: 0)
         a.pointAdd(mouseViewPos)
+
         a = a.insetBy(dx: -Const.clickRange - Const.vertexRadius, dy: -Const.clickRange - Const.vertexRadius)
-        Swift.print("\(a)")
-        
+
+        self.setNeedsDisplay(a)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        level?.selectedVertices.formSymmetricDifference(self.highlightedVertices)
+
+        var a = NSRect(x: mouseViewPos.x, y: mouseViewPos.y, width: 0, height: 0)
+        a = a.insetBy(dx: -Const.clickRange - Const.vertexRadius, dy: -Const.clickRange - Const.vertexRadius)
+
         self.setNeedsDisplay(a)
     }
 

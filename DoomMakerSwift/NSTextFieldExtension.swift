@@ -9,7 +9,7 @@
 import AppKit
 
 extension NSTextField {
-    func setText(text: String) {
+    func setText(_ text: String) {
         self.stringValue = text
         self.sizeToFit()
     }

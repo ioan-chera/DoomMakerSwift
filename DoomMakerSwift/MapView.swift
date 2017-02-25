@@ -11,7 +11,7 @@ import Cocoa
 protocol MapViewDelegate: class {
     func mapViewGridSizeUpdated()
     func mapViewScaleUpdated()
-    func mapViewPositionUpdated(position: NSPoint)
+    func mapViewPositionUpdated(_ position: NSPoint)
 }
 
 class MapView: NSView {
@@ -23,18 +23,18 @@ class MapView: NSView {
         }
     }
 
-    private var translate = NSPoint()
+    fileprivate var translate = NSPoint()
     var scale = CGFloat(1) {
         didSet {
             delegate?.mapViewScaleUpdated()
         }
     }
-    private var rotate = Float(0)
-    private var rotatingGesture = false
+    fileprivate var rotate = Float(0)
+    fileprivate var rotatingGesture = false
 
-    private var lastUpdate = NSTimeInterval()
+    fileprivate var lastUpdate = TimeInterval()
 
-    private var trackingArea: NSTrackingArea?
+    fileprivate var trackingArea: NSTrackingArea?
 
     var gridSize = Const.gridDefault {
         didSet {
@@ -43,18 +43,18 @@ class MapView: NSView {
     }
 
     struct Const {
-        private static let gridWidth = CGFloat(1) / (NSScreen.mainScreen()?.backingScaleFactor ?? 1)
-        private static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
-        private static let linedefWidth = CGFloat(1)
-        private static let vertexRadius = CGFloat(1.5)
-        private static let movePeriod = 1.0 / 30
-        private static let gridMin = 2
+        fileprivate static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
+        fileprivate static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
+        fileprivate static let linedefWidth = CGFloat(1)
+        fileprivate static let vertexRadius = CGFloat(1.5)
+        fileprivate static let movePeriod = 1.0 / 30
+        fileprivate static let gridMin = 2
         static let gridDefault = 8
-        private static let gridMax = 1024
-        private static let scaleMin = CGFloat(0.1)
-        private static let scaleMax = CGFloat(10)
-        private static let rotateSnapDegrees = Float(5)
-        private static let zoomKeyAmount = CGFloat(0.25)
+        fileprivate static let gridMax = 1024
+        fileprivate static let scaleMin = CGFloat(0.1)
+        fileprivate static let scaleMax = CGFloat(10)
+        fileprivate static let rotateSnapDegrees = Float(5)
+        fileprivate static let zoomKeyAmount = CGFloat(0.25)
     }
 
     override init(frame frameRect: NSRect) {
@@ -67,10 +67,10 @@ class MapView: NSView {
         commonInit()
     }
 
-    private func commonInit() {
+    fileprivate func commonInit() {
         self.wantsLayer = true
-        self.layer?.backgroundColor = NSColor.blackColor().CGColor
-        let area = NSTrackingArea(rect: self.bounds, options: [.ActiveInKeyWindow, .InVisibleRect, .MouseMoved], owner: self, userInfo: nil)
+        self.layer?.backgroundColor = NSColor.black.cgColor
+        let area = NSTrackingArea(rect: self.bounds, options: [.activeInKeyWindow, .inVisibleRect, .mouseMoved], owner: self, userInfo: nil)
         trackingArea = area
         self.addTrackingArea(area)
     }
@@ -80,18 +80,18 @@ class MapView: NSView {
             return super.updateTrackingAreas()
         }
         removeTrackingArea(area)
-        area = NSTrackingArea(rect: self.bounds, options: [.ActiveInKeyWindow, .InVisibleRect, .MouseMoved], owner: self, userInfo: nil)
+        area = NSTrackingArea(rect: self.bounds, options: [.activeInKeyWindow, .inVisibleRect, .mouseMoved], owner: self, userInfo: nil)
         trackingArea = area
         addTrackingArea(area)
     }
 
     weak var level: Level? {
         didSet {
-            self.setNeedsDisplayInRect(self.bounds)
+            self.setNeedsDisplay(self.bounds)
         }
     }
 
-    private func drawGrid(dirtyRect: NSRect) {
+    fileprivate func drawGrid(_ dirtyRect: NSRect, context: CGContext) {
 
         let gridf = CGFloat(gridSize) * scale   // for casting's sake
         if gridf <= 2 {
@@ -99,9 +99,9 @@ class MapView: NSView {
             NSRectFill(dirtyRect)
             return
         }
-        let path = NSBezierPath()
-        path.lineWidth = Const.gridWidth
-        Const.gridColor.setStroke()
+
+        context.setLineWidth(Const.gridWidth)
+        context.setStrokeColor(Const.gridColor.cgColor)
 
         let disp = translate - floor(translate / gridf) * gridf
 
@@ -110,22 +110,26 @@ class MapView: NSView {
         let miny = ceil(dirtyRect.origin.y / gridf) * gridf
         let maxy = floor(dirtyRect.origin.y + dirtyRect.size.height / gridf) * gridf + 2 * gridf
 
-        for x in minx.stride(through: maxx, by: gridf) {
-            path.moveToPoint(NSPoint(x: x, y: miny - gridf) + disp)
-            path.lineToPoint(NSPoint(x: x, y: maxy + gridf) + disp)
+        var p: NSPoint
+        for x in stride(from: minx, through: maxx, by: gridf) {
+            p = NSPoint(x: x, y: miny - gridf) + disp
+            context.move(to: CGPoint(x: p.x, y: p.y))
+            p = NSPoint(x: x, y: maxy + gridf) + disp
+            context.addLine(to: CGPoint(x: p.x, y: p.y))
         }
-        for y in miny.stride(through: maxy, by: gridf) {
-            path.moveToPoint(NSPoint(x: minx - gridf, y: y) + disp)
-            path.lineToPoint(NSPoint(x: maxx, y: y) + disp)
-            
+        for y in stride(from: miny, through: maxy, by: gridf) {
+            p = NSPoint(x: minx - gridf, y: y) + disp
+            context.move(to: CGPoint(x: p.x, y: p.y))
+            p = NSPoint(x: maxx, y: y) + disp
+            context.addLine(to: CGPoint(x: p.x, y: p.y))
         }
-        path.stroke()
+        context.strokePath()
     }
 
 
 
-    private func drawLines(dirtyRect: NSRect) {
-        func transformed(p: NSPoint) -> NSPoint {
+    fileprivate func drawLines(_ dirtyRect: NSRect, context: CGContext) {
+        func transformed(_ p: NSPoint) -> NSPoint {
             return p.rotated(rotate) * scale + translate
         }
 
@@ -133,42 +137,35 @@ class MapView: NSView {
             return
         }
 
-        let solids = NSBezierPath()
-        let passables = NSBezierPath()
-        let vertices = NSBezierPath()
-        let things = NSBezierPath()
-        solids.lineWidth = Const.linedefWidth
-        passables.lineWidth = Const.linedefWidth
-        vertices.lineWidth = Const.linedefWidth
-        things.lineWidth = Const.linedefWidth
-
+        context.setLineWidth(Const.linedefWidth)
         for line in level.linedefs {
             if line.v1 < 0 || line.v1 >= level.vertices.count || line.v2 < 0 || line.v2 >= level.vertices.count || line.v1 == line.v2 {
                 continue
             }
-
             let v1 = level.vertices[line.v1]
             let v2 = level.vertices[line.v2]
             let p1 = transformed(NSPoint(x: v1.x, y: v1.y))
             let p2 = transformed(NSPoint(x: v2.x, y: v2.y))
 
-            if !Geom.lineClipsRect(p1, p2, rect: dirtyRect) {
+            if p1.x < 0 && p2.x < 0 || p1.x >= dirtyRect.width && p2.x >= dirtyRect.width || p1.y < 0 && p2.y < 0 || p1.y >= dirtyRect.height && p2.y >= dirtyRect.height {
                 continue
             }
 
-            if (line.flags & 1) == 1 {
-                solids.moveToPoint(p1)
-                solids.lineToPoint(p2)
-            } else {
-                passables.moveToPoint(p1)
-                passables.lineToPoint(p2)
-            }
-        }
-        NSColor.whiteColor().setStroke()
-        solids.stroke()
-        NSColor.grayColor().setStroke()
-        passables.stroke()
+//            if !Geom.lineClipsRect(p1, p2, rect: dirtyRect) {
+//                continue
+//            }
 
+            if line.flags & 1 == 1 {
+                context.setStrokeColor(NSColor.white.cgColor)
+            } else {
+                context.setStrokeColor(NSColor.gray.cgColor)
+            }
+            context.move(to: CGPoint(x: p1.x, y: p1.y))
+            context.addLine(to: CGPoint(x: p2.x, y: p2.y))
+            context.strokePath()
+        }
+
+        context.setFillColor(NSColor.green.cgColor)
         for vertex in level.vertices {
             if vertex.degree == 0 {
                 continue
@@ -177,31 +174,32 @@ class MapView: NSView {
             if !NSPointInRect(p, dirtyRect) {
                 continue
             }
-            vertices.appendBezierPathWithOvalInRect(NSRect(x: p.x - Const.vertexRadius, y: p.y - Const.vertexRadius, width: Const.vertexRadius * 2, height: Const.vertexRadius * 2))
+            context.fillEllipse(in: NSRect(x: p.x - Const.vertexRadius, y: p.y - Const.vertexRadius, width: Const.vertexRadius * 2, height: Const.vertexRadius * 2))
         }
 
-        NSColor.greenColor().setFill()
-        vertices.fill()
-
-        let thingRadius = 16 * scale
-        let biggerRect = NSRectFromCGRect(CGRectInset(NSRectToCGRect(dirtyRect), -thingRadius, -thingRadius))
-        for thing in level.things {
-            let p = transformed(NSPoint(x: thing.x, y: thing.y))
-            if !NSPointInRect(p, biggerRect) {
-                continue
-            }
-            things.appendBezierPathWithOvalInRect(NSRect(x: p.x - thingRadius, y: p.y - thingRadius, width: 2 * thingRadius, height: 2 * thingRadius))
-        }
-
-        NSColor(red: 1, green: 0, blue: 0, alpha: 0.75).setFill()
-        things.fill()
+//        let thingRadius = 16 * scale
+//        let biggerRect = NSRectFromCGRect(CGRectInset(NSRectToCGRect(dirtyRect), -thingRadius, -thingRadius))
+//        for thing in level.things {
+//            let p = transformed(NSPoint(x: thing.x, y: thing.y))
+//            if !NSPointInRect(p, biggerRect) {
+//                continue
+//            }
+//            things.appendBezierPathWithOvalInRect(NSRect(x: p.x - thingRadius, y: p.y - thingRadius, width: 2 * thingRadius, height: 2 * thingRadius))
+//        }
+//
+//        NSColor(red: 1, green: 0, blue: 0, alpha: 0.75).setFill()
+//        things.fill()
     }
 
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
 
-        drawGrid(dirtyRect)
-        drawLines(dirtyRect)
+        guard let context = NSGraphicsContext.current()?.cgContext else {
+            return
+        }
+
+        drawGrid(dirtyRect, context: context)
+        drawLines(dirtyRect, context: context)
     }
 
     override var acceptsFirstResponder: Bool {
@@ -210,11 +208,11 @@ class MapView: NSView {
         }
     }
 
-    private func gamePos(cursorPos: NSPoint) -> NSPoint {
+    fileprivate func gamePos(_ cursorPos: NSPoint) -> NSPoint {
         return ((cursorPos - self.translate) / self.scale).rotated(-self.rotate)
     }
 
-    private func setRotation(value: Float, cursorpos: NSPoint) {
+    fileprivate func setRotation(_ value: Float, cursorpos: NSPoint) {
         let center = gamePos(cursorpos)
         self.rotate = value
         let center2 = gamePos(cursorpos)
@@ -222,12 +220,12 @@ class MapView: NSView {
         capTranslation()
     }
 
-    private func snapRotation(updateDisplay: Bool, cursorpos: NSPoint) {
+    fileprivate func snapRotation(_ updateDisplay: Bool, cursorpos: NSPoint) {
         if self.rotatingGesture {
             self.setRotation(round(self.rotate / Const.rotateSnapDegrees) * Const.rotateSnapDegrees, cursorpos: cursorpos)
             self.rotatingGesture = false
             if updateDisplay {
-                self.setNeedsDisplayInRect(self.bounds)
+                self.setNeedsDisplay(self.bounds)
             }
         }
     }
@@ -236,7 +234,7 @@ class MapView: NSView {
     // Events
     //
 
-    private func capTranslation() {
+    fileprivate func capTranslation() {
         if translate.x / scale > 32768 {
             translate.x = 32768 * scale
         }
@@ -252,14 +250,14 @@ class MapView: NSView {
         }
     }
 
-    override func scrollWheel(theEvent: NSEvent) {
-        let pixelScale = NSScreen.mainScreen()?.backingScaleFactor ?? 1
+    override func scrollWheel(with theEvent: NSEvent) {
+        let pixelScale = NSScreen.main()?.backingScaleFactor ?? 1
 
         // TODO: add scaling and rotation with the mouse wheel
 
-        if theEvent.modifierFlags.contains(.AlternateKeyMask) {
+        if theEvent.modifierFlags.contains(.option) {
             // Negative means move map towards me
-            let cursorpos = self.convertPoint(theEvent.locationInWindow, fromView: nil)
+            let cursorpos = self.convert(theEvent.locationInWindow, from: nil)
             self.doMagnification(theEvent.scrollingDeltaY / 40, cursorpos: cursorpos)
             return
         }
@@ -272,13 +270,13 @@ class MapView: NSView {
         capTranslation()
 
         // Also update position for the map
-        let position = gamePos(self.convertPoint(theEvent.locationInWindow, fromView: nil))
+        let position = gamePos(self.convert(theEvent.locationInWindow, from: nil))
         delegate?.mapViewPositionUpdated(position)
 
-        self.setNeedsDisplayInRect(self.bounds)
+        self.setNeedsDisplay(self.bounds)
     }
 
-    private func doMagnification(amount: CGFloat, cursorpos: NSPoint) {
+    fileprivate func doMagnification(_ amount: CGFloat, cursorpos: NSPoint) {
         if (amount > 0 && self.scale >= Const.scaleMax) ||
             (amount < 0 && self.scale <= Const.scaleMin)
         {
@@ -298,66 +296,66 @@ class MapView: NSView {
         self.translate = self.translate + (center2 - center) * self.scale
         capTranslation()
 
-        self.setNeedsDisplayInRect(self.bounds)
+        self.setNeedsDisplay(self.bounds)
     }
 
-    override func magnifyWithEvent(event: NSEvent) {
-        let cursorpos = self.convertPoint(event.locationInWindow, fromView: nil)
+    override func magnify(with event: NSEvent) {
+        let cursorpos = self.convert(event.locationInWindow, from: nil)
         self.doMagnification(event.magnification, cursorpos: cursorpos)
     }
 
-    override func mouseMoved(theEvent: NSEvent) {
-        let position = gamePos(self.convertPoint(theEvent.locationInWindow, fromView: nil))
+    override func mouseMoved(with theEvent: NSEvent) {
+        let position = gamePos(self.convert(theEvent.locationInWindow, from: nil))
         delegate?.mapViewPositionUpdated(position)
     }
 
     //
     // Actions
     //
-    @IBAction func increaseGridDensity(sender: AnyObject?) {
+    @IBAction func increaseGridDensity(_ sender: AnyObject?) {
         if gridSize > Const.gridMin {
             gridSize /= 2
-            self.setNeedsDisplayInRect(self.bounds)
+            self.setNeedsDisplay(self.bounds)
         } else {
             NSBeep()
         }
     }
 
-    @IBAction func decreaseGridDensity(sender: AnyObject?) {
+    @IBAction func decreaseGridDensity(_ sender: AnyObject?) {
         if gridSize < Const.gridMax {
             gridSize *= 2
-            self.setNeedsDisplayInRect(self.bounds)
+            self.setNeedsDisplay(self.bounds)
         } else {
             NSBeep()
         }
     }
 
-    private func pointerPosition() -> NSPoint {
+    fileprivate func pointerPosition() -> NSPoint {
         guard let windowPos = self.window?.mouseLocationOutsideOfEventStream else {
             return NSPoint(x: self.bounds.size.width / 2, y: self.bounds.size.height / 2)   // default to centre
         }
-        return self.convertPoint(windowPos, fromView: nil)
+        return self.convert(windowPos, from: nil)
     }
 
-    @IBAction func zoomIn(sender: AnyObject?) {
+    @IBAction func zoomIn(_ sender: AnyObject?) {
         if scale < Const.scaleMax {
             doMagnification(Const.zoomKeyAmount, cursorpos: self.pointerPosition())
-            self.setNeedsDisplayInRect(self.bounds)
+            self.setNeedsDisplay(self.bounds)
         } else {
             NSBeep()
         }
     }
 
-    @IBAction func zoomOut(sender: AnyObject?) {
+    @IBAction func zoomOut(_ sender: AnyObject?) {
         if scale > Const.scaleMin {
             doMagnification(-Const.zoomKeyAmount, cursorpos: self.pointerPosition())
-            self.setNeedsDisplayInRect(self.bounds)
+            self.setNeedsDisplay(self.bounds)
         } else {
             NSBeep()
         }
     }
 
-    override func validateMenuItem(menuItem: NSMenuItem) -> Bool {
+    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
         }

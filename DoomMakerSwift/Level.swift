@@ -17,23 +17,23 @@ private protocol MapItem {
 ///
 class Level
 {
-    enum LoadError: ErrorType
+    enum LoadError: Error
     {
-        case Info(text: String)
+        case info(text: String)
     }
 
     // This will allow both getting the lump name and lump index
     enum LumpOffset: Int {
-        case Things = 1
-        case Linedefs
-        case Sidedefs
-        case Vertices
-        case Segs
-        case Subsectors
-        case Nodes
-        case Sectors
-        case Reject
-        case Blockmap
+        case things = 1
+        case linedefs
+        case sidedefs
+        case vertices
+        case segs
+        case subsectors
+        case nodes
+        case sectors
+        case reject
+        case blockmap
     }
 
     struct LumpDefinition {
@@ -42,16 +42,16 @@ class Level
     }
 
     static let lumpMap: [LumpOffset: LumpDefinition] = [
-        .Things: LumpDefinition(name: "THINGS", recordSize: 10),
-        .Linedefs: LumpDefinition(name: "LINEDEFS", recordSize: 14),
-        .Sidedefs: LumpDefinition(name: "SIDEDEFS", recordSize: 30),
-        .Vertices: LumpDefinition(name: "VERTEXES", recordSize: 4),
-        .Segs: LumpDefinition(name: "SEGS", recordSize: 12),
-        .Subsectors: LumpDefinition(name: "SSECTORS", recordSize: 4),
-        .Nodes: LumpDefinition(name: "NODES", recordSize: 28),
-        .Sectors: LumpDefinition(name: "SECTORS", recordSize: 26),
-        .Reject: LumpDefinition(name: "REJECT", recordSize: 1),
-        .Blockmap: LumpDefinition(name: "BLOCKMAP", recordSize: 2)
+        .things: LumpDefinition(name: "THINGS", recordSize: 10),
+        .linedefs: LumpDefinition(name: "LINEDEFS", recordSize: 14),
+        .sidedefs: LumpDefinition(name: "SIDEDEFS", recordSize: 30),
+        .vertices: LumpDefinition(name: "VERTEXES", recordSize: 4),
+        .segs: LumpDefinition(name: "SEGS", recordSize: 12),
+        .subsectors: LumpDefinition(name: "SSECTORS", recordSize: 4),
+        .nodes: LumpDefinition(name: "NODES", recordSize: 28),
+        .sectors: LumpDefinition(name: "SECTORS", recordSize: 26),
+        .reject: LumpDefinition(name: "REJECT", recordSize: 1),
+        .blockmap: LumpDefinition(name: "BLOCKMAP", recordSize: 2)
     ]
 
     final class Thing: MapItem {
@@ -158,25 +158,25 @@ class Level
         }
     }
 
-    private(set) var name: String
+    fileprivate(set) var name: String
 
-    private(set) var things: [Thing]
-    private(set) var linedefs: [Linedef]
-    private var sidedefs: [Sidedef]
-    private(set) var vertices: [Vertex]
-    private var segs: [Seg]
-    private var subsectors: [Subsector]
-    private var nodes: [Node]
-    private var sectors: [Sector]
-    private var reject: [UInt8]
-    private var blockmap: [Int]
+    fileprivate(set) var things: [Thing]
+    fileprivate(set) var linedefs: [Linedef]
+    fileprivate var sidedefs: [Sidedef]
+    fileprivate(set) var vertices: [Vertex]
+    fileprivate var segs: [Seg]
+    fileprivate var subsectors: [Subsector]
+    fileprivate var nodes: [Node]
+    fileprivate var sectors: [Sector]
+    fileprivate var reject: [UInt8]
+    fileprivate var blockmap: [Int]
 
     init(wad: Wad, lumpIndex: Int) {
-        func loadItems<T: MapItem>(type: LumpOffset) -> [T] {
+        func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
             let data = wad.lumps[lumpIndex + type.rawValue].data
             var list: [T] = []
             let recordSize = Level.lumpMap[type]!.recordSize
-            for i in 0.stride(to: data.count, by: recordSize) {
+            for i in stride(from: 0, to: data.count, by: recordSize) {
                 let slice = data[i ..< i + recordSize]
                 list.append(T(data: Array(slice)))
             }
@@ -185,31 +185,31 @@ class Level
 
         self.name = wad.lumps[lumpIndex].name
 
-        self.things = loadItems(.Things)
-        self.linedefs = loadItems(.Linedefs)
-        self.sidedefs = loadItems(.Sidedefs)
-        self.vertices = loadItems(.Vertices)
-        self.segs = loadItems(.Segs)
-        self.subsectors = loadItems(.Subsectors)
-        self.nodes = loadItems(.Nodes)
-        self.sectors = loadItems(.Sectors)
+        self.things = loadItems(.things)
+        self.linedefs = loadItems(.linedefs)
+        self.sidedefs = loadItems(.sidedefs)
+        self.vertices = loadItems(.vertices)
+        self.segs = loadItems(.segs)
+        self.subsectors = loadItems(.subsectors)
+        self.nodes = loadItems(.nodes)
+        self.sectors = loadItems(.sectors)
 
-        self.reject = wad.lumps[lumpIndex + LumpOffset.Reject.rawValue].data
+        self.reject = wad.lumps[lumpIndex + LumpOffset.reject.rawValue].data
         self.blockmap = []
-        self.loadBlockmap(wad.lumps[lumpIndex + LumpOffset.Blockmap.rawValue].data)
+        self.loadBlockmap(wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
 
         postprocess()
     }
 
-    private func loadBlockmap(blockmapData: [UInt8]) {
+    fileprivate func loadBlockmap(_ blockmapData: [UInt8]) {
         self.blockmap = []
-        let recordSize = Level.lumpMap[.Blockmap]!.recordSize
-        for i in 0.stride(to: blockmapData.count, by: recordSize) {
+        let recordSize = Level.lumpMap[.blockmap]!.recordSize
+        for i in stride(from: 0, to: blockmapData.count, by: recordSize) {
             self.blockmap.append(intFromInt16(blockmapData, loc: i))
         }
     }
 
-    private func postprocess() {
+    fileprivate func postprocess() {
         for line in linedefs {
             if line.v1 < 0 || line.v1 >= vertices.count || line.v2 < 0 || line.v2 >= vertices.count {
                 continue

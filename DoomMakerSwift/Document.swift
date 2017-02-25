@@ -10,8 +10,8 @@ import Cocoa
 
 class Document: NSDocument, NSWindowDelegate, MapViewDelegate
 {
-    private let wad = Wad()
-    private let editor: LevelEditor
+    fileprivate let wad = Wad()
+    fileprivate let editor: LevelEditor
 
     @IBOutlet var docWindow: NSWindow!
     @IBOutlet var levelChooser: NSPopUpButton!
@@ -20,26 +20,26 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     @IBOutlet var zoomLabel: NSTextField!
     @IBOutlet var xyLabel: NSTextField!
 
-    private weak var currentLevel: Level? {
+    fileprivate weak var currentLevel: Level? {
         didSet {
             self.levelUpdated()
         }
     }
 
-    private func levelUpdated() {
+    fileprivate func levelUpdated() {
         let haveLevel = self.currentLevel != nil
-        self.mapView.hidden = !haveLevel
-        self.gridLabel.hidden = !haveLevel
-        self.zoomLabel.hidden = !haveLevel
-        self.xyLabel.hidden = !haveLevel
+        self.mapView.isHidden = !haveLevel
+        self.gridLabel.isHidden = !haveLevel
+        self.zoomLabel.isHidden = !haveLevel
+        self.xyLabel.isHidden = !haveLevel
 
         if haveLevel {
-            let defaults = NSUserDefaults.standardUserDefaults()
-            self.mapView.gridSize = defaults.integerForKey(Preferences.gridSize)
+            let defaults = UserDefaults.standard
+            self.mapView.gridSize = defaults.integer(forKey: Preferences.gridSize)
             if self.mapView.gridSize == 0 {
                 self.mapView.gridSize = MapView.Const.gridDefault
             }
-            self.mapView.scale = CGFloat(defaults.doubleForKey(Preferences.zoom))
+            self.mapView.scale = CGFloat(defaults.double(forKey: Preferences.zoom))
             if self.mapView.scale == 0 {
                 self.mapView.scale = 1
             }
@@ -56,7 +56,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         // Add your subclass-specific initialization here
     }
 
-    override func windowControllerDidLoadNib(aController: NSWindowController)
+    override func windowControllerDidLoadNib(_ aController: NSWindowController)
     {
         super.windowControllerDidLoadNib(aController)
 
@@ -70,15 +70,15 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     //
     func mapViewGridSizeUpdated() {
         self.gridLabel.setText("Grid Size: \(self.mapView.gridSize)")
-        NSUserDefaults.standardUserDefaults().setInteger(self.mapView.gridSize, forKey: Preferences.gridSize)
+        UserDefaults.standard.set(self.mapView.gridSize, forKey: Preferences.gridSize)
     }
 
     func mapViewScaleUpdated() {
         self.zoomLabel.setText("Zoom: \(Int(round(self.mapView.scale * 100)))%")
-        NSUserDefaults.standardUserDefaults().setDouble(Double(self.mapView.scale), forKey: Preferences.zoom)
+        UserDefaults.standard.set(Double(self.mapView.scale), forKey: Preferences.zoom)
     }
 
-    func mapViewPositionUpdated(position: NSPoint) {
+    func mapViewPositionUpdated(_ position: NSPoint) {
         self.xyLabel.setText("X: \(Int(round(position.x)))  Y: \(Int(round(position.y)))")
     }
 
@@ -99,13 +99,13 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         return "Document"
     }
 
-    override func dataOfType(typeName: String) throws -> NSData {
+    override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
         throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
     }
 
-    override func readFromData(data: NSData, ofType typeName: String) throws {
+    override func read(from data: Data, ofType typeName: String) throws {
         // Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
         // You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
         // If you override either of these, you should also override -isEntireFileLoaded to return false if the contents are lazily loaded.
@@ -114,17 +114,17 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
             try self.wad.read(data)
             self.editor.updateFromWad()
         }
-        catch Wad.ReadError.Info(let info)
+        catch Wad.ReadError.info(let info)
         {
             throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: [NSLocalizedDescriptionKey: info])
         }
     }
 
-    private func updateLevelChooser() {
+    fileprivate func updateLevelChooser() {
         self.levelChooser.removeAllItems()
         for i in 0 ..< self.editor.levelCount {
-            self.levelChooser.addItemWithTitle(self.editor.levelName(i))
-            let item = self.levelChooser.itemAtIndex(i)!
+            self.levelChooser.addItem(withTitle: self.editor.levelName(i))
+            let item = self.levelChooser.item(at: i)!
             item.action = #selector(Document.levelChooserClicked(_:))
             item.target = self
             item.tag = i
@@ -136,7 +136,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         }
     }
 
-    func levelChooserClicked(sender: AnyObject?) {
+    func levelChooserClicked(_ sender: AnyObject?) {
         let index = (sender as! NSMenuItem).tag
         self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)
     }

@@ -9,20 +9,21 @@
 import Foundation
 
 class DataReader {
-    private let data: [UInt8]
-    private var pos = 0
+    fileprivate let data: [UInt8]
+    fileprivate var pos = 0
 
     init(_ data: [UInt8]) {
         self.data = data
     }
 
-    func short(inout val: Int) -> DataReader {
+    @discardableResult
+    func short(_ val: inout Int) -> DataReader {
         val = Int(Int16(data[pos]) + (Int16(data[pos + 1]) << 8))
         pos += 2
         return self
     }
 
-    func lumpName(inout val: [UInt8]) -> DataReader {
+    func lumpName(_ val: inout [UInt8]) -> DataReader {
         val = Lump.truncateZero(Array(data[pos ..< pos + 8]))
         pos += 8
         return self

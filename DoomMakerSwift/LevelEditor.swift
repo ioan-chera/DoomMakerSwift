@@ -16,7 +16,7 @@ class LevelEditor {
     }
 
     let wad: Wad
-    private var levels: [Entry]
+    fileprivate var levels: [Entry]
 
     var levelCount: Int {
         get {
@@ -24,15 +24,15 @@ class LevelEditor {
         }
     }
 
-    func levelName(index: Int) -> String {
+    func levelName(_ index: Int) -> String {
         return levels[index].name
     }
 
-    func levelAtIndex(index: Int) -> Level? {
+    func levelAtIndex(_ index: Int) -> Level? {
         return levels[index].level
     }
 
-    func loadLevelAtIndex(index: Int) -> Level {
+    func loadLevelAtIndex(_ index: Int) -> Level {
         let level = Level(wad: wad, lumpIndex: levels[index].lumpIndex)
         self.levels[index].level = level
         return level
@@ -51,7 +51,7 @@ class LevelEditor {
         self.findLevels()
     }
 
-    private func findLevels() {
+    fileprivate func findLevels() {
         self.levels = []   // TODO: keep old level references
         var index = 0
         for levelLump in wad.lumps {

@@ -14,7 +14,7 @@ let πf = Float(M_PI)
 class Geom {
 
     // https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
-    static func lineClipsRect(pp0: NSPoint, _ pp1: NSPoint, rect: NSRect) -> Bool {
+    static func lineClipsRect(_ pp0: NSPoint, _ pp1: NSPoint, rect: NSRect) -> Bool {
 
         let inside = 0
         let left = 1
@@ -22,7 +22,7 @@ class Geom {
         let bottom = 4
         let top = 8
 
-        func computeOutCode(p: NSPoint) -> Int {
+        func computeOutCode(_ p: NSPoint) -> Int {
             var code = inside
             if p.x < rect.minX {
                 code |= left
@@ -100,16 +100,16 @@ func * (left: NSPoint, right: Double) -> NSPoint {
     return left * CGFloat(right)
 }
 
-func floor(point: NSPoint) -> NSPoint {
+func floor(_ point: NSPoint) -> NSPoint {
     return NSPoint(x: floor(point.x), y: floor(point.y))
 }
 
-func ceil(point: NSPoint) -> NSPoint {
+func ceil(_ point: NSPoint) -> NSPoint {
     return NSPoint(x: ceil(point.x), y: ceil(point.y))
 }
 
 extension NSPoint {
-    func rotated(degrees: Float) -> NSPoint {
+    func rotated(_ degrees: Float) -> NSPoint {
         let rad = degrees / 180 * πf
         let nx = Float(x) * cos(rad) - Float(y) * sin(rad)
         let ny = Float(x) * sin(rad) + Float(y) * cos(rad)

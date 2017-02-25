@@ -18,24 +18,24 @@ class Wad
     ///
     /// IWAD or PWAD, based on file header
     ///
-    enum Type
+    enum WadType
     {
-        case Iwad
-        case Pwad
+        case iwad
+        case pwad
     }
 
     ///
     /// Read error throwable
     ///
-    enum ReadError: ErrorType
+    enum ReadError: Error
     {
-        case Info(text: String)
+        case info(text: String)
     }
 
-    private(set) var type: Type
-    private(set) var lumps: [Lump]
+    fileprivate(set) var type: WadType
+    fileprivate(set) var lumps: [Lump]
 
-    init(inType: Type = Type.Pwad)
+    init(inType: WadType = WadType.pwad)
     {
         type = inType
         lumps = []
@@ -44,24 +44,24 @@ class Wad
     ///
     /// Reads from NSData. Throws ReadError.Info(text) on failure.
     ///
-    func read(data: NSData) throws
+    func read(_ data: Data) throws
     {
-        if data.length < 12 || data.length > 0x7fffffff  // also handle int32 overflows
+        if data.count < 12 || data.count > 0x7fffffff  // also handle int32 overflows
         {
-            throw ReadError.Info(text: "File size invalid")
+            throw ReadError.info(text: "File size invalid")
         }
 
-        guard let newType: Type = ["IWAD": Type.Iwad, "PWAD": Type.Pwad][data.string(0, len: 4)] else
+        guard let newType: WadType = ["IWAD": WadType.iwad, "PWAD": WadType.pwad][data.string(0, len: 4)] else
         {
-            throw ReadError.Info(text: "File is not a PWAD or IWAD")
+            throw ReadError.info(text: "File is not a PWAD or IWAD")
         }
 
         let numLumps = data.int32(4)
         let infoTableOfs = data.int32(8)
 
-        if numLumps < 0 || numLumps * 16 < 0 || numLumps > 0 && infoTableOfs + 16 * numLumps > Int32(data.length)
+        if numLumps < 0 || numLumps * 16 < 0 || numLumps > 0 && infoTableOfs + 16 * numLumps > Int32(data.count)
         {
-            throw ReadError.Info(text: "WAD file is corrupted")
+            throw ReadError.info(text: "WAD file is corrupted")
         }
 
         var newLumps: [Lump] = []
@@ -71,15 +71,15 @@ class Wad
             let address = Int(infoTableOfs + 16 * i)
             let filepos = data.int32(address)
             let size = data.int32(address + 4)
-            let nameData = data.subdataWithRange(NSMakeRange(address + 8, 8))
+            let nameData = data.subdata(in: (address + 8) ..< (address + 16))
 
             // check validity
-            if size < 0 || size > 0 && (filepos < 0 || filepos + size > Int32(data.length) || filepos + size < 0)
+            if size < 0 || size > 0 && (filepos < 0 || filepos + size > Int32(data.count) || filepos + size < 0)
             {
-                throw ReadError.Info(text: "WAD file is corrupted at lump '\(String(nameData))' index \(i)")
+                throw ReadError.info(text: "WAD file is corrupted at lump '\(String(describing: nameData))' index \(i)")
             }
 
-            let data = data.subdataWithRange(NSMakeRange(Int(filepos), Int(size)))
+            let data = data.subdata(in: Int(filepos) ..< (Int(filepos) + Int(size)))
             
             newLumps.append(Lump(nameData: nameData, data: data))
         }

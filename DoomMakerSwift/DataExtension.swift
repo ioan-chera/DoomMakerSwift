@@ -8,7 +8,7 @@
 
 import Foundation
 
-func cString(data: [UInt8], loc: Int, len: Int) -> String
+func cString(_ data: [UInt8], loc: Int, len: Int) -> String
 {
     var ret = ""
     for u in data
@@ -17,51 +17,51 @@ func cString(data: [UInt8], loc: Int, len: Int) -> String
         {
             break
         }
-        ret.append(UnicodeScalar(Int(u)))
+        ret.append(String(describing: UnicodeScalar(Int(u))))
     }
     return ret
 }
 
-func doubleFromInt16(data: [UInt8], loc: Int) -> Double
+func doubleFromInt16(_ data: [UInt8], loc: Int) -> Double
 {
     return Double(Int(Int8(bitPattern:data[loc])) + (Int(Int8(bitPattern:data[loc + 1])) << 8))
 }
 
-func intFromInt16(data: [UInt8], loc: Int) -> Int
+func intFromInt16(_ data: [UInt8], loc: Int) -> Int
 {
     return Int(Int8(bitPattern:data[loc])) + (Int(Int8(bitPattern:data[loc + 1])) << 8)
 }
 
-func subArray<T>(array: [T], loc: Int, len: Int) -> [T]
+func subArray<T>(_ array: [T], loc: Int, len: Int) -> [T]
 {
     return Array(array[loc...loc + len - 1])
 }
 
-private func cStringRaw(data: [UInt8], loc: Int, len: Int) -> String
+private func cStringRaw(_ data: [UInt8], loc: Int, len: Int) -> String
 {
     return cString(data, loc: loc, len: len)
 }
 
-extension NSData
+extension Data
 {
-    func string(loc: Int, len: Int) -> String
+    func string(_ loc: Int, len: Int) -> String
     {
-        var raw = Array<UInt8>(count: len, repeatedValue: 0)
-        getBytes(&raw, range: NSMakeRange(loc, len))
-        return NSString(bytes: raw, length: len, encoding: NSUTF8StringEncoding)! as String
+        var raw = Array<UInt8>(repeating: 0, count: len)
+        copyBytes(to: &raw, from: loc..<(loc + len))
+        return NSString(bytes: raw, length: len, encoding: String.Encoding.utf8.rawValue)! as String
     }
 
-    func cString(loc: Int, len: Int) -> String
+    func cString(_ loc: Int, len: Int) -> String
     {
-        var raw = Array<UInt8>(count: len, repeatedValue: 0)
-        getBytes(&raw, range: NSMakeRange(loc, len))
+        var raw = Array<UInt8>(repeating: 0, count: len)
+        copyBytes(to: &raw, from: loc..<(loc + len))
         return cStringRaw(raw, loc: loc, len: len)
     }
 
-    func int32(loc: Int) -> Int32
+    func int32(_ loc: Int) -> Int32
     {
-        var raw = Array<UInt8>(count: 4, repeatedValue: 0)
-        getBytes(&raw, range: NSMakeRange(loc, 4))
+        var raw = Array<UInt8>(repeating: 0, count: 4)
+        copyBytes(to: &raw, from: loc..<(loc + 4))
         var ret = Int32(raw[0])
         ret |= Int32(raw[1]) << 8
         ret |= Int32(raw[2]) << 16
@@ -70,8 +70,8 @@ extension NSData
     }
 
     func asArray() -> [UInt8] {
-        var result = Array<UInt8>(count: self.length, repeatedValue: 0)
-        self.getBytes(&result, length: self.length)
+        var result = Array<UInt8>(repeating: 0, count: self.count)
+        (self as NSData).getBytes(&result, length: self.count)
         return result
     }
 }

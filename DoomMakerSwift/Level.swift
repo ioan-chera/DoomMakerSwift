@@ -292,14 +292,16 @@ class Level
         }
         var actualPosition = position - self.clickedDownOffset
 
-        if Int(round(self.gridRotation)) % 90 != 0 {
-            actualPosition = actualPosition.rotated(self.gridRotation)
-            actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
-            actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
-            actualPosition = actualPosition.rotated(-self.gridRotation)
-        } else {
-            actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
-            actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
+        if self.gridSize != 0 {
+            if Int(round(self.gridRotation)) % 90 != 0 {
+                actualPosition = actualPosition.rotated(self.gridRotation)
+                actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
+                actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
+                actualPosition = actualPosition.rotated(-self.gridRotation)
+            } else {
+                actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
+                actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
+            }
         }
 
         let oldPositionX = clickedDownVertex.x

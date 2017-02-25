@@ -49,7 +49,11 @@ class MapView: NSView {
         }
     }
 
-    var highlightedVertices = Set<Level.Vertex>()
+    private var highlightedVertices = Set<Int>()
+    private weak var closestVertex : Level.Vertex?
+    private weak var clickedVertex : Level.Vertex?
+    private var clickedStartGamePos = NSPoint()
+    private var clickedStartVertexPos = NSPoint()
 
     struct Const {
         static let clickRange = CGFloat(16)
@@ -181,7 +185,11 @@ class MapView: NSView {
 
         context.setFillColor(NSColor.green.cgColor)
         highlightedVertices = []
+        closestVertex = nil
+        var minDist = CGFloat.greatestFiniteMagnitude
+        var index = -1
         for vertex in level.vertices {
+            index += 1
             if vertex.degree == 0 {
                 continue
             }
@@ -189,10 +197,17 @@ class MapView: NSView {
             if !NSPointInRect(p, dirtyRect.insetBy(dx: -Const.vertexRadius, dy: -Const.vertexRadius)) {
                 continue
             }
-            if abs(mouseViewPos.x - p.x) < Const.clickRange && abs(mouseViewPos.y - p.y) < Const.clickRange {
+            let distX = abs(mouseViewPos.x - p.x)
+            let distY = abs(mouseViewPos.y - p.y)
+            if distX < Const.clickRange && distY < Const.clickRange {
                 context.setFillColor(NSColor.orange.cgColor)
-                highlightedVertices.insert(vertex)
-            } else if level.selectedVertices.contains(vertex) {
+                highlightedVertices.insert(index)
+                let dist = max(distX, distY)
+                if dist < minDist {
+                    minDist = dist
+                    closestVertex = vertex
+                }
+            } else if level.selectedVertices.contains(index) {
                 context.setFillColor(NSColor.red.cgColor)
             } else {
                 context.setFillColor(NSColor.green.cgColor)
@@ -327,7 +342,16 @@ class MapView: NSView {
         self.doMagnification(event.magnification, cursorpos: cursorpos)
     }
 
+    var lasttime : clock_t = 0
     override func mouseMoved(with theEvent: NSEvent) {
+        let t = clock()
+        let elapsed = Double(t - lasttime) / Double(CLOCKS_PER_SEC)
+
+        if elapsed < 1.0 / 120.0 {
+            return
+        }
+        lasttime = t
+
         let oldViewPos = mouseViewPos
         mouseViewPos = self.convert(theEvent.locationInWindow, from: nil)
         mouseGamePos = gamePos(mouseViewPos)
@@ -337,16 +361,47 @@ class MapView: NSView {
 
         a = a.insetBy(dx: -Const.clickRange - Const.vertexRadius, dy: -Const.clickRange - Const.vertexRadius)
 
-        self.setNeedsDisplay(a)
+        self.setNeedsDisplay(self.bounds)
     }
 
-    override func mouseUp(with event: NSEvent) {
-        level?.selectedVertices.formSymmetricDifference(self.highlightedVertices)
+    override func mouseDown(with event: NSEvent) {
+//        level?.selectedVertices.formSymmetricDifference(self.highlightedVertices)
+        guard let level = self.level else {
+            return
+        }
+        level.selectedVertices = self.highlightedVertices
 
         var a = NSRect(x: mouseViewPos.x, y: mouseViewPos.y, width: 0, height: 0)
         a = a.insetBy(dx: -Const.clickRange - Const.vertexRadius, dy: -Const.clickRange - Const.vertexRadius)
 
-        self.setNeedsDisplay(a)
+        self.setNeedsDisplay(self.bounds)
+
+        clickedStartGamePos = mouseGamePos
+        clickedVertex = closestVertex
+        if let cv = clickedVertex {
+            clickedStartVertexPos = NSPoint(x: cv.x, y: cv.y)
+        }
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        clickedVertex = nil
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let level = self.level else {
+            return
+        }
+        self.mouseMoved(with: event)
+        guard let clickedVertex = self.clickedVertex else {
+            return
+        }
+
+        var snappedPos = NSPoint(x: clickedStartVertexPos.x + mouseGamePos.x - clickedStartGamePos.x,
+                                 y: clickedStartVertexPos.y + mouseGamePos.y - clickedStartGamePos.y)
+        let gs = CGFloat(gridSize)
+        snappedPos.x = round(snappedPos.x / gs) * gs
+        snappedPos.y = round(snappedPos.y / gs) * gs
+        level.moveSelectedVertices(pos: snappedPos, snappedVertex: clickedVertex)
     }
 
     //

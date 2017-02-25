@@ -181,7 +181,7 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
-    var selectedVertices = Set<Vertex>()
+    var selectedVertices = Set<Int>()
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
@@ -228,6 +228,18 @@ class Level
             }
             vertices[line.v1].degree += 1
             vertices[line.v2].degree += 1
+        }
+    }
+
+    func moveSelectedVertices(pos: NSPoint, snappedVertex: Vertex) {
+        let px = Int(round(pos.x))
+        let py = Int(round(pos.y))
+        let svx = snappedVertex.x
+        let svy = snappedVertex.y
+        for index in selectedVertices {
+            let vertex = vertices[index]
+            vertex.x = px + vertex.x - svx
+            vertex.y = py + vertex.y - svy
         }
     }
 }

@@ -42,6 +42,11 @@ private func cStringRaw(_ data: [UInt8], loc: Int, len: Int) -> String
     return cString(data, loc: loc, len: len)
 }
 
+func bytesFromInt32(_ num32: Int32) -> [UInt8] {
+    let num = Int(num32)
+    return [UInt8(num & 0xff), UInt8(num >> 8 & 0xff), UInt8(num >> 16 & 0xff), UInt8(num >> 24 & 0xff)]
+}
+
 extension Data
 {
     func string(_ loc: Int, len: Int) -> String

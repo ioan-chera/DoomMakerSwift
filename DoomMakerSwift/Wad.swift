@@ -89,5 +89,33 @@ class Wad
         self.lumps = newLumps
     }
 
+    func serialized() -> Data  {
+        var data : [UInt8] = []
+        var infotableofs = Int32(12)
+        data += self.type == WadType.iwad ? [UInt8]("IWAD".utf8) : [UInt8]("PWAD".utf8)
+        data += bytesFromInt32(Int32(self.lumps.count))
+        data += [0, 0, 0, 0]    // to be set later
 
+        var addresses : [Int32] = []
+
+        for lump in lumps {
+            data += lump.data
+            addresses.append(infotableofs)
+            infotableofs += Int32(lump.data.count)
+        }
+        data.replaceSubrange(8..<12, with: bytesFromInt32(infotableofs))
+        var i = 0
+        for lump in lumps {
+            data += bytesFromInt32(addresses[i])
+            data += bytesFromInt32(Int32(lump.data.count))
+            data += lump.nameBytes
+            if lump.nameBytes.count < 8 {
+                data += [UInt8](repeating: 0, count: 8 - lump.nameBytes.count)
+            }
+
+            i += 1
+        }
+
+        return Data(bytes:data);
+    }
 }

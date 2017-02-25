@@ -290,14 +290,14 @@ class Level
         guard let clickedDownVertex = self.clickedDownVertex else {
             return false
         }
-        var actualPosition: NSPoint
+        var actualPosition = position - self.clickedDownOffset
+
         if Int(round(self.gridRotation)) % 90 != 0 {
-            actualPosition = position.rotated(self.gridRotation)
+            actualPosition = actualPosition.rotated(self.gridRotation)
             actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
             actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
             actualPosition = actualPosition.rotated(-self.gridRotation)
         } else {
-            actualPosition = position
             actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
             actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
         }

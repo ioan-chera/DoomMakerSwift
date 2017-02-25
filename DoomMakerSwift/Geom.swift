@@ -80,8 +80,16 @@ func + (left: NSPoint, right: NSPoint) -> NSPoint {
     return NSPoint(x: left.x + right.x, y: left.y + right.y)
 }
 
+func + (left: NSPoint, right: NSSize) -> NSPoint {
+    return NSPoint(x: left.x + right.width, y: left.y + right.height)
+}
+
 func - (left: NSPoint, right: NSPoint) -> NSPoint {
     return NSPoint(x: left.x - right.x, y: left.y - right.y)
+}
+
+func - (left: NSPoint, right: NSSize) -> NSPoint {
+    return NSPoint(x: left.x - right.width, y: left.y - right.height)
 }
 
 func / (left: NSPoint, right: CGFloat) -> NSPoint {

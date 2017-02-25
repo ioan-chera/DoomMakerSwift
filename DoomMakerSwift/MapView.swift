@@ -385,7 +385,8 @@ class MapView: NSView {
             return
         }
         updatePosition(event: theEvent)
-        if level.highlightVertex(position: mouseGamePos, radius: Const.clickRange) {
+        let gameClickRange = self.scale != 0 ? Const.clickRange / self.scale : Const.clickRange
+        if level.highlightVertex(position: mouseGamePos, radius: gameClickRange) {
             self.setNeedsDisplay(self.bounds)
         }
     }

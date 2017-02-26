@@ -232,6 +232,12 @@ class Level
         document?.updateChangeCount(.changeDone)
     }
 
+    private(set) var verticesDirty = false  // update VERTEXES lump
+    /// Must be called when saving
+    func cleanDirty() {
+        verticesDirty = false
+    }
+
     /// the vertex currently highlighted by the mouse
     private(set) var highlightedVertexIndex: Int?
 
@@ -426,6 +432,7 @@ class Level
                 vertex.x += clickedDownVertex.x - oldPositionX
                 vertex.y += clickedDownVertex.y - oldPositionY
             }
+            verticesDirty = true
             self.undo.registerUndo {
                 self.moveVertices(positions: moveList)
             }

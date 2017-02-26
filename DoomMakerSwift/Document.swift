@@ -140,7 +140,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-
+        editor.checkDirty()
         return self.wad.serialized()
     }
 
@@ -153,6 +153,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         {
             try self.wad.read(data)
             self.editor.updateFromWad()
+            self.updateLevelChooser()
         }
         catch Wad.ReadError.info(let info)
         {
@@ -162,6 +163,9 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
 
     /// Update the level popup button
     private func updateLevelChooser() {
+        if self.levelChooser == nil {
+            return
+        }
         self.levelChooser.removeAllItems()
         for i in 0 ..< self.editor.levelCount {
             self.levelChooser.addItem(withTitle: self.editor.levelName(i))

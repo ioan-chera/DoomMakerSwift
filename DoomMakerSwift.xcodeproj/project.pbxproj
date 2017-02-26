@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F00928F1E63260B002A4A04 /* DataWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F00928E1E63260B002A4A04 /* DataWriter.swift */; };
 		4F0D555D1E63121F008C6E07 /* UndoManagerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */; };
 		4F7788351D36C2030012EFC6 /* Lump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788341D36C2030012EFC6 /* Lump.swift */; };
 		4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788361D36C8C50012EFC6 /* LevelEditor.swift */; };
@@ -45,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4F00928E1E63260B002A4A04 /* DataWriter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataWriter.swift; sourceTree = "<group>"; };
 		4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManagerExtension.swift; sourceTree = "<group>"; };
 		4F7788341D36C2030012EFC6 /* Lump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lump.swift; path = DoomMakerSwift/Lump.swift; sourceTree = SOURCE_ROOT; };
 		4F7788361D36C8C50012EFC6 /* LevelEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LevelEditor.swift; path = DoomMakerSwift/LevelEditor.swift; sourceTree = SOURCE_ROOT; };
@@ -160,6 +162,7 @@
 				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
 				4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */,
 				4F7788381D37F5DD0012EFC6 /* DataReader.swift */,
+				4F00928E1E63260B002A4A04 /* DataWriter.swift */,
 				4FA0A74C1C54C65E009F3980 /* Document.swift */,
 				4F7788451D38AF590012EFC6 /* Geom.swift */,
 				4FA0A77D1C54E5E1009F3980 /* Level.swift */,
@@ -318,6 +321,7 @@
 				4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */,
 				4F7788461D38AF590012EFC6 /* Geom.swift in Sources */,
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,
+				4F00928F1E63260B002A4A04 /* DataWriter.swift in Sources */,
 				4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */,
 				4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */,
 				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,

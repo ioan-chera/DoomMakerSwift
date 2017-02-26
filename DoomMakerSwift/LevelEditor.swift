@@ -26,7 +26,7 @@ class LevelEditor {
     }
 
     let wad: Wad
-    fileprivate var levels: [Entry]
+    private var levels: [Entry]
 
     var levelCount: Int {
         get {
@@ -80,6 +80,23 @@ class LevelEditor {
                 self.levels.append(Entry(lumpIndex: index, name: levelLump.name, level: nil))
             }
             index += 1
+        }
+    }
+
+    /// Updates the wad by looking at the dirty levels
+    func checkDirty() {
+        for entry in levels {
+            if let level = entry.level {
+                if level.verticesDirty {
+                    let verticesLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.vertices.rawValue]
+                    let writer = DataWriter([])
+                    for vertex in level.vertices {
+                        writer.short(vertex.x).short(vertex.y)
+                    }
+                    verticesLump.data = writer.data
+                }
+                level.cleanDirty()
+            }
         }
     }
 }

@@ -19,35 +19,35 @@
 import Foundation
 
 /**
- Quick way to read data from a stream into useful variables.
+ Quick way to write data from a stream into useful variables.
  */
-class DataReader {
-    private let data: [UInt8]
+class DataWriter {
+    private(set) var data: [UInt8]
     private var pos = 0
 
     /**
      Initializes with an UInt8 array/
-    */
+     */
     init(_ data: [UInt8]) {
         self.data = data
     }
 
-    /**
-     Reads a 16-bit value
- */
-    @discardableResult
-    func short(_ val: inout Int) -> DataReader {
-        val = Int(Int16(data[pos]) + (Int16(data[pos + 1]) << 8))
-        pos += 2
-        return self
+    private func addByte(_ val: Int) {
+        if pos == data.count {
+            data.append(UInt8(val))
+        } else {
+            data[pos] = UInt8(val)
+        }
+        pos += 1
     }
 
     /**
-    Reads a lump name
- */
-    func lumpName(_ val: inout [UInt8]) -> DataReader {
-        val = Lump.truncateZero(Array(data[pos ..< pos + 8]))
-        pos += 8
+     Reads a 16-bit value
+     */
+    @discardableResult
+    func short(_ val: Int) -> DataWriter {
+        addByte(val & 0xff)
+        addByte(val >> 8 & 0xff)
         return self
     }
 }

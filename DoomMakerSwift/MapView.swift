@@ -1,10 +1,20 @@
-//
-//  MapView.swift
-//  DoomMakerSwift
-//
-//  Created by ioan on 15.07.2016.
-//  Copyright © 2016 Ioan Chera. All rights reserved.
-//
+/*
+ DoomMaker
+ Copyright (C) 2017  Ioan Chera
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 import Cocoa
 
@@ -437,45 +447,6 @@ class MapView: NSView {
             self.setNeedsDisplay(self.bounds)
         }
     }
-
-//    override func mouseDown(with event: NSEvent) {
-//        guard let level = self.level else {
-//            return
-//        }
-//        level.selectedVertices = self.highlightedVertices
-//
-//        var a = NSRect(x: mouseViewPos.x, y: mouseViewPos.y, width: 0, height: 0)
-//        a = a.insetBy(dx: -Const.clickRange - Const.vertexRadius, dy: -Const.clickRange - Const.vertexRadius)
-//
-//        self.setNeedsDisplay(self.bounds)
-//
-//        clickedStartGamePos = mouseGamePos
-//        clickedVertex = closestVertex
-//        if let cv = clickedVertex {
-//            clickedStartVertexPos = NSPoint(x: cv.x, y: cv.y)
-//        }
-//    }
-//
-//    override func mouseUp(with event: NSEvent) {
-//        clickedVertex = nil
-//    }
-//
-//    override func mouseDragged(with event: NSEvent) {
-//        guard let level = self.level else {
-//            return
-//        }
-//        self.mouseMoved(with: event)
-//        guard let clickedVertex = self.clickedVertex else {
-//            return
-//        }
-//
-//        var snappedPos = NSPoint(x: clickedStartVertexPos.x + mouseGamePos.x - clickedStartGamePos.x,
-//                                 y: clickedStartVertexPos.y + mouseGamePos.y - clickedStartGamePos.y)
-//        let gs = CGFloat(gridSize)
-//        snappedPos.x = round(snappedPos.x / gs) * gs
-//        snappedPos.y = round(snappedPos.y / gs) * gs
-//        level.moveSelectedVertices(pos: snappedPos, snappedVertex: clickedVertex)
-//    }
 
     //
     // Actions

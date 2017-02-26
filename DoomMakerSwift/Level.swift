@@ -27,12 +27,13 @@ private protocol MapItem {
 ///
 class Level
 {
+    /// Load exception
     enum LoadError: Error
     {
         case info(text: String)
     }
 
-    // This will allow both getting the lump name and lump index
+    /// This will allow both getting the lump name and lump index
     enum LumpOffset: Int {
         case things = 1
         case linedefs
@@ -46,11 +47,13 @@ class Level
         case blockmap
     }
 
+    /// Lump load info
     struct LumpDefinition {
         let name: String
         let recordSize: Int
     }
 
+    /// Maps a lump offset to its record definition
     static let lumpMap: [LumpOffset: LumpDefinition] = [
         .things: LumpDefinition(name: "THINGS", recordSize: 10),
         .linedefs: LumpDefinition(name: "LINEDEFS", recordSize: 14),
@@ -64,48 +67,52 @@ class Level
         .blockmap: LumpDefinition(name: "BLOCKMAP", recordSize: 2)
     ]
 
+    /// Map thing
     final class Thing: MapItem {
-        var x = 0
-        var y = 0
-        var angle = 0
-        var type = 0
-        var flags = 0
+        var x = 0       // coordinate
+        var y = 0       // coordinate
+        var angle = 0   // angle
+        var type = 0    // doomednum
+        var flags = 0   // spawn options
 
         init(data: [UInt8]) {
             DataReader(data).short(&x).short(&y).short(&angle).short(&type).short(&flags)
         }
     }
 
+    /// Map linedef
     final class Linedef: MapItem {
-        var v1 = 0
-        var v2 = 0
-        var flags = 0
-        var special = 0
-        var tag = 0
-        var s1 = 0
-        var s2 = 0
+        var v1 = 0      // vertex index
+        var v2 = 0      // vertex index
+        var flags = 0   // linedef bits
+        var special = 0 // linedef trigger special
+        var tag = 0     // linedef trigger tag
+        var s1 = 0      // side index
+        var s2 = 0      // side index
 
         init(data: [UInt8]) {
             DataReader(data).short(&v1).short(&v2).short(&flags).short(&special).short(&tag).short(&s1).short(&s2)
         }
     }
 
+    /// Map sidedef
     final class Sidedef: MapItem {
-        var xOffset = 0
-        var yOffset = 0
-        var upper: [UInt8] = []
-        var lower: [UInt8] = []
-        var middle: [UInt8] = []
-        var sector = 0
+        var xOffset = 0             // x offset
+        var yOffset = 0             // y offset
+        var upper: [UInt8] = []     // upper texture
+        var lower: [UInt8] = []     // lower texture
+        var middle: [UInt8] = []    // middle texture
+        var sector = 0              // sector reference
 
         init(data: [UInt8]) {
             DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper).lumpName(&lower).lumpName(&middle).short(&sector)
         }
     }
 
+    /// Map vertex
     final class Vertex: MapItem, Hashable {
-        var x = 0
-        var y = 0
+        var x = 0       // coordinate
+        var y = 0       // coordinate
 
         var degree = 0  // number of adjacent lines
 
@@ -124,37 +131,40 @@ class Level
         }
     }
 
+    /// BSP segment
     final class Seg: MapItem {
-        var v1 = 0
-        var v2 = 0
-        var angle = 0
-        var line = 0
-        var dir = 0
-        var offset = 0
+        var v1 = 0      // vertex one
+        var v2 = 0      // vertex two
+        var angle = 0   // direction angle (unused?)
+        var line = 0    // source linedef
+        var dir = 0     // whether it's in the same direction or not
+        var offset = 0  // offset along linedef
 
         init(data: [UInt8]) {
             DataReader(data).short(&v1).short(&v2).short(&angle).short(&line).short(&dir).short(&offset)
         }
     }
 
+    /// BSP subsector
     final class Subsector: MapItem {
-        var segCount = 0
-        var firstSeg = 0
+        var segCount = 0    // number of segs
+        var firstSeg = 0    // first seg
 
         init(data: [UInt8]) {
             DataReader(data).short(&segCount).short(&firstSeg)
         }
     }
 
+    /// BSP split
     final class Node: MapItem {
-        var x0 = 0
-        var y0 = 0
-        var dx = 0
-        var dy = 0
-        var rightBox = (top:0, bottom:0, left:0, right:0)
-        var leftBox = (top:0, bottom:0, left:0, right:0)
-        var rightChild = 0
-        var leftChild = 0
+        var x0 = 0  // split start position
+        var y0 = 0  // split start position
+        var dx = 0  // split move to end
+        var dy = 0  // split move to end
+        var rightBox = (top:0, bottom:0, left:0, right:0)   // right bounding box
+        var leftBox = (top:0, bottom:0, left:0, right:0)    // left bounding box
+        var rightChild = 0  // right node or subsector
+        var leftChild = 0   // left node or subsector
 
         init(data: [UInt8]) {
             DataReader(data).short(&x0).short(&y0).short(&dx).short(&dy)
@@ -164,14 +174,15 @@ class Level
         }
     }
 
+    /// Map sector
     final class Sector: MapItem {
-        var floorheight = 0
-        var ceilingheight = 0
-        var floor: [UInt8] = []
-        var ceiling: [UInt8] = []
-        var light = 0
-        var special = 0
-        var tag = 0
+        var floorheight = 0         // floor height
+        var ceilingheight = 0       // ceiling height
+        var floor: [UInt8] = []     // floor
+        var ceiling: [UInt8] = []   // ceiling
+        var light = 0               // light level
+        var special = 0             // sector special
+        var tag = 0                 // sector trigger tag
 
         init(data: [UInt8]) {
             DataReader(data).short(&floorheight).short(&ceilingheight).lumpName(&floor).lumpName(&ceiling).short(&light).short(&special).short(&tag)

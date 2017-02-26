@@ -18,14 +18,23 @@
 
 import Foundation
 
+/**
+ Quick way to read data from a stream into useful variables.
+ */
 class DataReader {
     fileprivate let data: [UInt8]
     fileprivate var pos = 0
 
+    /**
+     Initializes with an UInt8 array/
+    */
     init(_ data: [UInt8]) {
         self.data = data
     }
 
+    /**
+     Reads a 16-bit value
+ */
     @discardableResult
     func short(_ val: inout Int) -> DataReader {
         val = Int(Int16(data[pos]) + (Int16(data[pos + 1]) << 8))
@@ -33,6 +42,9 @@ class DataReader {
         return self
     }
 
+    /**
+    Reads a lump name
+ */
     func lumpName(_ val: inout [UInt8]) -> DataReader {
         val = Lump.truncateZero(Array(data[pos ..< pos + 8]))
         pos += 8

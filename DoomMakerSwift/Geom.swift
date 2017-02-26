@@ -18,12 +18,14 @@
 
 import Foundation
 
+/// PI representation
 let π = M_PI
 let πf = Float(M_PI)
 
 class Geom {
 
-    // https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+    /// Checks if a line clips a rectangle, using Cohen-Sutherland's algorithm
+    /// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
     static func lineClipsRect(_ pp0: NSPoint, _ pp1: NSPoint, rect: NSRect) -> Bool {
 
         let inside = 0
@@ -86,59 +88,77 @@ class Geom {
     }
 }
 
+/// NSPoint addition
 func + (left: NSPoint, right: NSPoint) -> NSPoint {
     return NSPoint(x: left.x + right.x, y: left.y + right.y)
 }
 
+/// NSPoint-NSSize addition
 func + (left: NSPoint, right: NSSize) -> NSPoint {
     return NSPoint(x: left.x + right.width, y: left.y + right.height)
 }
 
+/// NSPoint subtraction
 func - (left: NSPoint, right: NSPoint) -> NSPoint {
     return NSPoint(x: left.x - right.x, y: left.y - right.y)
 }
 
+/// NSPoint-NSSize subtraction
 func - (left: NSPoint, right: NSSize) -> NSPoint {
     return NSPoint(x: left.x - right.width, y: left.y - right.height)
 }
 
+/// NSPoint-CGFloat division
 func / (left: NSPoint, right: CGFloat) -> NSPoint {
     return NSPoint(x: left.x / right, y: left.y / right)
 }
 
+/// NSPoint-Double division
 func / (left: NSPoint, right: Double) -> NSPoint {
     return left / CGFloat(right)
 }
 
+/// NSPoint-CGFloat multiplication
 func * (left: NSPoint, right: CGFloat) -> NSPoint {
     return NSPoint(x: left.x * right, y: left.y * right)
 }
 
+/// NSPoint-Double multiplication
 func * (left: NSPoint, right: Double) -> NSPoint {
     return left * CGFloat(right)
 }
 
+/// floor applied to NSPoint elements
 func floor(_ point: NSPoint) -> NSPoint {
     return NSPoint(x: floor(point.x), y: floor(point.y))
 }
 
+/// ceil applied to NSPoint elements
 func ceil(_ point: NSPoint) -> NSPoint {
     return NSPoint(x: ceil(point.x), y: ceil(point.y))
 }
 
+/// Additions to the NSPoint structure
 extension NSPoint {
+
+    /// Applies rotation to the 2D NSPoint vector
     func rotated(_ degrees: Float) -> NSPoint {
         let rad = degrees / 180 * πf
         let nx = Float(x) * cos(rad) - Float(y) * sin(rad)
         let ny = Float(x) * sin(rad) + Float(y) * cos(rad)
         return NSPoint(x: CGFloat(nx), y: CGFloat(ny))
     }
+
+    /// Calculates the distance of NSPoint to another point
     func distance(point: NSPoint) -> CGFloat {
         return sqrt(pow(point.x - self.x, 2) + pow(point.y - self.y, 2))
     }
 }
 
+/// NSRect additions
 extension NSRect {
+
+    /// Modifies this NSRect by adding the point to this as to a bounding box
     mutating func pointAdd(_ point: NSPoint) {
         if point.x > self.maxX {
             self.size.width = point.x - self.minX

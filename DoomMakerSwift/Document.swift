@@ -18,11 +18,18 @@
 
 import Cocoa
 
+/**
+ The template-provided Document class. Holds reference to Wad and LevelEditor.
+ */
 class Document: NSDocument, NSWindowDelegate, MapViewDelegate
 {
-    fileprivate let wad = Wad()
-    fileprivate let editor: LevelEditor
+    /// The wad: always available for the Document
+    private let wad = Wad()
 
+    /// The level editor: manages the levels from the same wad.
+    private let editor: LevelEditor
+
+    /// UI stuff
     @IBOutlet var docWindow: NSWindow!
     @IBOutlet var levelChooser: NSPopUpButton!
     @IBOutlet var mapView: MapView!
@@ -31,12 +38,14 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     @IBOutlet var xyLabel: NSTextField!
     @IBOutlet var rotationLabel: NSTextField!
 
-    fileprivate weak var currentLevel: Level? {
+    /// Holds a reference to the currently edited level
+    private weak var currentLevel: Level? {
         didSet {
             self.levelUpdated()
         }
     }
 
+    /// Updates the UI when a level is changed
     fileprivate func levelUpdated() {
         let haveLevel = self.currentLevel != nil
         self.mapView.isHidden = !haveLevel
@@ -45,6 +54,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.xyLabel.isHidden = !haveLevel
         self.rotationLabel.isHidden = !haveLevel
 
+        // Get settings from reference
         if haveLevel {
             let defaults = UserDefaults.standard
             self.mapView.gridSize = defaults.integer(forKey: Preferences.gridSize)
@@ -62,6 +72,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.mapView.delegate = haveLevel ? self : nil
     }
 
+    /// Initializer
     override init()
     {
         self.editor = LevelEditor(wad: self.wad)
@@ -69,6 +80,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         // Add your subclass-specific initialization here
     }
 
+    /// When the NIB is loaded
     override func windowControllerDidLoadNib(_ aController: NSWindowController)
     {
         super.windowControllerDidLoadNib(aController)
@@ -81,16 +93,20 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     //
     // DELEGATE METHODS
     //
+
+    /// When the grid size is updated, change the UI
     func mapViewGridSizeUpdated() {
         self.gridLabel.setText("Grid Size: \(self.mapView.gridSize)")
         UserDefaults.standard.set(self.mapView.gridSize, forKey: Preferences.gridSize)
     }
 
+    /// When the map is scaled, change the UI
     func mapViewScaleUpdated() {
         self.zoomLabel.setText("Zoom: \(Int(round(self.mapView.scale * 100)))%")
         UserDefaults.standard.set(Double(self.mapView.scale), forKey: Preferences.zoom)
     }
 
+    /// When the map is rotated, change the UI
     func mapViewRotationUpdated() {
         self.rotationLabel.setText("Rotation: \(Int(round(self.mapView.rotate / MapView.Const.rotateSnapDegrees) * MapView.Const.rotateSnapDegrees))˚")
         UserDefaults.standard.set(self.mapView.rotate, forKey: Preferences.rotation)
@@ -106,23 +122,28 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
 //        addWindowController(controller)
 //    }
 
+    /// It should autosave.
     override class func autosavesInPlace() -> Bool
     {
         return true
     }
 
+    /// NIB name
     override var windowNibName: String? {
         // Returns the nib file name of the document
         // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
         return "Document"
     }
 
+    /// When saving
     override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
+
         return self.wad.serialized()
     }
 
+    /// When opening
     override func read(from data: Data, ofType typeName: String) throws {
         // Insert code here to read your document from the given data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning false.
         // You can also choose to override readFromFileWrapper:ofType:error: or readFromURL:ofType:error: instead.
@@ -138,7 +159,8 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         }
     }
 
-    fileprivate func updateLevelChooser() {
+    /// Update the level popup button
+    private func updateLevelChooser() {
         self.levelChooser.removeAllItems()
         for i in 0 ..< self.editor.levelCount {
             self.levelChooser.addItem(withTitle: self.editor.levelName(i))
@@ -154,6 +176,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         }
     }
 
+    /// When the level popup is clicked
     func levelChooserClicked(_ sender: AnyObject?) {
         let index = (sender as! NSMenuItem).tag
         self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)

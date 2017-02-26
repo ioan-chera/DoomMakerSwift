@@ -48,6 +48,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     /// Updates the UI when a level is changed
     fileprivate func levelUpdated() {
         let haveLevel = self.currentLevel != nil
+        self.currentLevel?.document = self
         self.mapView.isHidden = !haveLevel
         self.gridLabel.isHidden = !haveLevel
         self.zoomLabel.isHidden = !haveLevel

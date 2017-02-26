@@ -513,6 +513,13 @@ class MapView: NSView {
         }
     }
 
+    func undo(_ sender: Any?) {
+        level?.runUndo()
+    }
+    func redo(_ sender: Any?) {
+        level?.runRedo()
+    }
+
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -530,6 +537,12 @@ class MapView: NSView {
             menuItem.action == #selector(MapView.clearSelection(_:))
         {
             return self.level != nil
+        }
+        if menuItem.action == #selector(MapView.undo(_:)) {
+            return self.level != nil && self.level!.canUndo()
+        }
+        if menuItem.action == #selector(MapView.redo(_:)) {
+            return self.level != nil && self.level!.canRedo()
         }
         return super.validateMenuItem(menuItem)
     }

@@ -202,6 +202,29 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
+    /// The undo manager specific to this level
+    let undo = UndoManager()
+    weak var document: Document?
+
+    func runUndo() {
+        if undo.canUndo {
+            undo.undo()
+            document?.updateChangeCount(.changeUndone)
+        }
+    }
+    func runRedo() {
+        if undo.canRedo {
+            undo.redo()
+            document?.updateChangeCount(.changeRedone)
+        }
+    }
+    func canUndo() -> Bool {
+        return undo.canUndo
+    }
+    func canRedo() -> Bool {
+        return undo.canRedo
+    }
+
     /// the vertex currently highlighted by the mouse
     private(set) var highlightedVertexIndex: Int?
 

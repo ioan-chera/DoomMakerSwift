@@ -224,6 +224,13 @@ class Level
     func canRedo() -> Bool {
         return undo.canRedo
     }
+    func updateView() {
+        self.document?.updateView()
+    }
+    func markChange() {
+        self.undo.endUndoGrouping()
+        document?.updateChangeCount(.changeDone)
+    }
 
     /// the vertex currently highlighted by the mouse
     private(set) var highlightedVertexIndex: Int?
@@ -356,6 +363,24 @@ class Level
     }
 
     ///
+    /// Vertex movement operation
+    ///
+    private func moveVertices(positions: [Int: NSPoint]) {
+        var currentPositions: [Int: NSPoint] = [:]
+        for (index, point) in positions {
+            if let vertex = getVertex(index: index) {
+                currentPositions[index] = NSPoint(x: vertex.x, y: vertex.y)
+                vertex.x = Int(round(point.x))
+                vertex.y = Int(round(point.y))
+            }
+        }
+        self.updateView()
+        self.undo.registerUndo {
+            self.moveVertices(positions: currentPositions)
+        }
+    }
+
+    ///
     /// Drags vertices to a new position. Returns true if the view should be
     /// updated.
     ///
@@ -380,11 +405,16 @@ class Level
         let oldPositionX = clickedDownVertex.x
         let oldPositionY = clickedDownVertex.y
 
+        var moveList: [Int: NSPoint] = [self.clickedDownVertexIndex!: NSPoint(x: oldPositionX, y: oldPositionY)]
+
         clickedDownVertex.x = Int(round(actualPosition.x))
         clickedDownVertex.y = Int(round(actualPosition.y))
 
         if clickedDownVertex.x != oldPositionX || clickedDownVertex.y != oldPositionY {
-            vertexDragged = true
+            if !vertexDragged {
+                vertexDragged = true
+                self.undo.beginUndoGrouping()   // prepare to start undoing
+            }
             for index in selectedVertexIndices {
                 if index == clickedDownVertexIndex {
                     continue
@@ -392,8 +422,12 @@ class Level
                 guard let vertex = getVertex(index: index) else {
                     continue
                 }
+                moveList[index] = NSPoint(x: vertex.x, y: vertex.y)
                 vertex.x += clickedDownVertex.x - oldPositionX
                 vertex.y += clickedDownVertex.y - oldPositionY
+            }
+            self.undo.registerUndo {
+                self.moveVertices(positions: moveList)
             }
             return true
         }
@@ -408,7 +442,9 @@ class Level
         guard let clickedDownVertexIndex = self.clickedDownVertexIndex else {
             return false
         }
+
         if vertexDragged {
+            self.markChange()
             return false
         }
         if selectedVertexIndices.contains(clickedDownVertexIndex) {

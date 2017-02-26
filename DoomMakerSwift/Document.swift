@@ -182,5 +182,10 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         let index = (sender as! NSMenuItem).tag
         self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)
     }
+
+    /// Notifies the map view to update
+    func updateView() {
+        self.mapView.setNeedsDisplay(self.mapView.bounds)
+    }
 }
 

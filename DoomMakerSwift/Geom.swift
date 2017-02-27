@@ -175,3 +175,14 @@ extension NSRect {
     }
 }
 
+/// Reference-based alternative to NSPoint. For situations such as NSMapTable
+class PointObj {
+    let x, y: Int
+    init(x: Int, y: Int) {
+        self.x = x
+        self.y = y
+    }
+    convenience init(vertex: Level.Vertex) {
+        self.init(x: vertex.x, y: vertex.y)
+    }
+}

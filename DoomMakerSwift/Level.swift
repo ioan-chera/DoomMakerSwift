@@ -202,6 +202,10 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
+    //
+    // UNDO STUFF
+    //
+
     /// The undo manager specific to this level
     let undo = UndoManager()
     weak var document: Document?
@@ -232,17 +236,25 @@ class Level
         document?.updateChangeCount(.changeDone)
     }
 
+    //
+    // MAP SAVING STUFF
+    //
+
     private(set) var verticesDirty = false  // update VERTEXES lump
     /// Must be called when saving
     func cleanDirty() {
         verticesDirty = false
     }
 
+    //
+    // VERTEX USER INTERACTION
+    //
+
     /// the vertex currently highlighted by the mouse
-    private(set) var highlightedVertexIndex: Int?
+    private(set) weak var highlightedVertex: Vertex?
 
     /// the vertex the user started holding down the mouse
-    private(set) var clickedDownVertexIndex: Int?
+    private(set) weak var clickedDownVertex: Vertex?
 
     /// the map position the user started holding down the mouse
     private var clickedDownOffset = NSSize()
@@ -256,7 +268,8 @@ class Level
     /// Whether a vertex or more got dragged
     private var vertexDragged = false
 
-    var selectedVertexIndices = Set<Int>()
+    /// Selected vertices set
+    let selectedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
@@ -314,17 +327,15 @@ class Level
     ///
     /// Finds the nearest vertex to a point, within a radius
     ///
-    private func findNearestVertex(position: NSPoint, radius: CGFloat) -> Int? {
+    private func findNearestVertex(position: NSPoint, radius: CGFloat) -> Vertex? {
         var minDistance = CGFloat.greatestFiniteMagnitude
-        var nearestVertex: Int? = nil
-        var index = -1
+        var nearestVertex: Vertex? = nil
         for vertex in vertices {
-            index += 1
             let vertexPosition = NSPoint(x: vertex.x, y: vertex.y)
             let distance = position.distance(point: vertexPosition)
             if distance < radius && distance < minDistance {
                 minDistance = distance
-                nearestVertex = index
+                nearestVertex = vertex
             }
         }
         return nearestVertex
@@ -348,37 +359,34 @@ class Level
     /// Can return "nothing"
     ///
     func highlightVertex(position: NSPoint, radius: CGFloat) -> Bool {
-        let oldHighlightedVertexIndex = highlightedVertexIndex
-        highlightedVertexIndex = findNearestVertex(position: position, radius: radius)
-        return highlightedVertexIndex != oldHighlightedVertexIndex
+        let oldHighlightedVertex = highlightedVertex
+        highlightedVertex = findNearestVertex(position: position, radius: radius)
+        return highlightedVertex != oldHighlightedVertex
     }
 
     ///
     /// Marks a vertex which has been started clicking.
     ///
     func clickDownVertex(position: NSPoint) {
-        clickedDownVertexIndex = highlightedVertexIndex
+        clickedDownVertex = highlightedVertex
         vertexDragged = false
-        if let index = clickedDownVertexIndex {
-            if index >= 0 && index < vertices.count {
-                let vertex = vertices[index]
-                clickedDownOffset = NSSize(width: position.x - CGFloat(vertex.x),
-                                           height: position.y - CGFloat(vertex.y))
-            }
+        if let vertex = clickedDownVertex {
+            clickedDownOffset = NSSize(width: position.x - CGFloat(vertex.x),
+                                       height: position.y - CGFloat(vertex.y))
         }
     }
 
     ///
     /// Vertex movement operation
     ///
-    private func moveVertices(positions: [Int: NSPoint]) {
-        var currentPositions: [Int: NSPoint] = [:]
-        for (index, point) in positions {
-            if let vertex = getVertex(index: index) {
-                currentPositions[index] = NSPoint(x: vertex.x, y: vertex.y)
-                vertex.x = Int(round(point.x))
-                vertex.y = Int(round(point.y))
-            }
+    private func moveVertices(positions: NSMapTable<Vertex, PointObj>) {
+        let currentPositions: NSMapTable<Vertex, PointObj> = NSMapTable.weakToStrongObjects()
+        let enumerator = positions.keyEnumerator()
+        while let vertex = enumerator.nextObject() as? Vertex {
+            currentPositions.setObject(PointObj(vertex: vertex), forKey: vertex)
+            let point = positions.object(forKey: vertex)!
+            vertex.x = point.x
+            vertex.y = point.y
         }
         self.updateView()
         self.undo.registerUndo {
@@ -391,7 +399,7 @@ class Level
     /// updated.
     ///
     func dragVertices(position: NSPoint) -> Bool {
-        guard let clickedDownVertex = self.getVertex(index: self.clickedDownVertexIndex) else {
+        guard let clickedDownVertex = self.clickedDownVertex else {
             return false
         }
         var actualPosition = position - self.clickedDownOffset
@@ -411,7 +419,8 @@ class Level
         let oldPositionX = clickedDownVertex.x
         let oldPositionY = clickedDownVertex.y
 
-        var moveList: [Int: NSPoint] = [self.clickedDownVertexIndex!: NSPoint(x: oldPositionX, y: oldPositionY)]
+        let moveList: NSMapTable<Vertex, PointObj> = NSMapTable.weakToStrongObjects()
+        moveList.setObject(PointObj(vertex: clickedDownVertex), forKey: clickedDownVertex)
 
         clickedDownVertex.x = Int(round(actualPosition.x))
         clickedDownVertex.y = Int(round(actualPosition.y))
@@ -421,14 +430,12 @@ class Level
                 vertexDragged = true
                 self.undo.beginUndoGrouping()   // prepare to start undoing
             }
-            for index in selectedVertexIndices {
-                if index == clickedDownVertexIndex {
+            let enumerator: NSEnumerator = selectedVertices.objectEnumerator()
+            while let vertex: Vertex = enumerator.nextObject() as? Vertex {
+                if vertex == clickedDownVertex {
                     continue
                 }
-                guard let vertex = getVertex(index: index) else {
-                    continue
-                }
-                moveList[index] = NSPoint(x: vertex.x, y: vertex.y)
+                moveList.setObject(PointObj(vertex: vertex), forKey: vertex)
                 vertex.x += clickedDownVertex.x - oldPositionX
                 vertex.y += clickedDownVertex.y - oldPositionY
             }
@@ -446,7 +453,7 @@ class Level
     /// When a vertex has been unclicked
     ///
     func clickUpVertex() -> Bool {
-        guard let clickedDownVertexIndex = self.clickedDownVertexIndex else {
+        guard let clickedDownVertex = self.clickedDownVertex else {
             return false
         }
 
@@ -454,12 +461,12 @@ class Level
             self.markChange()
             return false
         }
-        if selectedVertexIndices.contains(clickedDownVertexIndex) {
-            selectedVertexIndices.remove(clickedDownVertexIndex)
+        if selectedVertices.contains(clickedDownVertex) {
+            selectedVertices.remove(clickedDownVertex)
             return true
         }
 
-        selectedVertexIndices.insert(clickedDownVertexIndex)
+        selectedVertices.add(clickedDownVertex)
         return true
     }
 
@@ -467,8 +474,8 @@ class Level
     /// Selects all vertices
     ///
     func selectAllVertices() -> Bool {
-        for i in 0..<vertices.count {
-            selectedVertexIndices.insert(i)
+        for vertex in vertices {
+            selectedVertices.add(vertex)
         }
         return true
     }
@@ -477,22 +484,20 @@ class Level
     /// Deselects all
     ///
     func clearSelection() -> Bool {
-        selectedVertexIndices = []
+        selectedVertices.removeAllObjects()
         return true
     }
 
     func boxSelect(startPos: NSPoint, endPos: NSPoint) {
-        var index = -1
         let rotatedStart = startPos.rotated(self.gridRotation)
         let rotatedEnd = endPos.rotated(self.gridRotation)
         var rotatedRect = NSRect(origin: rotatedStart, size: CGSize())
         rotatedRect.pointAdd(rotatedEnd)
         for vertex in vertices {
-            index += 1
             var rotated = NSPoint(x: vertex.x, y: vertex.y)
             rotated = rotated.rotated(self.gridRotation)
             if NSPointInRect(rotated, rotatedRect) {
-                self.selectedVertexIndices.insert(index)
+                self.selectedVertices.add(vertex)
             }
         }
     }

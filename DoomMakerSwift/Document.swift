@@ -67,6 +67,10 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
                 self.mapView.scale = 1
             }
             self.mapView.rotate = defaults.float(forKey: Preferences.rotation)
+
+            if let level = self.currentLevel {
+                self.updateMode(level.mode)
+            }
         }
 
         self.mapView.level = self.currentLevel
@@ -187,9 +191,16 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)
     }
 
+    //
+    // NOTIFICATIONS
+    //
+
     /// Notifies the map view to update
     func updateView() {
         self.mapView.setNeedsDisplay(self.mapView.bounds)
+    }
+    func updateMode(_ mode: Level.Mode) {
+        appDelegate().updateMode(mode)
     }
 }
 

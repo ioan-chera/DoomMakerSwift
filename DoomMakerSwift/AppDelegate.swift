@@ -21,7 +21,8 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-
+    @IBOutlet var verticesModeItem: NSMenuItem!
+    @IBOutlet var linedefsModeItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
@@ -31,6 +32,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
 
-
+    func updateMode(_ mode: Level.Mode) {
+        func check(_ val: Level.Mode) -> Int {
+            return mode == val ? NSOnState : NSOffState
+        }
+        verticesModeItem.state = check(Level.Mode.vertices)
+        linedefsModeItem.state = check(Level.Mode.linedefs)
+    }
 }
 
+func appDelegate() -> AppDelegate {
+    return NSApp.delegate as! AppDelegate
+}

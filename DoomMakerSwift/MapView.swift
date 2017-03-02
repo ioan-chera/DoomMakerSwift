@@ -512,6 +512,17 @@ class MapView: NSView {
         level?.runRedo()
     }
 
+    //
+    // Mode select
+    //
+    @IBAction func vertexMode(_ sender: Any?) {
+        level?.mode = Level.Mode.vertices
+    }
+
+    @IBAction func linedefMode(_ sender: Any?) {
+        level?.mode = Level.Mode.linedefs
+    }
+
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -526,7 +537,9 @@ class MapView: NSView {
             return self.scale > Const.scaleMin
         }
         if menuItem.action == #selector(MapView.selectAll(_:)) ||
-            menuItem.action == #selector(MapView.clearSelection(_:))
+            menuItem.action == #selector(MapView.clearSelection(_:)) ||
+            menuItem.action == #selector(MapView.vertexMode(_:)) ||
+            menuItem.action == #selector(MapView.linedefMode(_:))
         {
             return self.level != nil
         }

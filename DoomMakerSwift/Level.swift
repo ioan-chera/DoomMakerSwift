@@ -48,6 +48,11 @@ class Level
         case blockmap
     }
 
+    enum Mode {
+        case vertices
+        case linedefs
+    }
+
     /// Lump load info
     struct LumpDefinition {
         let name: String
@@ -321,6 +326,8 @@ class Level
 
         self.reject = wad.lumps[lumpIndex + LumpOffset.reject.rawValue].data
         self.blockmap = []
+        self.mode = Mode.vertices
+
         self.loadBlockmap(
             wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
     }
@@ -540,6 +547,16 @@ class Level
             if NSPointInRect(rotated, rotatedRect) {
                 self.selectedVertices.add(vertex)
             }
+        }
+    }
+
+    //==========================================================================
+    //
+    // Mode switching
+    //
+    var mode: Mode {
+        didSet {
+            document?.updateMode(mode)
         }
     }
 }

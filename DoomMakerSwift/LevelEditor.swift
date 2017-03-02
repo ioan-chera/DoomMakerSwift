@@ -90,7 +90,7 @@ class LevelEditor {
                 if level.verticesDirty {
                     let verticesLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.vertices.rawValue]
                     verticesLump.data = []
-                    for vertex in level.vertices {
+                    for vertex in level.vertices + level.bspVertices {
                         verticesLump.data += vertex.getData()
                     }
                 }

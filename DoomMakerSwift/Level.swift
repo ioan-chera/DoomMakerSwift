@@ -232,6 +232,8 @@ class Level
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
+    private(set) var bspVertices: [Vertex]
+
     //
     // UNDO STUFF
     //
@@ -324,19 +326,48 @@ class Level
         self.nodes = loadItems(.nodes)
         self.sectors = loadItems(.sectors)
 
+        self.bspVertices = []
+
         self.reject = wad.lumps[lumpIndex + LumpOffset.reject.rawValue].data
         self.blockmap = []
         self.mode = Mode.vertices
 
         self.loadBlockmap(
             wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
+        checkBspVertices()
     }
 
-    fileprivate func loadBlockmap(_ blockmapData: [UInt8]) {
+    private func loadBlockmap(_ blockmapData: [UInt8]) {
         self.blockmap = []
         let recordSize = Level.lumpMap[.blockmap]!.recordSize
         for i in stride(from: 0, to: blockmapData.count, by: recordSize) {
             self.blockmap.append(intFromInt16(blockmapData, loc: i))
+        }
+    }
+
+    private func checkBspVertices() {
+        var visited = [Bool](repeating: false, count: vertices.count)
+        func tryVisit(_ vertexIndex: Int) {
+            if vertexIndex >= 0 && vertexIndex < visited.count {
+                visited[vertexIndex] = true
+            }
+        }
+        for line in linedefs {
+            tryVisit(line.v1)
+            tryVisit(line.v2)
+        }
+        var index = vertices.count
+        for status in visited.reversed() {
+            if status {
+                break
+            }
+            index -= 1
+        }
+        if index < vertices.count {
+            for i in index..<vertices.count {
+                bspVertices.append(vertices[i])
+            }
+            vertices.removeLast(vertices.count - index)
         }
     }
 

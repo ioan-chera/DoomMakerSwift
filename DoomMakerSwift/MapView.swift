@@ -342,10 +342,8 @@ class MapView: NSView {
         capTranslation()
 
         // Also update position for the map
-        mouseViewPos = self.convert(theEvent.locationInWindow, from: nil)
-        mouseGamePos = gamePos(mouseViewPos)
-
-        self.setNeedsDisplay(self.bounds)
+        mouseMoved(with: theEvent)
+        setNeedsDisplay(bounds)
     }
 
     ///

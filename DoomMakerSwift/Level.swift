@@ -412,6 +412,7 @@ class Level
             vertex.x = Int16(round(point.data.x))
             vertex.y = Int16(round(point.data.y))
         }
+        verticesDirty = true
         self.updateView()
         self.undo.registerUndo {
             self.moveVertices(positions: currentPositions)
@@ -486,11 +487,11 @@ class Level
                 let wrap = ObjWrap(NSPoint(x: Int(vertex.apparentX),
                                            y: Int(vertex.apparentY)))
                 positions.setObject(wrap, forKey: vertex)
-                vertex.endDragging()
 
                 if vertex.apparentX != vertex.x || vertex.apparentY != vertex.y {
                     changed = true
                 }
+                vertex.endDragging()
             }
             draggedVertices.removeAllObjects()
 

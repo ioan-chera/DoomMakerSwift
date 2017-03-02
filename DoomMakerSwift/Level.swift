@@ -470,18 +470,29 @@ class Level
         }
 
         if draggedVertices.count > 0 {
-            let enumerator = draggedVertices.objectEnumerator()
             let positions = NSMapTable<Vertex, ObjWrap<NSPoint>>
                 .weakToStrongObjects()
+            var changed = false
+
+            let enumerator = draggedVertices.objectEnumerator()
             while let vertex = enumerator.nextObject() as? Vertex {
-                positions.setObject(ObjWrap(NSPoint(x: Int(vertex.apparentX),
-                                                    y: Int(vertex.apparentY))),
-                                    forKey: vertex)
+                let wrap = ObjWrap(NSPoint(x: Int(vertex.apparentX),
+                                           y: Int(vertex.apparentY)))
+                positions.setObject(wrap, forKey: vertex)
                 vertex.endDragging()
+
+                if wrap.data.x != CGFloat(vertex.x) ||
+                    wrap.data.y != CGFloat(vertex.y)
+                {
+                    changed = true
+                }
             }
             draggedVertices.removeAllObjects()
-            moveVertices(positions: positions)
-            document?.updateChangeCount(.changeDone)
+
+            if changed {
+                moveVertices(positions: positions)
+                document?.updateChangeCount(.changeDone)
+            }
             return false
         }
 

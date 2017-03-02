@@ -42,6 +42,13 @@ class DataReader {
         return self
     }
 
+    @discardableResult
+    func short(_ val: inout Int16) -> DataReader {
+        val = Int16(data[pos]) | (Int16(data[pos + 1]) << 8)
+        pos += 2
+        return self
+    }
+
     /**
     Reads a lump name
  */

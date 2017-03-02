@@ -89,11 +89,10 @@ class LevelEditor {
             if let level = entry.level {
                 if level.verticesDirty {
                     let verticesLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.vertices.rawValue]
-                    let writer = DataWriter([])
+                    verticesLump.data = []
                     for vertex in level.vertices {
-                        writer.short(vertex.x).short(vertex.y)
+                        verticesLump.data += vertex.getData()
                     }
-                    verticesLump.data = writer.data
                 }
                 level.cleanDirty()
             }

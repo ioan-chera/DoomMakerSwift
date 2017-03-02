@@ -18,8 +18,9 @@
 
 import Foundation
 
-private protocol MapItem {
+protocol MapItem {
     init(data: [UInt8])
+    func getData() -> [UInt8]
 }
 
 ///
@@ -76,7 +77,13 @@ class Level
         var flags = 0   // spawn options
 
         init(data: [UInt8]) {
-            DataReader(data).short(&x).short(&y).short(&angle).short(&type).short(&flags)
+            DataReader(data).short(&x).short(&y).short(&angle).short(&type)
+                .short(&flags)
+        }
+
+        func getData() -> [UInt8] {
+            return DataWriter([]).short(x).short(y).short(angle).short(type)
+                .short(flags).data
         }
     }
 
@@ -91,7 +98,13 @@ class Level
         var s2 = 0      // side index
 
         init(data: [UInt8]) {
-            DataReader(data).short(&v1).short(&v2).short(&flags).short(&special).short(&tag).short(&s1).short(&s2)
+            DataReader(data).short(&v1).short(&v2).short(&flags).short(&special)
+                .short(&tag).short(&s1).short(&s2)
+        }
+
+        func getData() -> [UInt8] {
+            return DataWriter([]).short(v1).short(v2).short(flags)
+                .short(special).short(tag).short(s1).short(s2).data
         }
     }
 
@@ -105,29 +118,13 @@ class Level
         var sector = 0              // sector reference
 
         init(data: [UInt8]) {
-            DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper).lumpName(&lower).lumpName(&middle).short(&sector)
-        }
-    }
-
-    /// Map vertex
-    final class Vertex: MapItem, Hashable {
-        var x = 0       // coordinate
-        var y = 0       // coordinate
-
-        var degree = 0  // number of adjacent lines
-
-        init(data: [UInt8]) {
-            DataReader(data).short(&x).short(&y)
+            DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
+                .lumpName(&lower).lumpName(&middle).short(&sector)
         }
 
-        var hashValue: Int {
-            get {
-                return x.hashValue ^ y.hashValue
-            }
-        }
-
-        static func == (lhs: Vertex, rhs: Vertex) -> Bool {
-            return lhs === rhs
+        func getData() -> [UInt8] {
+            return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
+                .lumpName(lower).lumpName(middle).short(sector).data
         }
     }
 
@@ -141,7 +138,13 @@ class Level
         var offset = 0  // offset along linedef
 
         init(data: [UInt8]) {
-            DataReader(data).short(&v1).short(&v2).short(&angle).short(&line).short(&dir).short(&offset)
+            DataReader(data).short(&v1).short(&v2).short(&angle).short(&line)
+                .short(&dir).short(&offset)
+        }
+
+        func getData() -> [UInt8] {
+            return DataWriter().short(v1).short(v2).short(angle).short(line)
+                .short(dir).short(offset).data
         }
     }
 
@@ -152,6 +155,10 @@ class Level
 
         init(data: [UInt8]) {
             DataReader(data).short(&segCount).short(&firstSeg)
+        }
+
+        func getData() -> [UInt8] {
+            return DataWriter().short(segCount).short(firstSeg).data
         }
     }
 
@@ -168,9 +175,19 @@ class Level
 
         init(data: [UInt8]) {
             DataReader(data).short(&x0).short(&y0).short(&dx).short(&dy)
-                .short(&rightBox.top).short(&rightBox.bottom).short(&rightBox.left).short(&rightBox.right)
-                .short(&leftBox.top).short(&leftBox.bottom).short(&leftBox.left).short(&leftBox.right)
+                .short(&rightBox.top).short(&rightBox.bottom)
+                .short(&rightBox.left).short(&rightBox.right)
+                .short(&leftBox.top).short(&leftBox.bottom).short(&leftBox.left)
+                .short(&leftBox.right)
                 .short(&rightChild).short(&leftChild)
+        }
+
+        func getData() -> [UInt8] {
+            return DataWriter().short(x0).short(y0).short(dx).short(dy)
+                .short(rightBox.top).short(rightBox.bottom).short(rightBox.left)
+                .short(rightBox.right).short(leftBox.top).short(leftBox.bottom)
+                .short(leftBox.left).short(leftBox.right).short(rightChild)
+                .short(leftChild).data
         }
     }
 
@@ -185,7 +202,15 @@ class Level
         var tag = 0                 // sector trigger tag
 
         init(data: [UInt8]) {
-            DataReader(data).short(&floorheight).short(&ceilingheight).lumpName(&floor).lumpName(&ceiling).short(&light).short(&special).short(&tag)
+            DataReader(data).short(&floorheight).short(&ceilingheight)
+                .lumpName(&floor).lumpName(&ceiling).short(&light)
+                .short(&special).short(&tag)
+        }
+
+        func getData() -> [UInt8] {
+            return DataWriter().short(floorheight).short(ceilingheight)
+                .lumpName(floor).lumpName(ceiling).short(light).short(special)
+                .short(tag).data
         }
     }
 
@@ -194,7 +219,7 @@ class Level
     fileprivate(set) var things: [Thing]
     fileprivate(set) var linedefs: [Linedef]
     fileprivate var sidedefs: [Sidedef]
-    fileprivate(set) var vertices: [Vertex]
+    private(set) var vertices: [Vertex]
     fileprivate var segs: [Seg]
     fileprivate var subsectors: [Subsector]
     fileprivate var nodes: [Node]
@@ -257,7 +282,7 @@ class Level
     private(set) weak var clickedDownVertex: Vertex?
 
     /// the map position the user started holding down the mouse
-    private var clickedDownOffset = NSSize()
+    private var clickedDownOffset = NSPoint()
 
     /// The grid rotation. Changed from UI.
     var gridRotation = Float(0.0)
@@ -265,11 +290,11 @@ class Level
     /// The grid size. Changed from UI.
     var gridSize = CGFloat(0.0)
 
-    /// Whether a vertex or more got dragged
-    private var vertexDragged = false
-
     /// Selected vertices set
     let selectedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
+
+    /// Dragged vertices set
+    let draggedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
@@ -296,9 +321,8 @@ class Level
 
         self.reject = wad.lumps[lumpIndex + LumpOffset.reject.rawValue].data
         self.blockmap = []
-        self.loadBlockmap(wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
-
-        postprocess()
+        self.loadBlockmap(
+            wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
     }
 
     fileprivate func loadBlockmap(_ blockmapData: [UInt8]) {
@@ -309,30 +333,43 @@ class Level
         }
     }
 
-    fileprivate func postprocess() {
-        for line in linedefs {
-            if line.v1 < 0 || line.v1 >= vertices.count || line.v2 < 0 || line.v2 >= vertices.count {
-                continue
-            }
-            vertices[line.v1].degree += 1
-            vertices[line.v2].degree += 1
+    //==========================================================================
+    //
+    // Grid stuff
+    //
+
+    /// Snaps a point to grid
+    func snapToGrid(_ point: NSPoint) -> NSPoint {
+        if self.gridSize <= 0 {
+            return point
         }
+        var result = point
+        if Int(round(self.gridRotation)) % 90 != 0 {
+            result = result.rotated(self.gridRotation)
+            result = result /• self.gridSize
+            result = result.rotated(-self.gridRotation)
+        } else {
+            result = result /• self.gridSize
+        }
+        return result
     }
 
     //==========================================================================
     //
-    // USER ACTIONS
+    // Mouse actions
     //
 
     ///
     /// Finds the nearest vertex to a point, within a radius
     ///
-    private func findNearestVertex(position: NSPoint, radius: CGFloat) -> Vertex? {
+    private func findNearestVertex(position: NSPoint, radius: CGFloat) ->
+        Vertex?
+    {
         var minDistance = CGFloat.greatestFiniteMagnitude
         var nearestVertex: Vertex? = nil
         for vertex in vertices {
-            let vertexPosition = NSPoint(x: vertex.x, y: vertex.y)
-            let distance = position.distance(point: vertexPosition)
+            let vertexPosition = NSPoint(vertex: vertex)
+            let distance = position <-> vertexPosition
             if distance < radius && distance < minDistance {
                 minDistance = distance
                 nearestVertex = vertex
@@ -342,51 +379,31 @@ class Level
     }
 
     ///
-    /// Gets a vertex if the index is valid
-    ///
-    private func getVertex(index: Int?) -> Vertex? {
-        if let ind = index {
-            if ind >= 0 && ind < vertices.count {
-                return vertices[ind]
-            }
-        }
-        return nil
-    }
-
-    ///
     /// Highlights the vertex closest to a point, within a radius.
     /// Returns true if the highlighted vertex has changed.
     /// Can return "nothing"
     ///
-    func highlightVertex(position: NSPoint, radius: CGFloat) -> Bool {
+    func highlightVertex(position: NSPoint, radius: CGFloat) {
         let oldHighlightedVertex = highlightedVertex
         highlightedVertex = findNearestVertex(position: position, radius: radius)
-        return highlightedVertex != oldHighlightedVertex
-    }
-
-    ///
-    /// Marks a vertex which has been started clicking.
-    ///
-    func clickDownVertex(position: NSPoint) {
-        clickedDownVertex = highlightedVertex
-        vertexDragged = false
-        if let vertex = clickedDownVertex {
-            clickedDownOffset = NSSize(width: position.x - CGFloat(vertex.x),
-                                       height: position.y - CGFloat(vertex.y))
+        if highlightedVertex !== oldHighlightedVertex {
+            document?.updateView()
         }
     }
 
     ///
     /// Vertex movement operation
     ///
-    private func moveVertices(positions: NSMapTable<Vertex, PointObj>) {
-        let currentPositions: NSMapTable<Vertex, PointObj> = NSMapTable.weakToStrongObjects()
+    private func moveVertices(positions: NSMapTable<Vertex, ObjWrap<NSPoint>>) {
+        let currentPositions: NSMapTable<Vertex, ObjWrap<NSPoint>> =
+            NSMapTable.weakToStrongObjects()
         let enumerator = positions.keyEnumerator()
         while let vertex = enumerator.nextObject() as? Vertex {
-            currentPositions.setObject(PointObj(vertex: vertex), forKey: vertex)
+            currentPositions.setObject(ObjWrap(NSPoint(vertex: vertex)),
+                                       forKey: vertex)
             let point = positions.object(forKey: vertex)!
-            vertex.x = point.x
-            vertex.y = point.y
+            vertex.x = Int16(round(point.data.x))
+            vertex.y = Int16(round(point.data.y))
         }
         self.updateView()
         self.undo.registerUndo {
@@ -395,58 +412,50 @@ class Level
     }
 
     ///
+    /// Marks a vertex which has been started clicking.
+    ///
+    func clickDownVertex(position: NSPoint) {
+        clickedDownVertex = highlightedVertex
+        if let vertex = clickedDownVertex {
+            clickedDownOffset = position - NSPoint(vertex: vertex)
+        }
+    }
+
+    ///
     /// Drags vertices to a new position. Returns true if the view should be
     /// updated.
     ///
-    func dragVertices(position: NSPoint) -> Bool {
+    func dragVertices(position: NSPoint) {
         guard let clickedDownVertex = self.clickedDownVertex else {
-            return false
+            return
         }
-        var actualPosition = position - self.clickedDownOffset
+        let actualPosition = snapToGrid(position - self.clickedDownOffset)
 
-        if self.gridSize != 0 {
-            if Int(round(self.gridRotation)) % 90 != 0 {
-                actualPosition = actualPosition.rotated(self.gridRotation)
-                actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
-                actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
-                actualPosition = actualPosition.rotated(-self.gridRotation)
-            } else {
-                actualPosition.x = round(actualPosition.x / self.gridSize) * self.gridSize
-                actualPosition.y = round(actualPosition.y / self.gridSize) * self.gridSize
-            }
+        let oldPositionX = clickedDownVertex.apparentX
+        let oldPositionY = clickedDownVertex.apparentY
+
+        if clickedDownVertex.setDragging(point: actualPosition) {
+            draggedVertices.add(clickedDownVertex)
         }
 
-        let oldPositionX = clickedDownVertex.x
-        let oldPositionY = clickedDownVertex.y
-
-        let moveList: NSMapTable<Vertex, PointObj> = NSMapTable.weakToStrongObjects()
-        moveList.setObject(PointObj(vertex: clickedDownVertex), forKey: clickedDownVertex)
-
-        clickedDownVertex.x = Int(round(actualPosition.x))
-        clickedDownVertex.y = Int(round(actualPosition.y))
-
-        if clickedDownVertex.x != oldPositionX || clickedDownVertex.y != oldPositionY {
-            if !vertexDragged {
-                vertexDragged = true
-                self.undo.beginUndoGrouping()   // prepare to start undoing
-            }
-            let enumerator: NSEnumerator = selectedVertices.objectEnumerator()
+        if clickedDownVertex.apparentX != oldPositionX ||
+            clickedDownVertex.apparentY != oldPositionY
+        {
+            let enumerator = selectedVertices.objectEnumerator()
             while let vertex: Vertex = enumerator.nextObject() as? Vertex {
-                if vertex == clickedDownVertex {
+                if vertex === clickedDownVertex {
                     continue
                 }
-                moveList.setObject(PointObj(vertex: vertex), forKey: vertex)
-                vertex.x += clickedDownVertex.x - oldPositionX
-                vertex.y += clickedDownVertex.y - oldPositionY
+                if vertex.setDragging(x: vertex.apparentX +
+                                         clickedDownVertex.apparentX - oldPositionX,
+                                      y: vertex.apparentY +
+                                         clickedDownVertex.apparentY - oldPositionY)
+                {
+                    draggedVertices.add(vertex)
+                }
             }
-            verticesDirty = true
-            self.undo.registerUndo {
-                self.moveVertices(positions: moveList)
-            }
-            return true
+            document?.updateView()
         }
-
-        return false
     }
 
     ///
@@ -456,11 +465,26 @@ class Level
         guard let clickedDownVertex = self.clickedDownVertex else {
             return false
         }
+        defer {
+            self.clickedDownVertex = nil
+        }
 
-        if vertexDragged {
-            self.markChange()
+        if draggedVertices.count > 0 {
+            let enumerator = draggedVertices.objectEnumerator()
+            let positions = NSMapTable<Vertex, ObjWrap<NSPoint>>
+                .weakToStrongObjects()
+            while let vertex = enumerator.nextObject() as? Vertex {
+                positions.setObject(ObjWrap(NSPoint(x: Int(vertex.apparentX),
+                                                    y: Int(vertex.apparentY))),
+                                    forKey: vertex)
+                vertex.endDragging()
+            }
+            draggedVertices.removeAllObjects()
+            moveVertices(positions: positions)
+            document?.updateChangeCount(.changeDone)
             return false
         }
+
         if selectedVertices.contains(clickedDownVertex) {
             selectedVertices.remove(clickedDownVertex)
             return true
@@ -470,31 +494,39 @@ class Level
         return true
     }
 
+    //==========================================================================
+    //
+    // Object selection
+    //
+
     ///
     /// Selects all vertices
     ///
-    func selectAllVertices() -> Bool {
+    func selectAllVertices() {
         for vertex in vertices {
             selectedVertices.add(vertex)
         }
-        return true
+        document?.updateView()
     }
 
     ///
     /// Deselects all
     ///
-    func clearSelection() -> Bool {
+    func clearSelection() {
         selectedVertices.removeAllObjects()
-        return true
+        document?.updateView()
     }
 
+    ///
+    /// Performs box selection
+    ///
     func boxSelect(startPos: NSPoint, endPos: NSPoint) {
         let rotatedStart = startPos.rotated(self.gridRotation)
         let rotatedEnd = endPos.rotated(self.gridRotation)
         var rotatedRect = NSRect(origin: rotatedStart, size: CGSize())
         rotatedRect.pointAdd(rotatedEnd)
         for vertex in vertices {
-            var rotated = NSPoint(x: vertex.x, y: vertex.y)
+            var rotated = NSPoint(vertex: vertex)
             rotated = rotated.rotated(self.gridRotation)
             if NSPointInRect(rotated, rotatedRect) {
                 self.selectedVertices.add(vertex)

@@ -138,6 +138,9 @@ func ceil(_ point: NSPoint) -> NSPoint {
     return NSPoint(x: ceil(point.x), y: ceil(point.y))
 }
 
+/// Distance operator
+infix operator <-> : MultiplicationPrecedence
+
 /// Additions to the NSPoint structure
 extension NSPoint {
 
@@ -149,9 +152,16 @@ extension NSPoint {
         return NSPoint(x: CGFloat(nx), y: CGFloat(ny))
     }
 
-    /// Calculates the distance of NSPoint to another point
-    func distance(point: NSPoint) -> CGFloat {
-        return sqrt(pow(point.x - self.x, 2) + pow(point.y - self.y, 2))
+    init(vertex: Vertex) {
+        self.init(x: Int(vertex.x), y: Int(vertex.y))
+    }
+
+    init(x: Int16, y: Int16) {
+        self.init(x: Int(x), y: Int(y))
+    }
+
+    static func <-> (left: NSPoint, right: NSPoint) -> CGFloat {
+        return sqrt(pow(left.x - right.x, 2) + pow(left.y - right.y, 2))
     }
 }
 
@@ -175,14 +185,22 @@ extension NSRect {
     }
 }
 
-/// Reference-based alternative to NSPoint. For situations such as NSMapTable
-class PointObj {
-    let x, y: Int
-    init(x: Int, y: Int) {
-        self.x = x
-        self.y = y
+/// Used to wrap a structure type into an class, useful for NSMapTable and
+/// NSHashTable
+class ObjWrap<T> {
+    var data: T
+
+    init(_ data: T) {
+        self.data = data
     }
-    convenience init(vertex: Level.Vertex) {
-        self.init(x: vertex.x, y: vertex.y)
-    }
+}
+
+infix operator /• : MultiplicationPrecedence
+
+func /• (left: CGFloat, right: CGFloat) -> CGFloat {
+    return round(left / right) * right
+}
+
+func /• (left: NSPoint, right: CGFloat) -> NSPoint {
+    return NSPoint(x: left.x /• right, y: left.y /• right)
 }

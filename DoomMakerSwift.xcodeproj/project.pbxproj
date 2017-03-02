@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F00928F1E63260B002A4A04 /* DataWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F00928E1E63260B002A4A04 /* DataWriter.swift */; };
+		4F0092911E64B69C002A4A04 /* Vertex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0092901E64B69C002A4A04 /* Vertex.swift */; };
 		4F0D555D1E63121F008C6E07 /* UndoManagerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */; };
 		4F7788351D36C2030012EFC6 /* Lump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788341D36C2030012EFC6 /* Lump.swift */; };
 		4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788361D36C8C50012EFC6 /* LevelEditor.swift */; };
@@ -47,6 +48,7 @@
 
 /* Begin PBXFileReference section */
 		4F00928E1E63260B002A4A04 /* DataWriter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataWriter.swift; sourceTree = "<group>"; };
+		4F0092901E64B69C002A4A04 /* Vertex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Vertex.swift; sourceTree = "<group>"; };
 		4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManagerExtension.swift; sourceTree = "<group>"; };
 		4F7788341D36C2030012EFC6 /* Lump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lump.swift; path = DoomMakerSwift/Lump.swift; sourceTree = SOURCE_ROOT; };
 		4F7788361D36C8C50012EFC6 /* LevelEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LevelEditor.swift; path = DoomMakerSwift/LevelEditor.swift; sourceTree = SOURCE_ROOT; };
@@ -172,6 +174,7 @@
 				4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */,
 				4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */,
 				4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */,
+				4F0092901E64B69C002A4A04 /* Vertex.swift */,
 				4FA0A7781C54CA42009F3980 /* Wad.swift */,
 			);
 			name = swift;
@@ -319,6 +322,7 @@
 				4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */,
 				4F0D555D1E63121F008C6E07 /* UndoManagerExtension.swift in Sources */,
 				4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */,
+				4F0092911E64B69C002A4A04 /* Vertex.swift in Sources */,
 				4F7788461D38AF590012EFC6 /* Geom.swift in Sources */,
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,
 				4F00928F1E63260B002A4A04 /* DataWriter.swift in Sources */,

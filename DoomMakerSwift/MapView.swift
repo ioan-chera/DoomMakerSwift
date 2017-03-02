@@ -171,13 +171,15 @@ class MapView: NSView {
 
         context.setLineWidth(Const.linedefWidth)
         for line in level.linedefs {
-            if line.v1 < 0 || line.v1 >= level.vertices.count || line.v2 < 0 || line.v2 >= level.vertices.count || line.v1 == line.v2 {
+            if line.v1 < 0 || line.v1 >= level.vertices.count || line.v2 < 0 ||
+                line.v2 >= level.vertices.count || line.v1 == line.v2
+            {
                 continue
             }
             let v1 = level.vertices[line.v1]
             let v2 = level.vertices[line.v2]
-            let p1 = transformed(NSPoint(x: v1.x, y: v1.y))
-            let p2 = transformed(NSPoint(x: v2.x, y: v2.y))
+            let p1 = transformed(NSPoint(x: v1.apparentX, y: v1.apparentY))
+            let p2 = transformed(NSPoint(x: v2.apparentX, y: v2.apparentY))
 
             if p1.x < dirtyRect.minX && p2.x < dirtyRect.minX ||
                 p1.x >= dirtyRect.maxX && p2.x >= dirtyRect.maxX ||
@@ -202,15 +204,18 @@ class MapView: NSView {
         }
 
         for vertex in level.vertices {
-            if vertex.degree == 0 {
-                continue
-            }
-            let p = transformed(NSPoint(x: vertex.x, y: vertex.y))
-            if !NSPointInRect(p, dirtyRect.insetBy(dx: -Const.vertexRadius, dy: -Const.vertexRadius)) {
+//            if vertex.degree == 0 {
+//                continue
+//            }
+            let p = transformed(NSPoint(x: Int(vertex.apparentX),
+                                        y: Int(vertex.apparentY)))
+            if !NSPointInRect(p, dirtyRect.insetBy(dx: -Const.vertexRadius,
+                                                   dy: -Const.vertexRadius))
+            {
                 continue
             }
 
-            if vertex == level.highlightedVertex {
+            if vertex === level.highlightedVertex {
                 context.setFillColor(NSColor.orange.cgColor)
             } else if level.selectedVertices.contains(vertex) {
                 context.setFillColor(NSColor.red.cgColor)
@@ -218,7 +223,10 @@ class MapView: NSView {
                 context.setFillColor(NSColor.green.cgColor)
             }
 
-            context.fillEllipse(in: NSRect(x: p.x - Const.vertexRadius, y: p.y - Const.vertexRadius, width: Const.vertexRadius * 2, height: Const.vertexRadius * 2))
+            context.fillEllipse(in: NSRect(x: p.x - Const.vertexRadius,
+                                           y: p.y - Const.vertexRadius,
+                                           width: Const.vertexRadius * 2,
+                                           height: Const.vertexRadius * 2))
         }
 
 //        let thingRadius = 16 * scale
@@ -404,9 +412,7 @@ class MapView: NSView {
         }
         updatePosition(event: theEvent)
         let gameClickRange = self.scale != 0 ? Const.clickRange / self.scale : Const.clickRange
-        if level.highlightVertex(position: mouseGamePos, radius: gameClickRange) {
-            self.setNeedsDisplay(self.bounds)
-        }
+        level.highlightVertex(position: mouseGamePos, radius: gameClickRange)
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -423,9 +429,7 @@ class MapView: NSView {
         }
         updatePosition(event: event)
         if level.clickedDownVertex != nil {
-            if level.dragVertices(position: mouseGamePos) {
-                self.setNeedsDisplay(self.bounds)
-            }
+            level.dragVertices(position: mouseGamePos)
         } else {
             dragSelect = true
             self.setNeedsDisplay(self.bounds)
@@ -439,7 +443,8 @@ class MapView: NSView {
         }
         if level.clickUpVertex() || dragSelect {
             if dragSelect {
-                level.boxSelect(startPos: gamePos(self.dragViewStart), endPos: self.mouseGamePos)
+                level.boxSelect(startPos: gamePos(self.dragViewStart),
+                                endPos: self.mouseGamePos)
                 dragSelect = false
             }
             self.setNeedsDisplay(self.bounds)
@@ -493,22 +498,11 @@ class MapView: NSView {
     }
 
     override func selectAll(_ sender: Any?) {
-        guard let level = self.level else {
-            return
-        }
-        if level.selectAllVertices() {
-            self.setNeedsDisplay(self.bounds)
-        }
-        
+        level?.selectAllVertices()
     }
 
     @IBAction func clearSelection(_ sender: Any?) {
-        guard let level = self.level else {
-            return
-        }
-        if level.clearSelection() {
-            self.setNeedsDisplay(self.bounds)
-        }
+        level?.clearSelection()
     }
 
     func undo(_ sender: Any?) {

@@ -481,9 +481,7 @@ class Level
                 positions.setObject(wrap, forKey: vertex)
                 vertex.endDragging()
 
-                if wrap.data.x != CGFloat(vertex.x) ||
-                    wrap.data.y != CGFloat(vertex.y)
-                {
+                if vertex.apparentX != vertex.x || vertex.apparentY != vertex.y {
                     changed = true
                 }
             }

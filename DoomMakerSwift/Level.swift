@@ -92,27 +92,6 @@ class Level
         }
     }
 
-    /// Map linedef
-    final class Linedef: MapItem {
-        var v1 = 0      // vertex index
-        var v2 = 0      // vertex index
-        var flags = 0   // linedef bits
-        var special = 0 // linedef trigger special
-        var tag = 0     // linedef trigger tag
-        var s1 = 0      // side index
-        var s2 = 0      // side index
-
-        init(data: [UInt8]) {
-            DataReader(data).short(&v1).short(&v2).short(&flags).short(&special)
-                .short(&tag).short(&s1).short(&s2)
-        }
-
-        func getData() -> [UInt8] {
-            return DataWriter([]).short(v1).short(v2).short(flags)
-                .short(special).short(tag).short(s1).short(s2).data
-        }
-    }
-
     /// Map sidedef
     final class Sidedef: MapItem {
         var xOffset = 0             // x offset
@@ -222,7 +201,7 @@ class Level
     fileprivate(set) var name: String
 
     fileprivate(set) var things: [Thing]
-    fileprivate(set) var linedefs: [Linedef]
+    private(set) var linedefs: [Linedef]
     fileprivate var sidedefs: [Sidedef]
     private(set) var vertices: [Vertex]
     fileprivate var segs: [Seg]
@@ -353,8 +332,8 @@ class Level
             }
         }
         for line in linedefs {
-            tryVisit(line.v1)
-            tryVisit(line.v2)
+            tryVisit(line.v1idx)
+            tryVisit(line.v2idx)
         }
         var index = vertices.count
         for status in visited.reversed() {

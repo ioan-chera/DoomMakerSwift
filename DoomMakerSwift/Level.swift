@@ -523,10 +523,11 @@ class Level
             return
         }
 
-        let actualPosition = snapToGrid(position - self.clickedDownOffset)
-
         let oldPositionX = v1.apparentX
         let oldPositionY = v1.apparentY
+        let oldPos = NSPoint(x: oldPositionX, y: oldPositionY)
+
+        let actualPosition = oldPos + snapToGrid(position - self.clickedDownOffset - oldPos)
 
         let draggedNow = NSHashTable<Vertex>.weakObjects()
 

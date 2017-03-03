@@ -20,16 +20,16 @@ import Foundation
 
 /// Map linedef
 final class Linedef: MapItem {
-    var v1idx = 0      // vertex index
-    var v2idx = 0      // vertex index
+    private(set) var v1idx = 0      // vertex index
+    private(set) var v2idx = 0      // vertex index
     var flags = 0   // linedef bits
     var special = 0 // linedef trigger special
     var tag = 0     // linedef trigger tag
     var s1 = 0      // side index
     var s2 = 0      // side index
 
-    weak var v1: Vertex? = nil
-    weak var v2: Vertex? = nil
+    private(set) weak var v1: Vertex? = nil
+    private(set) weak var v2: Vertex? = nil
 
     init(data: [UInt8]) {
         DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
@@ -39,5 +39,19 @@ final class Linedef: MapItem {
     func getData() -> [UInt8] {
         return DataWriter([]).short(v1idx).short(v2idx).short(flags)
             .short(special).short(tag).short(s1).short(s2).data
+    }
+
+    func setV1(list: [Vertex], index: Int) {
+        v1idx = index
+        if index >= 0 && index < list.count {
+            v1 = list[index]
+        }
+    }
+
+    func setV2(list: [Vertex], index: Int) {
+        v2idx = index
+        if index >= 0 && index < list.count {
+            v2 = list[index]
+        }
     }
 }

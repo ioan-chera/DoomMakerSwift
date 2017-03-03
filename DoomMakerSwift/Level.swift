@@ -356,12 +356,8 @@ class Level
             return vertexIndex >= 0 && vertexIndex < vertices.count
         }
         for line in linedefs {
-            if valid(line.v1idx) {
-                line.v1 = vertices[line.v1idx]
-            }
-            if valid(line.v2idx) {
-                line.v2 = vertices[line.v2idx]
-            }
+            line.setV1(list: vertices, index: line.v1idx)
+            line.setV2(list: vertices, index: line.v2idx)
         }
     }
 
@@ -414,8 +410,6 @@ class Level
             for linedef in linedefs {
                 // TODO: validation
             }
-        default:
-            return nil
         }
 
         return nearestItem

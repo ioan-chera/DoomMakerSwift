@@ -183,6 +183,12 @@ extension NSRect {
             self.origin.y = point.y
         }
     }
+
+    init(point1: NSPoint, point2: NSPoint) {
+        self.origin = point1
+        self.size = NSSize()
+        pointAdd(point2)
+    }
 }
 
 /// Used to wrap a structure type into an class, useful for NSMapTable and

@@ -278,6 +278,7 @@ class Level
 
     /// Selected vertices set
     let selectedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
+    let selectedLinedefs: NSHashTable<Linedef> = NSHashTable.weakObjects()
 
     /// Dragged vertices set
     let draggedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
@@ -408,7 +409,24 @@ class Level
             }
         case .linedefs:
             for linedef in linedefs {
-                // TODO: validation
+                guard let v1 = linedef.v1 else {
+                    continue
+                }
+                guard let v2 = linedef.v2 else {
+                    continue
+                }
+                let p1 = NSPoint(vertex: v1)
+                let p2 = NSPoint(vertex: v2)
+                let box = NSRect(point1: p1, point2: p2)
+                    .insetBy(dx: -radius, dy: -radius)
+                if !NSPointInRect(position, box) {
+                    continue
+                }
+                let distance = position.distanceToSegment(point1: p1, point2: p2)
+                if distance < radius && distance < minDistance {
+                    minDistance = distance
+                    nearestItem = linedef
+                }
             }
         }
 
@@ -444,7 +462,7 @@ class Level
         }
         verticesDirty = true
         self.updateView()
-        self.undo.registerUndo {
+        self.undo.registerUndo(name: "Drag \(mode == .vertices ? "Vertices" : "Linedefs")") {
             self.moveVertices(positions: currentPositions)
         }
     }
@@ -452,18 +470,16 @@ class Level
     ///
     /// Marks a vertex which has been started clicking.
     ///
-    func clickDownVertex(position: NSPoint) {
+    func clickDownItem(position: NSPoint) {
         clickedDownItem = highlightedItem
         if let vertex = clickedDownItem as? Vertex {
             clickedDownOffset = position - NSPoint(vertex: vertex)
+        } else if let linedef = clickedDownItem as? Linedef {
+            clickedDownOffset = position - NSPoint(vertex: linedef.v1!)
         }
     }
 
-    ///
-    /// Drags vertices to a new position. Returns true if the view should be
-    /// updated.
-    ///
-    func dragVertices(position: NSPoint) {
+    private func dragVertices(position: NSPoint) {
         guard let clickedDownVertex = clickedDownItem as? Vertex else {
             return
         }
@@ -480,14 +496,14 @@ class Level
             clickedDownVertex.apparentY != oldPositionY
         {
             let enumerator = selectedVertices.objectEnumerator()
-            while let vertex: Vertex = enumerator.nextObject() as? Vertex {
+            while let vertex = enumerator.nextObject() as? Vertex {
                 if vertex === clickedDownVertex {
                     continue
                 }
                 if vertex.setDragging(x: vertex.apparentX +
-                                         clickedDownVertex.apparentX - oldPositionX,
+                    clickedDownVertex.apparentX - oldPositionX,
                                       y: vertex.apparentY +
-                                         clickedDownVertex.apparentY - oldPositionY)
+                                        clickedDownVertex.apparentY - oldPositionY)
                 {
                     draggedVertices.add(vertex)
                 }
@@ -496,11 +512,76 @@ class Level
         }
     }
 
+    private func dragLinedefs(position: NSPoint) {
+        guard let clickedDownLine = clickedDownItem as? Linedef else {
+            return
+        }
+        guard let v1 = clickedDownLine.v1 else {
+            return
+        }
+        guard let v2 = clickedDownLine.v2 else {
+            return
+        }
+
+        let actualPosition = snapToGrid(position - self.clickedDownOffset)
+
+        let oldPositionX = v1.apparentX
+        let oldPositionY = v1.apparentY
+
+        let draggedNow = NSHashTable<Vertex>.weakObjects()
+
+        func dragOtherVertex(_ v: Vertex) {
+            if draggedNow.contains(v) {
+                return
+            }
+            draggedNow.add(v)
+            if v.setDragging(x: v.apparentX + v1.apparentX - oldPositionX,
+                             y: v.apparentY + v1.apparentY - oldPositionY)
+            {
+                draggedVertices.add(v)
+            }
+        }
+
+        if v1.setDragging(point: actualPosition) {
+            draggedVertices.add(v1)
+            draggedNow.add(v1)
+            dragOtherVertex(v2)
+        }
+        if v1.apparentX != oldPositionX || v1.apparentY != oldPositionY {
+            let enumerator = selectedLinedefs.objectEnumerator()
+            while let linedef = enumerator.nextObject() as? Linedef {
+                if linedef === clickedDownLine {
+                    continue
+                }
+                if let lv1 = linedef.v1 {
+                    dragOtherVertex(lv1)
+                }
+                if let lv2 = linedef.v2 {
+                    dragOtherVertex(lv2)
+                }
+            }
+            document?.updateView()
+        }
+    }
+
+    ///
+    /// Drags vertices to a new position. Returns true if the view should be
+    /// updated.
+    ///
+    func dragItems(position: NSPoint) {
+        if clickedDownItem is Vertex {
+            dragVertices(position: position)
+        } else if clickedDownItem is Linedef {
+            dragLinedefs(position: position)
+        }
+
+    }
+
     ///
     /// When a vertex has been unclicked
     ///
     func clickUpVertex() -> Bool {
-        guard let clickedDownVertex = clickedDownItem as? Vertex else {
+        guard let clickedDownItem = self.clickedDownItem else {
             return false
         }
         defer {
@@ -532,12 +613,15 @@ class Level
             return false
         }
 
-        if selectedVertices.contains(clickedDownVertex) {
-            selectedVertices.remove(clickedDownVertex)
-            return true
+        if mode == .vertices {
+            if let vertex = clickedDownItem as? Vertex {
+                toggleHashTable(selectedVertices, object: vertex)
+            }
+        } else if mode == .linedefs {
+            if let linedef = clickedDownItem as? Linedef {
+                toggleHashTable(selectedLinedefs, object: linedef)
+            }
         }
-
-        selectedVertices.add(clickedDownVertex)
         return true
     }
 
@@ -550,8 +634,14 @@ class Level
     /// Selects all vertices
     ///
     func selectAllVertices() {
-        for vertex in vertices {
-            selectedVertices.add(vertex)
+        if mode == .vertices {
+            for vertex in vertices {
+                selectedVertices.add(vertex)
+            }
+        } else if mode == .linedefs {
+            for line in linedefs {
+                selectedLinedefs.add(line)
+            }
         }
         document?.updateView()
     }
@@ -561,6 +651,7 @@ class Level
     ///
     func clearSelection() {
         selectedVertices.removeAllObjects()
+        selectedLinedefs.removeAllObjects()
         document?.updateView()
     }
 
@@ -572,11 +663,27 @@ class Level
         let rotatedEnd = endPos.rotated(self.gridRotation)
         var rotatedRect = NSRect(origin: rotatedStart, size: CGSize())
         rotatedRect.pointAdd(rotatedEnd)
-        for vertex in vertices {
-            var rotated = NSPoint(vertex: vertex)
-            rotated = rotated.rotated(self.gridRotation)
-            if NSPointInRect(rotated, rotatedRect) {
-                self.selectedVertices.add(vertex)
+
+        if mode == .vertices {
+            for vertex in vertices {
+                let rotated = NSPoint(vertex: vertex).rotated(self.gridRotation)
+                if NSPointInRect(rotated, rotatedRect) {
+                    self.selectedVertices.add(vertex)
+                }
+            }
+        } else if mode == .linedefs {
+            for linedef in linedefs {
+                guard let v1 = linedef.v1 else {
+                    continue
+                }
+                guard let v2 = linedef.v2 else {
+                    continue
+                }
+                let rp1 = NSPoint(vertex: v1).rotated(self.gridRotation)
+                let rp2 = NSPoint(vertex: v2).rotated(self.gridRotation)
+                if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
+                    self.selectedLinedefs.add(linedef)
+                }
             }
         }
     }

@@ -35,8 +35,9 @@ import Foundation
 }
 
 extension UndoManager {
-    func registerUndo(closure: @escaping (Void) -> Void) {
+    func registerUndo(name: String, closure: @escaping (Void) -> Void) {
         let performer = SwiftUndoPerformer(closure: closure)
+        self.setActionName(name)
         self.registerUndo(withTarget: performer, selector: #selector(SwiftUndoPerformer.performWithSelf(retainedSelf:)), object: performer)
     }
 }

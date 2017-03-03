@@ -71,7 +71,7 @@ class MapView: NSView {
         static let clickRange = CGFloat(16)
         static let fps = 120.0
         fileprivate static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
-        fileprivate static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
+        static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
         fileprivate static let linedefWidth = CGFloat(1)
         fileprivate static let selectWidth = CGFloat(1.5)
         fileprivate static let vertexRadius = CGFloat(2)
@@ -83,6 +83,9 @@ class MapView: NSView {
         fileprivate static let scaleMax = CGFloat(10)
         static let rotateSnapDegrees = Float(5)
         fileprivate static let zoomKeyAmount = CGFloat(0.25)
+
+        static let highlightColour = NSColor.orange
+        static let selectColour = NSColor.red
     }
 
     override init(frame frameRect: NSRect) {
@@ -192,7 +195,11 @@ class MapView: NSView {
 //                continue
 //            }
 
-            if line.flags & 1 == 1 {
+            if line === level.highlightedItem as? Linedef {
+                context.setStrokeColor(Const.highlightColour.cgColor)
+            } else if level.selectedLinedefs.contains(line) {
+                context.setStrokeColor(Const.selectColour.cgColor)
+            } else if line.flags & 1 == 1 {
                 context.setStrokeColor(NSColor.white.cgColor)
             } else {
                 context.setStrokeColor(NSColor.gray.cgColor)
@@ -215,9 +222,9 @@ class MapView: NSView {
             }
 
             if vertex === level.highlightedItem as? Vertex {
-                context.setFillColor(NSColor.orange.cgColor)
+                context.setFillColor(Const.highlightColour.cgColor)
             } else if level.selectedVertices.contains(vertex) {
-                context.setFillColor(NSColor.red.cgColor)
+                context.setFillColor(Const.selectColour.cgColor)
             } else {
                 context.setFillColor(NSColor.green.cgColor)
             }
@@ -416,7 +423,7 @@ class MapView: NSView {
         guard let level = self.level else {
             return
         }
-        level.clickDownVertex(position: mouseGamePos)
+        level.clickDownItem(position: mouseGamePos)
         dragViewStart = mouseViewPos
     }
 
@@ -426,7 +433,7 @@ class MapView: NSView {
         }
         updatePosition(event: event)
         if level.clickedDownItem !== nil {
-            level.dragVertices(position: mouseGamePos)
+            level.dragItems(position: mouseGamePos)
         } else {
             dragSelect = true
             self.setNeedsDisplay(self.bounds)
@@ -469,7 +476,7 @@ class MapView: NSView {
         }
     }
 
-    fileprivate func pointerPosition() -> NSPoint {
+    private func pointerPosition() -> NSPoint {
         guard let windowPos = self.window?.mouseLocationOutsideOfEventStream else {
             return NSPoint(x: self.bounds.size.width / 2, y: self.bounds.size.height / 2)   // default to centre
         }

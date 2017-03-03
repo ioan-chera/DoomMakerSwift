@@ -128,6 +128,10 @@ func * (left: NSPoint, right: Double) -> NSPoint {
     return left * CGFloat(right)
 }
 
+func * (left: NSPoint, right: NSPoint) -> CGFloat {
+    return left.x * right.x + left.y * right.y
+}
+
 /// floor applied to NSPoint elements
 func floor(_ point: NSPoint) -> NSPoint {
     return NSPoint(x: floor(point.x), y: floor(point.y))
@@ -162,6 +166,54 @@ extension NSPoint {
 
     static func <-> (left: NSPoint, right: NSPoint) -> CGFloat {
         return sqrt(pow(left.x - right.x, 2) + pow(left.y - right.y, 2))
+    }
+
+    func distanceToLine(point1 p1: NSPoint, point2 p2: NSPoint) -> CGFloat {
+        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Cartesian_coordinates
+        return abs((p2.y - p1.y) * x - (p2.x - p1.x) * y + p2.x * p1.y - p2.y * p1.x) / (p1 <-> p2)
+    }
+
+    func distanceToSegment(point1 p1: NSPoint, point2 p2: NSPoint) -> CGFloat {
+        if (p1 - self) * (p2 - p1) >= 0 {
+            return self <-> p1
+        }
+        if (self - p2) * (p2 - p1) >= 0 {
+            return self <-> p2
+        }
+        return distanceToLine(point1: p1, point2: p2)
+    }
+
+    func withinRoundedRect(_ rect: NSRect, radius: CGFloat) -> Bool {
+        if x >= rect.minX && x < rect.maxX &&
+            y >= rect.minY - radius && y < rect.maxY + radius
+        {
+            return true
+        }
+        if x < rect.minX && x >= rect.minX - radius {
+            if y >= rect.minY && y < rect.maxY {
+                return true
+            }
+            if y >= rect.minY - radius && y < rect.minY {
+                return self <-> NSPoint(x: rect.minX, y: rect.minY) <= radius
+            }
+            if y >= rect.maxY && y < rect.maxY + radius {
+                return self <-> NSPoint(x: rect.minX, y: rect.maxY) <= radius
+            }
+            return false
+        }
+        if x >= rect.maxX && x < rect.maxX + radius {
+            if y >= rect.minY && y < rect.maxY {
+                return true
+            }
+            if y >= rect.minY - radius && y < rect.minY {
+                return self <-> NSPoint(x: rect.maxX, y: rect.minY) <= radius
+            }
+            if y >= rect.maxY && y < rect.maxY + radius {
+                return self <-> NSPoint(x: rect.maxX, y: rect.maxY) <= radius
+            }
+            return false
+        }
+        return false
     }
 }
 

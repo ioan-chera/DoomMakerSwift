@@ -18,7 +18,7 @@
 
 import Foundation
 
-protocol MapItem {
+protocol MapItem: class {
     init(data: [UInt8])
     func getData() -> [UInt8]
 }
@@ -283,10 +283,10 @@ class Level
     //
 
     /// the vertex currently highlighted by the mouse
-    private(set) weak var highlightedVertex: Vertex?
+    private(set) weak var highlightedItem: MapItem?
 
     /// the vertex the user started holding down the mouse
-    private(set) weak var clickedDownVertex: Vertex?
+    private(set) weak var clickedDownItem: MapItem?
 
     /// the map position the user started holding down the mouse
     private var clickedDownOffset = NSPoint()
@@ -400,20 +400,31 @@ class Level
     ///
     /// Finds the nearest vertex to a point, within a radius
     ///
-    private func findNearestVertex(position: NSPoint, radius: CGFloat) ->
-        Vertex?
+    private func findNearestItem(position: NSPoint, radius: CGFloat) ->
+        MapItem?
     {
         var minDistance = CGFloat.greatestFiniteMagnitude
-        var nearestVertex: Vertex? = nil
-        for vertex in vertices {
-            let vertexPosition = NSPoint(vertex: vertex)
-            let distance = position <-> vertexPosition
-            if distance < radius && distance < minDistance {
-                minDistance = distance
-                nearestVertex = vertex
+        var nearestItem: MapItem? = nil
+
+        switch mode {
+        case .vertices:
+            for vertex in vertices {
+                let vertexPosition = NSPoint(vertex: vertex)
+                let distance = position <-> vertexPosition
+                if distance < radius && distance < minDistance {
+                    minDistance = distance
+                    nearestItem = vertex
+                }
             }
+        case .linedefs:
+            for linedef in linedefs {
+                // TODO: validation
+            }
+        default:
+            return nil
         }
-        return nearestVertex
+
+        return nearestItem
     }
 
     ///
@@ -421,10 +432,10 @@ class Level
     /// Returns true if the highlighted vertex has changed.
     /// Can return "nothing"
     ///
-    func highlightVertex(position: NSPoint, radius: CGFloat) {
-        let oldHighlightedVertex = highlightedVertex
-        highlightedVertex = findNearestVertex(position: position, radius: radius)
-        if highlightedVertex !== oldHighlightedVertex {
+    func highlightClosest(position: NSPoint, radius: CGFloat) {
+        let oldHighlightedItem = highlightedItem
+        highlightedItem = findNearestItem(position: position, radius: radius)
+        if highlightedItem !== oldHighlightedItem {
             document?.updateView()
         }
     }
@@ -454,8 +465,8 @@ class Level
     /// Marks a vertex which has been started clicking.
     ///
     func clickDownVertex(position: NSPoint) {
-        clickedDownVertex = highlightedVertex
-        if let vertex = clickedDownVertex {
+        clickedDownItem = highlightedItem
+        if let vertex = clickedDownItem as? Vertex {
             clickedDownOffset = position - NSPoint(vertex: vertex)
         }
     }
@@ -465,7 +476,7 @@ class Level
     /// updated.
     ///
     func dragVertices(position: NSPoint) {
-        guard let clickedDownVertex = self.clickedDownVertex else {
+        guard let clickedDownVertex = clickedDownItem as? Vertex else {
             return
         }
         let actualPosition = snapToGrid(position - self.clickedDownOffset)
@@ -501,11 +512,11 @@ class Level
     /// When a vertex has been unclicked
     ///
     func clickUpVertex() -> Bool {
-        guard let clickedDownVertex = self.clickedDownVertex else {
+        guard let clickedDownVertex = clickedDownItem as? Vertex else {
             return false
         }
         defer {
-            self.clickedDownVertex = nil
+            self.clickedDownItem = nil
         }
 
         if draggedVertices.count > 0 {

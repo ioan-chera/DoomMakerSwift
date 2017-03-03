@@ -215,7 +215,7 @@ class MapView: NSView {
                 continue
             }
 
-            if vertex === level.highlightedVertex {
+            if vertex === level.highlightedItem as? Vertex {
                 context.setFillColor(NSColor.orange.cgColor)
             } else if level.selectedVertices.contains(vertex) {
                 context.setFillColor(NSColor.red.cgColor)
@@ -410,7 +410,7 @@ class MapView: NSView {
         }
         updatePosition(event: theEvent)
         let gameClickRange = self.scale != 0 ? Const.clickRange / self.scale : Const.clickRange
-        level.highlightVertex(position: mouseGamePos, radius: gameClickRange)
+        level.highlightClosest(position: mouseGamePos, radius: gameClickRange)
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -426,7 +426,7 @@ class MapView: NSView {
             return
         }
         updatePosition(event: event)
-        if level.clickedDownVertex != nil {
+        if level.clickedDownItem !== nil {
             level.dragVertices(position: mouseGamePos)
         } else {
             dragSelect = true

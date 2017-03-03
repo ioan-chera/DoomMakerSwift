@@ -171,14 +171,12 @@ class MapView: NSView {
 
         context.setLineWidth(Const.linedefWidth)
         for line in level.linedefs {
-            if line.v1idx < 0 || line.v1idx >= level.vertices.count ||
-                line.v2idx < 0 || line.v2idx >= level.vertices.count ||
-                line.v1idx == line.v2idx
-            {
+            guard let v1 = line.v1 else {
                 continue
             }
-            let v1 = level.vertices[line.v1idx]
-            let v2 = level.vertices[line.v2idx]
+            guard let v2 = line.v2 else {
+                continue
+            }
             let p1 = transformed(NSPoint(x: v1.apparentX, y: v1.apparentY))
             let p2 = transformed(NSPoint(x: v2.apparentX, y: v2.apparentY))
 

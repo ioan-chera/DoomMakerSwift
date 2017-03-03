@@ -314,6 +314,7 @@ class Level
         self.loadBlockmap(
             wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
         checkBspVertices()
+        setupLinedefs()
     }
 
     private func loadBlockmap(_ blockmapData: [UInt8]) {
@@ -347,6 +348,20 @@ class Level
                 bspVertices.append(vertices[i])
             }
             vertices.removeLast(vertices.count - index)
+        }
+    }
+
+    private func setupLinedefs() {
+        func valid(_ vertexIndex: Int) -> Bool {
+            return vertexIndex >= 0 && vertexIndex < vertices.count
+        }
+        for line in linedefs {
+            if valid(line.v1idx) {
+                line.v1 = vertices[line.v1idx]
+            }
+            if valid(line.v2idx) {
+                line.v2 = vertices[line.v2idx]
+            }
         }
     }
 

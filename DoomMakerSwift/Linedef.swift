@@ -28,6 +28,9 @@ final class Linedef: MapItem {
     var s1 = 0      // side index
     var s2 = 0      // side index
 
+    weak var v1: Vertex? = nil
+    weak var v2: Vertex? = nil
+
     init(data: [UInt8]) {
         DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
             .short(&tag).short(&s1).short(&s2)

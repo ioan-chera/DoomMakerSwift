@@ -92,26 +92,6 @@ class Level
         }
     }
 
-    /// Map sidedef
-    final class Sidedef: MapItem {
-        var xOffset = 0             // x offset
-        var yOffset = 0             // y offset
-        var upper: [UInt8] = []     // upper texture
-        var lower: [UInt8] = []     // lower texture
-        var middle: [UInt8] = []    // middle texture
-        var sector = 0              // sector reference
-
-        init(data: [UInt8]) {
-            DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
-                .lumpName(&lower).lumpName(&middle).short(&sector)
-        }
-
-        func getData() -> [UInt8] {
-            return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
-                .lumpName(lower).lumpName(middle).short(sector).data
-        }
-    }
-
     /// BSP segment
     final class Seg: MapItem {
         var v1 = 0      // vertex one
@@ -359,6 +339,8 @@ class Level
         for line in linedefs {
             line.setV1(list: vertices, index: line.v1idx)
             line.setV2(list: vertices, index: line.v2idx)
+            line.setS1(list: sidedefs, index: line.s1idx)
+            line.setS2(list: sidedefs, index: line.s2idx)
         }
     }
 

@@ -25,33 +25,41 @@ final class Linedef: MapItem {
     var flags = 0   // linedef bits
     var special = 0 // linedef trigger special
     var tag = 0     // linedef trigger tag
-    var s1 = 0      // side index
-    var s2 = 0      // side index
+    private(set) var s1idx = -1      // side index
+    private(set) var s2idx = -1      // side index
 
     private(set) weak var v1: Vertex? = nil
     private(set) weak var v2: Vertex? = nil
+    private(set) weak var s1: Sidedef? = nil
+    private(set) weak var s2: Sidedef? = nil
 
     init(data: [UInt8]) {
         DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
-            .short(&tag).short(&s1).short(&s2)
+            .short(&tag).short(&s1idx).short(&s2idx)
     }
 
     func getData() -> [UInt8] {
         return DataWriter([]).short(v1idx).short(v2idx).short(flags)
-            .short(special).short(tag).short(s1).short(s2).data
+            .short(special).short(tag).short(s1idx).short(s2idx).data
     }
 
     func setV1(list: [Vertex], index: Int) {
         v1idx = index
-        if index >= 0 && index < list.count {
-            v1 = list[index]
-        }
+        safeArraySet(&v1, list: list, index: index)
     }
 
     func setV2(list: [Vertex], index: Int) {
         v2idx = index
-        if index >= 0 && index < list.count {
-            v2 = list[index]
-        }
+        safeArraySet(&v2, list: list, index: index)
+    }
+
+    func setS1(list: [Sidedef], index: Int) {
+        s1idx = index
+        safeArraySet(&s1, list: list, index: index)
+    }
+
+    func setS2(list: [Sidedef], index: Int) {
+        s2idx = index
+        safeArraySet(&s2, list: list, index: index)
     }
 }

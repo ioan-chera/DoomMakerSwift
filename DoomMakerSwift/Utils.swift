@@ -15,3 +15,15 @@ func toggleHashTable<T>(_ table: NSHashTable<T>, object: T) {
         table.add(object)
     }
 }
+
+func inRange(_ value: Int, _ min: Int, _ max: Int) -> Bool {
+    return value >= min && value <= max
+}
+
+func safeArraySet<T>(_ value: inout T?, list: [T], index: Int) {
+    if inRange(index, 0, list.count - 1) {
+        value = list[index]
+    } else {
+        value = nil
+    }
+}

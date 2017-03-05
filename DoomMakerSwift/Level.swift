@@ -699,7 +699,48 @@ class Level
     //
     // Mode switching
     //
+
+    ///
+    /// When current mode changes, update the selected items list to the most
+    /// appropriate
+    ///
+    private func updateSelectionList(oldMode: Mode, newMode: Mode) {
+        if newMode == oldMode {
+            return
+        }
+        switch oldMode {
+        case .vertices:
+            if newMode == .linedefs {
+                for linedef in linedefs {
+                    if selectedVertices.contains(linedef.v1) &&
+                        selectedVertices.contains(linedef.v2)
+                    {
+                        selectedLinedefs.add(linedef)
+                    }
+                }
+            }
+            selectedVertices.removeAllObjects()
+        case .linedefs:
+            if newMode == .vertices {
+                let enumerator = selectedLinedefs.objectEnumerator()
+                while let linedef = enumerator.nextObject() as? Linedef {
+                    if linedef.v1 !== nil {
+                        selectedVertices.add(linedef.v1)
+                    }
+                    if linedef.v2 !== nil {
+                        selectedVertices.add(linedef.v2)
+                    }
+                }
+            }
+            selectedLinedefs.removeAllObjects()
+        }
+        document?.updateView()
+    }
+
     var mode: Mode {
+        willSet(newMode) {
+            updateSelectionList(oldMode: mode, newMode: newMode)
+        }
         didSet {
             document?.updateMode(mode)
         }

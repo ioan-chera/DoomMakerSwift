@@ -70,19 +70,19 @@ class MapView: NSView {
     struct Const {
         static let clickRange = CGFloat(16)
         static let fps = 120.0
-        fileprivate static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
+        static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
         static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
-        fileprivate static let linedefWidth = CGFloat(1)
-        fileprivate static let selectWidth = CGFloat(1.5)
-        fileprivate static let vertexRadius = CGFloat(2)
-        fileprivate static let movePeriod = 1.0 / 30
-        fileprivate static let gridMin = 2
+        static let linedefWidth = CGFloat(1)
+        static let selectWidth = CGFloat(1.5)
+        static let vertexRadius = CGFloat(2)
+        static let movePeriod = 1.0 / 30
+        static let gridMin = 2
         static let gridDefault = 8
-        fileprivate static let gridMax = 1024
-        fileprivate static let scaleMin = CGFloat(0.1)
-        fileprivate static let scaleMax = CGFloat(10)
+        static let gridMax = 1024
+        static let scaleMin = CGFloat(0.1)
+        static let scaleMax = CGFloat(10)
         static let rotateSnapDegrees = Float(5)
-        fileprivate static let zoomKeyAmount = CGFloat(0.25)
+        static let zoomKeyAmount = CGFloat(0.25)
 
         static let highlightColour = NSColor.orange
         static let selectColour = NSColor.red

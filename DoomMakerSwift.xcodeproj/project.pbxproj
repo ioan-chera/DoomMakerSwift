@@ -20,6 +20,7 @@
 		4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */; };
 		4F8A8D751E6C029000FCFC2A /* NSHashTableExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */; };
 		4F8A8D771E6C236700FCFC2A /* Sidedef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D761E6C236700FCFC2A /* Sidedef.swift */; };
+		4F8A8D791E6C36A900FCFC2A /* Sector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D781E6C36A900FCFC2A /* Sector.swift */; };
 		4F97F9F91E694A6900C1155C /* Linedef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F97F9F81E694A6900C1155C /* Linedef.swift */; };
 		4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */; };
 		4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74C1C54C65E009F3980 /* Document.swift */; };
@@ -64,6 +65,7 @@
 		4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSHashTableExtension.swift; sourceTree = "<group>"; };
 		4F8A8D761E6C236700FCFC2A /* Sidedef.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sidedef.swift; sourceTree = "<group>"; };
+		4F8A8D781E6C36A900FCFC2A /* Sector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sector.swift; sourceTree = "<group>"; };
 		4F97F9F81E694A6900C1155C /* Linedef.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Linedef.swift; sourceTree = "<group>"; };
 		4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoomMakerSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DoomMakerSwift/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
@@ -183,6 +185,7 @@
 				4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */,
 				4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */,
 				4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */,
+				4F8A8D781E6C36A900FCFC2A /* Sector.swift */,
 				4F8A8D761E6C236700FCFC2A /* Sidedef.swift */,
 				4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */,
 				4F10ECAD1E6A05860021C117 /* Utils.swift */,
@@ -337,6 +340,7 @@
 				4F0D555D1E63121F008C6E07 /* UndoManagerExtension.swift in Sources */,
 				4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */,
 				4F0092911E64B69C002A4A04 /* Vertex.swift in Sources */,
+				4F8A8D791E6C36A900FCFC2A /* Sector.swift in Sources */,
 				4F10ECAE1E6A05860021C117 /* Utils.swift in Sources */,
 				4F7788461D38AF590012EFC6 /* Geom.swift in Sources */,
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,

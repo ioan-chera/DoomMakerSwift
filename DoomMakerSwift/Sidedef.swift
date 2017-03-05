@@ -25,15 +25,22 @@ final class Sidedef: MapItem {
     var upper: [UInt8] = []     // upper texture
     var lower: [UInt8] = []     // lower texture
     var middle: [UInt8] = []    // middle texture
-    var sector = 0              // sector reference
+    private(set) var secnum = -1              // sector reference
+
+    private(set) weak var sector: Sector?
 
     init(data: [UInt8]) {
         DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
-            .lumpName(&lower).lumpName(&middle).short(&sector)
+            .lumpName(&lower).lumpName(&middle).short(&secnum)
     }
 
     func getData() -> [UInt8] {
         return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
-            .lumpName(lower).lumpName(middle).short(sector).data
+            .lumpName(lower).lumpName(middle).short(secnum).data
+    }
+
+    func setSector(list: [Sector], index: Int) {
+        secnum = index
+        safeArraySet(&sector, list: list, index: index)
     }
 }

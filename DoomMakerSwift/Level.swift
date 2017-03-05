@@ -155,29 +155,6 @@ class Level
         }
     }
 
-    /// Map sector
-    final class Sector: MapItem {
-        var floorheight = 0         // floor height
-        var ceilingheight = 0       // ceiling height
-        var floor: [UInt8] = []     // floor
-        var ceiling: [UInt8] = []   // ceiling
-        var light = 0               // light level
-        var special = 0             // sector special
-        var tag = 0                 // sector trigger tag
-
-        init(data: [UInt8]) {
-            DataReader(data).short(&floorheight).short(&ceilingheight)
-                .lumpName(&floor).lumpName(&ceiling).short(&light)
-                .short(&special).short(&tag)
-        }
-
-        func getData() -> [UInt8] {
-            return DataWriter().short(floorheight).short(ceilingheight)
-                .lumpName(floor).lumpName(ceiling).short(light).short(special)
-                .short(tag).data
-        }
-    }
-
     fileprivate(set) var name: String
 
     fileprivate(set) var things: [Thing]
@@ -296,6 +273,7 @@ class Level
             wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
         checkBspVertices()
         setupLinedefs()
+        setupSidedefs()
     }
 
     private func loadBlockmap(_ blockmapData: [UInt8]) {
@@ -333,14 +311,17 @@ class Level
     }
 
     private func setupLinedefs() {
-        func valid(_ vertexIndex: Int) -> Bool {
-            return vertexIndex >= 0 && vertexIndex < vertices.count
-        }
         for line in linedefs {
             line.setV1(list: vertices, index: line.v1idx)
             line.setV2(list: vertices, index: line.v2idx)
             line.setS1(list: sidedefs, index: line.s1idx)
             line.setS2(list: sidedefs, index: line.s2idx)
+        }
+    }
+
+    private func setupSidedefs() {
+        for side in sidedefs {
+            side.setSector(list: sectors, index: side.secnum)
         }
     }
 

@@ -258,7 +258,9 @@ infix operator /• : MultiplicationPrecedence
 func /• (left: CGFloat, right: CGFloat) -> CGFloat {
     return round(left / right) * right
 }
-
+func /• (left: Float, right: Float) -> Float {
+    return round(left / right) * right
+}
 func /• (left: NSPoint, right: CGFloat) -> NSPoint {
     return NSPoint(x: left.x /• right, y: left.y /• right)
 }

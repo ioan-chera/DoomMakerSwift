@@ -656,6 +656,18 @@
                                     <action selector="zoomOut:" target="-1" id="Dp4-Ux-0xa"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Rotate Clockwise" keyEquivalent="]" id="cnN-FI-RKP">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="rotateClockwise:" target="-1" id="xeW-t4-8yO"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Rotate Counterclockwise" keyEquivalent="[" id="O4h-fh-EJE">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="rotateCounterclockwise:" target="-1" id="u0c-JM-q3h"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

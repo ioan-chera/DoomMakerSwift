@@ -293,11 +293,11 @@ class MapView: NSView {
     ///
     /// Transforms cursor position to game position
     ///
-    fileprivate func gamePos(_ cursorPos: NSPoint) -> NSPoint {
+    private func gamePos(_ cursorPos: NSPoint) -> NSPoint {
         return ((cursorPos - self.translate) / self.scale).rotated(-self.rotate)
     }
 
-    fileprivate func setRotation(_ value: Float, cursorpos: NSPoint) {
+    private func setRotation(_ value: Float, cursorpos: NSPoint) {
         let center = gamePos(cursorpos)
         self.rotate = value
         if self.rotate > 180.0 {
@@ -312,9 +312,10 @@ class MapView: NSView {
         delegate?.mapViewRotationUpdated()
     }
 
-    fileprivate func snapRotation(_ updateDisplay: Bool, cursorpos: NSPoint) {
+    private func snapRotation(updateDisplay: Bool, cursorpos: NSPoint) {
         if self.rotatingGesture {
-            self.setRotation(round(self.rotate / Const.rotateSnapDegrees) * Const.rotateSnapDegrees, cursorpos: cursorpos)
+            self.setRotation(self.rotate /• Const.rotateSnapDegrees,
+                             cursorpos: cursorpos)
             self.rotatingGesture = false
             if updateDisplay {
                 self.setNeedsDisplay(self.bounds)
@@ -376,7 +377,7 @@ class MapView: NSView {
             return
         }
 
-        self.snapRotation(false, cursorpos: cursorpos)
+        self.snapRotation(updateDisplay: false, cursorpos: cursorpos)
 
         let center = (cursorpos - self.translate) / self.scale
         self.scale *= 1 + amount
@@ -407,7 +408,7 @@ class MapView: NSView {
     override func touchesEnded(with event: NSEvent) {
         let cursorpos = self.convert(event.locationInWindow, from: nil)
         if event.touches(matching: .touching, in: nil).count == 1 {
-            self.snapRotation(true, cursorpos: cursorpos)
+            self.snapRotation(updateDisplay: true, cursorpos: cursorpos)
         }
     }
 
@@ -513,6 +514,17 @@ class MapView: NSView {
         }
     }
 
+    @IBAction func rotateClockwise(_ sender: AnyObject?) {
+        setRotation((rotate - Const.rotateSnapDegrees) /• Const.rotateSnapDegrees,
+                    cursorpos: pointerPosition())
+        setNeedsDisplay(bounds)
+    }
+    @IBAction func rotateCounterclockwise(_ sender: AnyObject?) {
+        setRotation((rotate + Const.rotateSnapDegrees) /• Const.rotateSnapDegrees,
+                    cursorpos: pointerPosition())
+        setNeedsDisplay(bounds)
+    }
+
     override func selectAll(_ sender: Any?) {
         level?.selectAll()
     }
@@ -551,6 +563,11 @@ class MapView: NSView {
         }
         if menuItem.action == #selector(MapView.zoomOut(_:)) {
             return self.scale > Const.scaleMin
+        }
+        if menuItem.action == #selector(MapView.rotateClockwise(_:)) ||
+            menuItem.action == #selector(MapView.rotateCounterclockwise(_:))
+        {
+            return true
         }
         if menuItem.action == #selector(MapView.selectAll(_:)) ||
             menuItem.action == #selector(MapView.clearSelection(_:)) ||

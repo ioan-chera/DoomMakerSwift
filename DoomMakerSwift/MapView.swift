@@ -69,23 +69,26 @@ class MapView: NSView {
 
     struct Const {
         static let clickRange = CGFloat(16)
-        static let fps = 120.0
-        static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor ?? 1)
-        static let gridColor = NSColor(red: 0, green: CGFloat(0.5), blue: CGFloat(0.5), alpha: 1)
-        static let linedefWidth = CGFloat(1)
-        static let selectWidth = CGFloat(1.5)
-        static let vertexRadius = CGFloat(2)
-        static let movePeriod = 1.0 / 30
-        static let gridMin = 2
+        static let gridColor = NSColor(red: 0, green: CGFloat(0.5),
+                                       blue: CGFloat(0.5), alpha: 1)
         static let gridDefault = 8
         static let gridMax = 1024
-        static let scaleMin = CGFloat(0.1)
-        static let scaleMax = CGFloat(10)
-        static let rotateSnapDegrees = Float(5)
-        static let zoomKeyAmount = CGFloat(0.25)
-
+        static let gridMin = 2
+        static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor
+            ?? 1)
         static let highlightColour = NSColor.orange
+        static let linedefWidth = CGFloat(1)
+        static let linedefNormalLength = CGFloat(4)
+        static let linedefNormalRatio = CGFloat(3)
+        static let rotateSnapDegrees = Float(5)
+        static let scaleMax = CGFloat(10)
+        static let scaleMin = CGFloat(0.1)
         static let selectColour = NSColor.red
+        static let selectWidth = CGFloat(1.5)
+        static let vertexColour = NSColor.green
+        static let vertexColourDim = NSColor.green.withAlphaComponent(0.75)
+        static let vertexRadius = CGFloat(2)
+        static let zoomKeyAmount = CGFloat(0.25)
     }
 
     override init(frame frameRect: NSRect) {
@@ -206,6 +209,17 @@ class MapView: NSView {
             }
             context.move(to: CGPoint(x: p1.x, y: p1.y))
             context.addLine(to: CGPoint(x: p2.x, y: p2.y))
+            if level.mode == .linedefs {
+                let midPoint = (p1 + p2) / 2.0
+                let lineLength = p1 <-> p2
+                if lineLength > 0 {
+                    context.move(to: midPoint)
+                    let normalLength = min(lineLength / Const.linedefNormalRatio,
+                                           Const.linedefNormalLength)
+                    let versor = (p2 - p1) / lineLength
+                    context.addLine(to: NSPoint(x: midPoint.x + versor.y * normalLength, y: midPoint.y - versor.x * normalLength))
+                }
+            }
             context.strokePath()
         }
 
@@ -226,7 +240,8 @@ class MapView: NSView {
             } else if level.selectedVertices.contains(vertex) {
                 context.setFillColor(Const.selectColour.cgColor)
             } else {
-                context.setFillColor(NSColor.green.cgColor)
+                context.setFillColor(level.mode == .vertices ?
+                    Const.vertexColour.cgColor : Const.vertexColourDim.cgColor)
             }
 
             context.fillEllipse(in: NSRect(x: p.x - Const.vertexRadius,

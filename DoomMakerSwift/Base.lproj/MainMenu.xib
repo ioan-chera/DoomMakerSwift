@@ -14,6 +14,7 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="DoomMakerSwift" customModuleProvider="target">
             <connections>
                 <outlet property="linedefsModeItem" destination="lD1-GP-NnA" id="L7L-M3-XXk"/>
+                <outlet property="sectorsModeItem" destination="znU-Fl-gGg" id="wUT-Bt-Rsl"/>
                 <outlet property="verticesModeItem" destination="c0P-tq-nyP" id="hgW-7Z-0hp"/>
             </connections>
         </customObject>
@@ -685,6 +686,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="linedefMode:" target="-1" id="0oe-cK-a7Z"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Sectors" keyEquivalent="s" id="znU-Fl-gGg">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="sectorMode:" target="-1" id="s13-5w-lUx"/>
                                 </connections>
                             </menuItem>
                         </items>

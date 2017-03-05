@@ -215,6 +215,12 @@ extension NSPoint {
         }
         return false
     }
+
+    /// Cross product's Z
+    func drill(_ point: NSPoint) -> CGFloat {
+        return x * point.y - point.x * y
+    }
+
 }
 
 /// NSRect additions

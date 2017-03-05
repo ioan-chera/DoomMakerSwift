@@ -200,6 +200,11 @@ class MapView: NSView {
 
             if line === level.highlightedItem as? Linedef {
                 context.setStrokeColor(Const.highlightColour.cgColor)
+            } else if level.mode == .sectors && level.highlightedItem !== nil &&
+                (line.frontsector === level.highlightedItem ||
+                    line.backsector === level.highlightedItem)
+            {
+                context.setStrokeColor(Const.highlightColour.cgColor)
             } else if level.selectedLinedefs.contains(line) {
                 context.setStrokeColor(Const.selectColour.cgColor)
             } else if line.flags & 1 == 1 {
@@ -551,6 +556,10 @@ class MapView: NSView {
         level?.mode = Level.Mode.linedefs
     }
 
+    @IBAction func sectorMode(_ sender: Any?) {
+        level?.mode = Level.Mode.sectors
+    }
+
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -572,7 +581,8 @@ class MapView: NSView {
         if menuItem.action == #selector(MapView.selectAll(_:)) ||
             menuItem.action == #selector(MapView.clearSelection(_:)) ||
             menuItem.action == #selector(MapView.vertexMode(_:)) ||
-            menuItem.action == #selector(MapView.linedefMode(_:))
+            menuItem.action == #selector(MapView.linedefMode(_:)) ||
+            menuItem.action == #selector(MapView.sectorMode(_:))
         {
             return self.level != nil
         }

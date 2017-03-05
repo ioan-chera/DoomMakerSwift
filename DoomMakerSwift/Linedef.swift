@@ -62,4 +62,15 @@ final class Linedef: MapItem {
         s2idx = index
         safeArraySet(&s2, list: list, index: index)
     }
+
+    var frontsector: Sector? {
+        get {
+            return s1?.sector
+        }
+    }
+    var backsector: Sector? {
+        get {
+            return s2?.sector
+        }
+    }
 }

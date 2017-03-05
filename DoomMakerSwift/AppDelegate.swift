@@ -23,6 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet var verticesModeItem: NSMenuItem!
     @IBOutlet var linedefsModeItem: NSMenuItem!
+    @IBOutlet var sectorsModeItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
@@ -38,6 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         verticesModeItem.state = check(Level.Mode.vertices)
         linedefsModeItem.state = check(Level.Mode.linedefs)
+        sectorsModeItem.state = check(Level.Mode.sectors)
     }
 }
 

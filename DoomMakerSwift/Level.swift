@@ -51,6 +51,7 @@ class Level
     enum Mode {
         case vertices
         case linedefs
+        case sectors
     }
 
     /// Lump load info
@@ -391,6 +392,23 @@ class Level
                     nearestItem = linedef
                 }
             }
+        case .sectors:
+            for linedef in linedefs {
+                guard let v1 = linedef.v1 else {
+                    continue
+                }
+                guard let v2 = linedef.v2 else {
+                    continue
+                }
+                let p1 = NSPoint(vertex: v1)
+                let p2 = NSPoint(vertex: v2)
+                let distance = position.distanceToSegment(point1: p1, point2: p2)
+                if distance < minDistance {
+                    minDistance = distance
+                    let drill = (position - p1).drill(p2 - p1)
+                    nearestItem = drill >= 0 ? linedef.frontsector : linedef.backsector
+                }
+            }
         }
 
         return nearestItem
@@ -604,6 +622,7 @@ class Level
             addToHashTable(selectedVertices, array: vertices)
         case .linedefs:
             addToHashTable(selectedLinedefs, array: linedefs)
+        case .sectors: break
         }
         document?.updateView()
     }
@@ -617,6 +636,7 @@ class Level
             selectedVertices.removeAllObjects()
         case .linedefs:
             selectedLinedefs.removeAllObjects()
+        case .sectors: break
         }
         document?.updateView()
     }
@@ -652,6 +672,7 @@ class Level
                     added = true
                 }
             }
+        case .sectors: break
         }
         if added {
             document?.updateView()
@@ -696,6 +717,7 @@ class Level
                 }
             }
             selectedLinedefs.removeAllObjects()
+        case .sectors: break
         }
         document?.updateView()
     }

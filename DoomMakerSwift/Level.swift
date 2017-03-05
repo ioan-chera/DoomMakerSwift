@@ -581,9 +581,9 @@ class Level
     ///
     /// When a vertex has been unclicked
     ///
-    func clickUpVertex() -> Bool {
+    func clickUpItem() {
         guard let clickedDownItem = self.clickedDownItem else {
-            return false
+            return
         }
         defer {
             self.clickedDownItem = nil
@@ -611,19 +611,20 @@ class Level
                 moveVertices(positions: positions)
                 document?.updateChangeCount(.changeDone)
             }
-            return false
+            return
         }
 
         if mode == .vertices {
             if let vertex = clickedDownItem as? Vertex {
                 toggleHashTable(selectedVertices, object: vertex)
+                document?.updateView()
             }
         } else if mode == .linedefs {
             if let linedef = clickedDownItem as? Linedef {
                 toggleHashTable(selectedLinedefs, object: linedef)
+                document?.updateView()
             }
         }
-        return true
     }
 
     //==========================================================================
@@ -634,15 +635,12 @@ class Level
     ///
     /// Selects all vertices
     ///
-    func selectAllVertices() {
-        if mode == .vertices {
-            for vertex in vertices {
-                selectedVertices.add(vertex)
-            }
-        } else if mode == .linedefs {
-            for line in linedefs {
-                selectedLinedefs.add(line)
-            }
+    func selectAll() {
+        switch mode {
+        case .vertices:
+            addToHashTable(selectedVertices, array: vertices)
+        case .linedefs:
+            addToHashTable(selectedLinedefs, array: linedefs)
         }
         document?.updateView()
     }
@@ -651,8 +649,12 @@ class Level
     /// Deselects all
     ///
     func clearSelection() {
-        selectedVertices.removeAllObjects()
-        selectedLinedefs.removeAllObjects()
+        switch mode {
+        case .vertices:
+            selectedVertices.removeAllObjects()
+        case .linedefs:
+            selectedLinedefs.removeAllObjects()
+        }
         document?.updateView()
     }
 
@@ -660,19 +662,19 @@ class Level
     /// Performs box selection
     ///
     func boxSelect(startPos: NSPoint, endPos: NSPoint) {
-        let rotatedStart = startPos.rotated(self.gridRotation)
-        let rotatedEnd = endPos.rotated(self.gridRotation)
-        var rotatedRect = NSRect(origin: rotatedStart, size: CGSize())
-        rotatedRect.pointAdd(rotatedEnd)
-
-        if mode == .vertices {
+        let rotatedRect = NSRect(point1: startPos.rotated(gridRotation),
+                                 point2: endPos.rotated(gridRotation))
+        var added = false
+        switch mode {
+        case .vertices:
             for vertex in vertices {
                 let rotated = NSPoint(vertex: vertex).rotated(self.gridRotation)
                 if NSPointInRect(rotated, rotatedRect) {
                     self.selectedVertices.add(vertex)
+                    added = true
                 }
             }
-        } else if mode == .linedefs {
+        case .linedefs:
             for linedef in linedefs {
                 guard let v1 = linedef.v1 else {
                     continue
@@ -684,8 +686,12 @@ class Level
                 let rp2 = NSPoint(vertex: v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
                     self.selectedLinedefs.add(linedef)
+                    added = true
                 }
             }
+        }
+        if added {
+            document?.updateView()
         }
     }
 

@@ -260,8 +260,7 @@ class MapView: NSView {
         drawLines(dirtyRect, context: context)
 
         if dragSelect {
-            let rect = CGRect(x: dragViewStart.x, y: dragViewStart.y,
-                              width: mouseViewPos.x - dragViewStart.x, height: mouseViewPos.y - dragViewStart.y)
+            let rect = NSRect(point1: dragViewStart, point2: mouseViewPos)
 
             context.setLineWidth(Const.selectWidth)
             context.setStrokeColor(NSColor.orange.cgColor)
@@ -445,13 +444,11 @@ class MapView: NSView {
             dragSelect = false
             return
         }
-        if level.clickUpVertex() || dragSelect {
-            if dragSelect {
-                level.boxSelect(startPos: gamePos(self.dragViewStart),
-                                endPos: self.mouseGamePos)
-                dragSelect = false
-            }
-            self.setNeedsDisplay(self.bounds)
+        level.clickUpItem()
+        if dragSelect {
+            level.boxSelect(startPos: gamePos(self.dragViewStart),
+                            endPos: self.mouseGamePos)
+            dragSelect = false
         }
     }
 
@@ -502,7 +499,7 @@ class MapView: NSView {
     }
 
     override func selectAll(_ sender: Any?) {
-        level?.selectAllVertices()
+        level?.selectAll()
     }
 
     @IBAction func clearSelection(_ sender: Any?) {

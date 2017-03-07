@@ -29,6 +29,8 @@ final class Sidedef: MapItem {
 
     private(set) weak var sector: Sector?
 
+    private let linedefs = NSHashTable<Linedef>.weakObjects()
+
     init(data: [UInt8]) {
         DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
             .lumpName(&lower).lumpName(&middle).short(&secnum)
@@ -41,6 +43,22 @@ final class Sidedef: MapItem {
 
     func setSector(list: [Sector], index: Int) {
         secnum = index
+        sector?.removeSide(self)
         safeArraySet(&sector, list: list, index: index)
+        sector?.addSide(self)
+    }
+
+    func addLine(_ line: Linedef) {
+        linedefs.add(line)
+    }
+
+    func removeLine(_ line: Linedef) {
+        linedefs.remove(line)
+    }
+
+    var lineEnumerator: NSEnumerator {
+        get {
+            return linedefs.objectEnumerator()
+        }
     }
 }

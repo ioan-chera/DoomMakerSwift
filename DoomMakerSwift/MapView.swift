@@ -470,6 +470,7 @@ class MapView: NSView {
             level.boxSelect(startPos: gamePos(self.dragViewStart),
                             endPos: self.mouseGamePos)
             dragSelect = false
+            setNeedsDisplay(bounds)
         }
     }
 

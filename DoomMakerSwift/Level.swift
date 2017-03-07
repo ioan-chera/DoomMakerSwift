@@ -237,6 +237,7 @@ class Level
     /// Selected vertices set
     let selectedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
     let selectedLinedefs: NSHashTable<Linedef> = NSHashTable.weakObjects()
+    let selectedSectors: NSHashTable<Sector> = NSHashTable.weakObjects()
 
     /// Dragged vertices set
     let draggedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
@@ -311,6 +312,9 @@ class Level
         }
     }
 
+    //
+    // Validates linedefs
+    //
     private func setupLinedefs() {
         for line in linedefs {
             line.setV1(list: vertices, index: line.v1idx)
@@ -320,6 +324,9 @@ class Level
         }
     }
 
+    //
+    // Validates sidedefs
+    //
     private func setupSidedefs() {
         for side in sidedefs {
             side.setSector(list: sectors, index: side.secnum)
@@ -443,7 +450,7 @@ class Level
         }
         verticesDirty = true
         self.updateView()
-        self.undo.registerUndo(name: "Drag \(mode == .vertices ? "Vertices" : "Linedefs")") {
+        self.undo.registerUndo {
             self.moveVertices(positions: currentPositions)
         }
     }
@@ -457,6 +464,8 @@ class Level
             clickedDownOffset = position - NSPoint(vertex: vertex)
         } else if let linedef = clickedDownItem as? Linedef {
             clickedDownOffset = position - NSPoint(vertex: linedef.v1!)
+        } else if let _ = clickedDownItem as? Sector {
+            clickedDownOffset = NSPoint()
         }
     }
 
@@ -595,17 +604,21 @@ class Level
             return
         }
 
-        if mode == .vertices {
+        switch mode {
+        case .vertices:
             if let vertex = clickedDownItem as? Vertex {
                 toggleHashTable(selectedVertices, object: vertex)
-                document?.updateView()
             }
-        } else if mode == .linedefs {
+        case .linedefs:
             if let linedef = clickedDownItem as? Linedef {
                 toggleHashTable(selectedLinedefs, object: linedef)
-                document?.updateView()
+            }
+        case .sectors:
+            if let sector = clickedDownItem as? Sector {
+                toggleHashTable(selectedSectors, object: sector)
             }
         }
+        document?.updateView()
     }
 
     //==========================================================================
@@ -622,7 +635,8 @@ class Level
             addToHashTable(selectedVertices, array: vertices)
         case .linedefs:
             addToHashTable(selectedLinedefs, array: linedefs)
-        case .sectors: break
+        case .sectors:
+            addToHashTable(selectedSectors, array: sectors)
         }
         document?.updateView()
     }
@@ -636,7 +650,8 @@ class Level
             selectedVertices.removeAllObjects()
         case .linedefs:
             selectedLinedefs.removeAllObjects()
-        case .sectors: break
+        case .sectors:
+            selectedSectors.removeAllObjects()
         }
         document?.updateView()
     }
@@ -672,7 +687,26 @@ class Level
                     added = true
                 }
             }
-        case .sectors: break
+        case .sectors:
+            for linedef in linedefs {
+                guard let v1 = linedef.v1 else {
+                    continue
+                }
+                guard let v2 = linedef.v2 else {
+                    continue
+                }
+                let rp1 = NSPoint(vertex: v1).rotated(self.gridRotation)
+                let rp2 = NSPoint(vertex: v2).rotated(self.gridRotation)
+                if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
+                    if let sector = linedef.frontsector {
+                        selectedSectors.add(sector)
+                    }
+                    if let sector = linedef.backsector {
+                        selectedSectors.add(sector)
+                    }
+                    added = true
+                }
+            }
         }
         if added {
             document?.updateView()

@@ -28,6 +28,8 @@ final class Sector: MapItem {
     var special = 0             // sector special
     var tag = 0                 // sector trigger tag
 
+    private let sidedefs: NSHashTable<Sidedef> = NSHashTable.weakObjects()
+
     init(data: [UInt8]) {
         DataReader(data).short(&floorheight).short(&ceilingheight)
             .lumpName(&floor).lumpName(&ceiling).short(&light)
@@ -38,5 +40,29 @@ final class Sector: MapItem {
         return DataWriter().short(floorheight).short(ceilingheight)
             .lumpName(floor).lumpName(ceiling).short(light).short(special)
             .short(tag).data
+    }
+
+    func addSide(_ side: Sidedef) {
+        sidedefs.add(side)
+    }
+
+    func removeSide(_ side: Sidedef) {
+        sidedefs.remove(side)
+    }
+
+    ///
+    /// Obtains vertices from sidedefs
+    ///
+    func obtainVertices() -> NSHashTable<Vertex> {
+        let sideEnum = sidedefs.objectEnumerator()
+        let result = NSHashTable<Vertex>.weakObjects()
+        while let side = sideEnum.nextObject() as? Sidedef {
+            let lineEnum = side.lineEnumerator
+            while let line = lineEnum.nextObject() as? Linedef {
+                result.add(line.v1)
+                result.add(line.v2)
+            }
+        }
+        return result
     }
 }

@@ -55,12 +55,16 @@ final class Linedef: MapItem {
 
     func setS1(list: [Sidedef], index: Int) {
         s1idx = index
+        s1?.removeLine(self)
         safeArraySet(&s1, list: list, index: index)
+        s1?.addLine(self)
     }
 
     func setS2(list: [Sidedef], index: Int) {
         s2idx = index
+        s2?.removeLine(self)
         safeArraySet(&s2, list: list, index: index)
+        s2?.addLine(self)
     }
 
     var frontsector: Sector? {

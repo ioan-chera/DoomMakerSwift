@@ -77,4 +77,16 @@ final class Linedef: MapItem {
             return s2?.sector
         }
     }
+    var vertices: [Vertex] {
+        get {
+            var ret: [Vertex] = []
+            if let v1 = self.v1 {
+                ret.append(v1)
+            }
+            if let v2 = self.v2 {
+                ret.append(v2)
+            }
+            return ret
+        }
+    }
 }

@@ -226,7 +226,7 @@ class Level
     private(set) weak var clickedDownItem: MapItem?
 
     /// the map position the user started holding down the mouse
-    private var clickedDownOffset = NSPoint()
+    private var clickedDownPosition = NSPoint()
 
     /// The grid rotation. Changed from UI.
     var gridRotation = Float(0.0)
@@ -241,6 +241,7 @@ class Level
 
     /// Dragged vertices set
     let draggedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
+    var draggingDone = false
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
@@ -460,158 +461,7 @@ class Level
     ///
     func clickDownItem(position: NSPoint) {
         clickedDownItem = highlightedItem
-        if let vertex = clickedDownItem as? Vertex {
-            clickedDownOffset = position - NSPoint(vertex: vertex)
-        } else if let linedef = clickedDownItem as? Linedef {
-            clickedDownOffset = position - NSPoint(vertex: linedef.v1!)
-        } else if let sector = clickedDownItem as? Sector {
-            if let vertex = sector.obtainVertices().objectEnumerator().nextObject() as? Vertex {
-                clickedDownOffset = position - NSPoint(vertex: vertex)
-            } else {
-                clickedDownOffset = NSPoint()
-            }
-        }
-    }
-
-    private func dragVertices(position: NSPoint) {
-        guard let clickedDownVertex = clickedDownItem as? Vertex else {
-            return
-        }
-        let actualPosition = snapToGrid(position - self.clickedDownOffset)
-
-        let oldPositionX = clickedDownVertex.apparentX
-        let oldPositionY = clickedDownVertex.apparentY
-
-        if clickedDownVertex.setDragging(point: actualPosition) {
-            draggedVertices.add(clickedDownVertex)
-        }
-
-        if clickedDownVertex.apparentX != oldPositionX ||
-            clickedDownVertex.apparentY != oldPositionY
-        {
-            let enumerator = selectedVertices.objectEnumerator()
-            while let vertex = enumerator.nextObject() as? Vertex {
-                if vertex === clickedDownVertex {
-                    continue
-                }
-                if vertex.setDragging(x: vertex.apparentX +
-                    clickedDownVertex.apparentX - oldPositionX,
-                                      y: vertex.apparentY +
-                                        clickedDownVertex.apparentY - oldPositionY)
-                {
-                    draggedVertices.add(vertex)
-                }
-            }
-            document?.updateView()
-        }
-    }
-
-    private func dragLinedefs(position: NSPoint) {
-        guard let clickedDownLine = clickedDownItem as? Linedef else {
-            return
-        }
-        guard let v1 = clickedDownLine.v1 else {
-            return
-        }
-        guard let v2 = clickedDownLine.v2 else {
-            return
-        }
-
-        let oldPositionX = v1.apparentX
-        let oldPositionY = v1.apparentY
-        let oldPos = NSPoint(x: oldPositionX, y: oldPositionY)
-
-        let actualPosition = oldPos + snapToGrid(position - self.clickedDownOffset - oldPos)
-
-        let draggedNow = NSHashTable<Vertex>.weakObjects()
-
-        func dragOtherVertex(_ v: Vertex) {
-            if draggedNow.contains(v) {
-                return
-            }
-            draggedNow.add(v)
-            if v.setDragging(x: v.apparentX + v1.apparentX - oldPositionX,
-                             y: v.apparentY + v1.apparentY - oldPositionY)
-            {
-                draggedVertices.add(v)
-            }
-        }
-
-        if v1.setDragging(point: actualPosition) {
-            draggedVertices.add(v1)
-            draggedNow.add(v1)
-            dragOtherVertex(v2)
-        }
-        if v1.apparentX != oldPositionX || v1.apparentY != oldPositionY {
-            let enumerator = selectedLinedefs.objectEnumerator()
-            while let linedef = enumerator.nextObject() as? Linedef {
-                if linedef === clickedDownLine {
-                    continue
-                }
-                if let lv1 = linedef.v1 {
-                    dragOtherVertex(lv1)
-                }
-                if let lv2 = linedef.v2 {
-                    dragOtherVertex(lv2)
-                }
-            }
-            document?.updateView()
-        }
-    }
-
-    private func dragSectors(position: NSPoint) {
-        guard let clickedDownSector = clickedDownItem as? Sector else {
-            return
-        }
-        let vertices = clickedDownSector.obtainVertices()
-        if vertices.count <= 0 {
-            return
-        }
-        guard let vertex = vertices.objectEnumerator().nextObject() as? Vertex else {
-            return
-        }
-        let oldPositionX = vertex.apparentX
-        let oldPositionY = vertex.apparentY
-        let oldPos = NSPoint(x: oldPositionX, y: oldPositionY)
-
-        let actualPosition = oldPos + snapToGrid(position - self.clickedDownOffset - oldPos)
-
-        let draggedNow = NSHashTable<Vertex>.weakObjects()
-
-        func dragOtherVertex(_ v: Vertex) {
-            if draggedNow.contains(v) {
-                return
-            }
-            draggedNow.add(v)
-            if v.setDragging(x: v.apparentX + vertex.apparentX - oldPositionX,
-                             y: v.apparentY + vertex.apparentY - oldPositionY)
-            {
-                draggedVertices.add(v)
-            }
-        }
-
-        if vertex.setDragging(point: actualPosition) {
-            draggedVertices.add(vertex)
-            draggedNow.add(vertex)
-            let enumerator = vertices.objectEnumerator()
-            while let otherVertex = enumerator.nextObject() as? Vertex {
-                dragOtherVertex(otherVertex)
-            }
-        }
-        if vertex.apparentX != oldPositionX || vertex.apparentY != oldPositionY {
-            let enumerator = selectedSectors.objectEnumerator()
-            while let sector = enumerator.nextObject() as? Sector {
-                if sector === clickedDownSector {
-                    continue
-                }
-                let sectorVertices = sector.obtainVertices()
-                let enumerator = sectorVertices.objectEnumerator()
-                while let otherVertex = enumerator.nextObject() as? Vertex {
-                    dragOtherVertex(otherVertex)
-                }
-            }
-            document?.updateView()
-        }
+        clickedDownPosition = position
     }
 
     ///
@@ -619,14 +469,54 @@ class Level
     /// updated.
     ///
     func dragItems(position: NSPoint) {
-        if clickedDownItem is Vertex {
-            dragVertices(position: position)
-        } else if clickedDownItem is Linedef {
-            dragLinedefs(position: position)
-        } else if clickedDownItem is Sector {
-            dragSectors(position: position)
+        guard let item = clickedDownItem else {
+            return
+        }
+        if draggedVertices.count <= 0 {
+            switch mode {
+            case .vertices:
+                if let vertex = item as? Vertex {
+                    draggedVertices.add(vertex)
+                    addToHashTable(draggedVertices, fromTable: selectedVertices)
+                }
+            case .linedefs:
+                if let linedef = item as? Linedef {
+                    addToHashTable(draggedVertices, array: linedef.vertices)
+                    let enumerator = selectedLinedefs.objectEnumerator()
+                    while let otherLine = enumerator.nextObject() as? Linedef {
+                        addToHashTable(draggedVertices, array: otherLine.vertices)
+                    }
+                }
+            case .sectors:
+                if let sector = item as? Sector {
+                    addToHashTable(draggedVertices, fromTable: sector.obtainVertices())
+                    forEach(table: selectedSectors) { (otherSector) -> Bool in
+                        addToHashTable(draggedVertices, fromTable: otherSector.obtainVertices())
+                        return true
+                    }
+                }
+            }
         }
 
+        forEach(table: draggedVertices) { (vertex) -> Bool in
+            let destination: NSPoint
+            if mode == .vertices {
+                guard let clickedVertex = clickedDownItem as? Vertex else {
+                    return false
+                }
+                let clickedPoint = NSPoint(vertex: clickedVertex)
+                let delta = clickedDownPosition - clickedPoint
+                destination = snapToGrid(position - delta) + NSPoint(vertex: vertex) - clickedPoint
+            } else {
+                let delta = snapToGrid(position - clickedDownPosition)
+                destination = NSPoint(vertex: vertex) + delta
+            }
+            if vertex.setDragging(point: destination) {
+                draggingDone = true
+                document?.updateView()
+            }
+            return true
+        }
     }
 
     ///
@@ -637,10 +527,12 @@ class Level
             return
         }
         defer {
+            draggingDone = false
+            draggedVertices.removeAllObjects()
             self.clickedDownItem = nil
         }
 
-        if draggedVertices.count > 0 {
+        if draggedVertices.count > 0 && draggingDone {
             let positions = NSMapTable<Vertex, ObjWrap<NSPoint>>
                 .weakToStrongObjects()
             var changed = false

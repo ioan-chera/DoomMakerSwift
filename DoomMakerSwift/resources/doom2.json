@@ -1,0 +1,624 @@
+{
+    "thingCategories": [
+        {
+            "category": "Player starts",
+            "color": "#00ff00",
+            "things": [
+                {
+                    "name": "Player 1 start",
+                    "id": 1,
+                    "radius": 16
+                },
+                {
+                    "name": "Player 2 start",
+                    "id": 2,
+                    "radius": 16
+                },
+                {
+                    "name": "Player 3 start",
+                    "id": 3,
+                    "radius": 16
+                },
+                {
+                    "name": "Player 4 start",
+                    "id": 4,
+                    "radius": 16
+                },
+                {
+                    "name": "Deathmatch start",
+                    "id": 11,
+                    "radius": 16
+                }                
+            ]
+        },
+        {
+            "category": "Monsters",
+            "color": "#ff0000",
+            "things": [
+                {
+                    "name": "Former human",
+                    "id": 3004,
+                    "radius": 20
+                },
+                {
+                    "name": "Former human sergeant",
+                    "id": 9,
+                    "radius": 20
+                },
+                {
+                    "name": "Archvile",
+                    "id": 64,
+                    "radius": 20
+                },
+                {
+                    "name": "Revenant",
+                    "id": 66,
+                    "radius": 20
+                },
+                {
+                    "name": "Mancubus",
+                    "id": 67,
+                    "radius": 48
+                },
+                {
+                    "name": "Heavy weapon dude",
+                    "id": 65,
+                    "radius": 20
+                },
+                {
+                    "name": "Imp",
+                    "id": 3001,
+                    "radius": 20
+                },
+                {
+                    "name": "Demon",
+                    "id": 3002,
+                    "radius": 30
+                },
+                {
+                    "name": "Spectre",
+                    "id": 58,
+                    "radius": 30
+                },
+                {
+                    "name": "Cacodemon",
+                    "id": 3005,
+                    "radius": 31
+                },
+                {
+                    "name": "Baron of hell",
+                    "id": 3003,
+                    "radius": 24
+                },
+                {
+                    "name": "Hell knight",
+                    "id": 69,
+                    "radius": 24
+                },
+                {
+                    "name": "Lost soul",
+                    "id": 3006,
+                    "radius": 16
+                },
+                {
+                    "name": "Spider mastermind",
+                    "id": 7,
+                    "radius": 128
+                },
+                {
+                    "name": "Arachnotron",
+                    "id": 68,
+                    "radius": 64
+                },
+                {
+                    "name": "Cyberdemon",
+                    "id": 16,
+                    "radius": 40
+                },
+                {
+                    "name": "Pain elemental",
+                    "id": 71,
+                    "radius": 31
+                },
+                {
+                    "name": "SS guard",
+                    "id": 84,
+                    "radius": 20
+                },
+                {
+                    "name": "Final boss spitter",
+                    "id": 89,
+                    "radius": 20
+                }
+            ]
+        },
+        {
+            "category": "Destructibles",
+            "color": "#ff8000",
+            "things": [
+                {
+                    "name": "Commander Keen",
+                    "id": 72,
+                    "radius": 16
+                },
+                {
+                    "name": "Boss brain",
+                    "id": 88,
+                    "radius": 16
+                },
+                {
+                    "name": "Barrel",
+                    "id": 2035,
+                    "radius": 10
+                }
+            ]
+        },
+        {
+            "category": "Target spots",
+            "color": "#008000",
+            "things": [
+                {
+                    "name": "Final boss target",
+                    "id": 87,
+                    "radius": 64
+                },
+                {
+                    "name": "Teleport destination",
+                    "id": 14,
+                    "radius": 16
+                }
+            ]
+        },
+        {
+            "category": "Health and armor",
+            "color": "#008080",
+            "radius": 20,
+            "things": [
+                {
+                    "name": "Security armor",
+                    "id": 2018
+                },
+                {
+                    "name": "Combat armor",
+                    "id": 2019
+                },
+                {
+                    "name": "Stimpack",
+                    "id": 2011
+                },
+                {
+                    "name": "Medikit",
+                    "id": 2012
+                }
+            ]
+        },
+        {
+            "category": "Powerups and artifacts",
+            "color": "#0000ff",
+            "radius": 20,
+            "things": [
+                {
+                    "name": "Health potion",
+                    "id": 2014
+                },
+                {
+                    "name": "Spiritual armor",
+                    "id": 2015
+                },
+                {
+                    "name": "Soul sphere",
+                    "id": 2013
+                },
+                {
+                    "name": "Invulnerability artifact",
+                    "id": 2022
+                },
+                {
+                    "name": "Berserk pack",
+                    "id": 2023
+                },
+                {
+                    "name": "Blur artifact",
+                    "id": 2024
+                },
+                {
+                    "name": "Radiation suit",
+                    "id": 2025
+                },
+                {
+                    "name": "Computer map",
+                    "id": 2026
+                },
+                {
+                    "name": "Light amplification visor",
+                    "id": 2045
+                },
+                {
+                    "name": "Megasphere",
+                    "id": 83
+                }
+            ]
+        },
+        {
+            "category": "Ammunition",
+            "color": "#804000",
+            "radius": 20,
+            "things": [
+                {
+                    "name": "Clip",
+                    "id": 2007
+                },
+                {
+                    "name": "Ammo box",
+                    "id": 2048
+                },
+                {
+                    "name": "Rocket",
+                    "id": 2010
+                },
+                {
+                    "name": "Rocket case",
+                    "id": 2046
+                },
+                {
+                    "name": "Cell",
+                    "id": 2047
+                },
+                {
+                    "name": "Bulk cell",
+                    "id": 17
+                },
+                {
+                    "name": "Shotgun shells",
+                    "id": 2008
+                },
+                {
+                    "name": "Shell pack",
+                    "id": 2049
+                },
+                {
+                    "name": "Backpack",
+                    "id": 8
+                }
+            ]
+        },
+        {
+            "category": "Weapons",
+            "color": "#ffff00",
+            "radius": 20,
+            "things": [
+                {
+                    "name": "BFG 9000",
+                    "id": 2006
+                },
+                {
+                    "name": "Chaingun",
+                    "id": 2002
+                },
+                {
+                    "name": "Chainsaw",
+                    "id": 2005
+                },
+                {
+                    "name": "Rocket launcher",
+                    "id": 2003
+                },
+                {
+                    "name": "Plasma rifle",
+                    "id": 2004
+                },
+                {
+                    "name": "Shotgun",
+                    "id": 2001
+                },
+                {
+                    "name": "Super shotgun",
+                    "id": 82
+                }
+            ]
+        },
+        {
+            "category": "Keys",
+            "color": "#ff00ff",
+            "radius": 20,
+            "things": [
+                {
+                    "name": "Blue keycard",
+                    "id": 5
+                },
+                {
+                    "name": "Red keycard",
+                    "id": 13
+                },
+                {
+                    "name": "Yellow keycard",
+                    "id": 6
+                },
+                {
+                    "name": "Yellow skull key",
+                    "id": 39
+                },
+                {
+                    "name": "Red skull key",
+                    "id": 38
+                },
+                {
+                    "name": "Blue skull key",
+                    "id": 40
+                }
+            ]
+        },
+        {
+            "category": "Light sources",
+            "color": "#c0c0c0",
+            "radius": 16,
+            "things": [
+                {
+                    "name": "Tech lamp 1",
+                    "id": 85
+                },
+                {
+                    "name": "Tech lamp 2",
+                    "id": 86
+                },
+                {
+                    "name": "Short lamp",
+                    "id": 2028
+                },
+                {
+                    "name": "Tall blue torch",
+                    "id": 44
+                },
+                {
+                    "name": "Tall green torch",
+                    "id": 45
+                },
+                {
+                    "name": "Tall red torch",
+                    "id": 46
+                },
+                {
+                    "name": "Short blue torch",
+                    "id": 55
+                },
+                {
+                    "name": "Short green torch",
+                    "id": 56
+                },
+                {
+                    "name": "Short red torch",
+                    "id": 57
+                },
+                {
+                    "name": "Small light",
+                    "id": 34,
+                    "radius": 20
+                },
+                {
+                    "name": "Candelabra",
+                    "id": 35
+                },
+                {
+                    "name": "Flaming barrel",
+                    "id": 70,
+                    "radius": 16
+                }
+            ]
+        },
+        {
+            "category": "Obstacles",
+            "color": "#a0a0a0",
+            "radius": 16,
+            "things": [
+                {
+                    "name": "Tall green column",
+                    "id": 30
+                },
+                {
+                    "name": "Short green column",
+                    "id": 31
+                },
+                {
+                    "name": "Tall red column",
+                    "id": 32
+                },
+                {
+                    "name": "Short red column",
+                    "id": 33
+                },
+                {
+                    "name": "Column with skull",
+                    "id": 37
+                },
+                {
+                    "name": "Column with heart",
+                    "id": 36
+                },
+                {
+                    "name": "Eye in symbol",
+                    "id": 41
+                },
+                {
+                    "name": "Floating skulls",
+                    "id": 42
+                },
+                {
+                    "name": "Small tree",
+                    "id": 43
+                },
+                {
+                    "name": "Thorny spikes",
+                    "id": 47
+                },
+                {
+                    "name": "Technical column",
+                    "id": 48
+                },
+                {
+                    "name": "Large tree",
+                    "id": 54,
+                    "radius": 32
+                },
+            ]
+        },
+        {
+            "category": "Corpses",
+            "color": "#800000",
+            "radius": 20,
+            "things": [
+                {
+                    "name": "Twitching hanging body (block)",
+                    "id": 49,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging jacket body (block)",
+                    "id": 50,
+                    "radius": 16
+                },
+                {
+                    "name": "One-legged body (block)",
+                    "id": 51,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging torso (block)",
+                    "id": 52,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging leg (block)",
+                    "id": 53,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging jacket body (pass)",
+                    "id": 59
+                },
+                {
+                    "name": "Hanging torso (pass)",
+                    "id": 60
+                },
+                {
+                    "name": "One-legged body (pass)",
+                    "id": 61
+                },
+                {
+                    "name": "Hanging leg (pass)",
+                    "id": 62
+                },
+                {
+                    "name": "Twitching hanging body (pass)",
+                    "id": 63
+                },
+                {
+                    "name": "Dead cacodemon",
+                    "id": 22
+                },
+                {
+                    "name": "Dead marine",
+                    "id": 15
+                },
+                {
+                    "name": "Dead former human",
+                    "id": 18
+                },
+                {
+                    "name": "Dead demon",
+                    "id": 21
+                },
+                {
+                    "name": "Dead lost soul",
+                    "id": 23
+                },
+                {
+                    "name": "Dead imp",
+                    "id": 20
+                },
+                {
+                    "name": "Dead sergeant",
+                    "id": 19
+                },
+                {
+                    "name": "Decomposed marine 1",
+                    "id": 10
+                },
+                {
+                    "name": "Decomposed marine 2",
+                    "id": 12
+                },
+                {
+                    "name": "Skewered heads",
+                    "id": 28,
+                    "radius": 16
+                },
+                {
+                    "name": "Pool of blood",
+                    "id": 24
+                },
+                {
+                    "name": "Skull on a stick",
+                    "id": 27,
+                    "radius": 16
+                },
+                {
+                    "name": "Skulls and candles",
+                    "id": 29,
+                    "radius": 16
+                },
+                {
+                    "name": "Impaled body",
+                    "id": 25,
+                    "radius": 16
+                },
+                {
+                    "name": "Twitching body",
+                    "id": 26,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging corpse with no guts",
+                    "id": 73,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging corpse with no brain",
+                    "id": 74,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging corpse top",
+                    "id": 75,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging corpse top brain",
+                    "id": 76,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging corpse top looking up",
+                    "id": 77,
+                    "radius": 16
+                },
+                {
+                    "name": "Hanging corpse top without brain",
+                    "id": 78,
+                    "radius": 16
+                },
+                {
+                    "name": "Pool of blood (medium)",
+                    "id": 79
+                },
+                {
+                    "name": "Pool of blood (small)",
+                    "id": 80
+                },
+                {
+                    "name": "Pool of blood with brain",
+                    "id": 81
+                }
+            ]
+        }
+    ]
+}

@@ -78,7 +78,7 @@ class Wad
 
         for i in 0..<Int(numLumps)
         {
-            let address = Int(infoTableOfs + 16 * i)
+            let address = Int(infoTableOfs) + 16 * i
             let filepos = data.int32(address)
             let size = data.int32(address + 4)
             let nameData = data.subdata(in: (address + 8) ..< (address + 16))

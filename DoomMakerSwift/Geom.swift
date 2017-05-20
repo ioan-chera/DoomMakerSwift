@@ -19,8 +19,8 @@
 import Foundation
 
 /// PI representation
-let π = M_PI
-let πf = Float(M_PI)
+let π = Double.pi
+let πf = Float.pi
 
 class Geom {
 

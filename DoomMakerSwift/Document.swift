@@ -37,6 +37,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     @IBOutlet var zoomLabel: NSTextField!
     @IBOutlet var xyLabel: NSTextField!
     @IBOutlet var rotationLabel: NSTextField!
+    @IBOutlet var modeLabel: NSTextField!
 
     /// Holds a reference to the currently edited level
     private weak var currentLevel: Level? {
@@ -54,6 +55,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.zoomLabel.isHidden = !haveLevel
         self.xyLabel.isHidden = !haveLevel
         self.rotationLabel.isHidden = !haveLevel
+        self.modeLabel.isHidden = !haveLevel
 
         // Get settings from reference
         if haveLevel {
@@ -200,6 +202,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.mapView.setNeedsDisplay(self.mapView.bounds)
     }
     func updateMode(_ mode: Level.Mode) {
+        self.modeLabel.setText("Mode: \(mode)")
         appDelegate().updateMode(mode)
     }
 }

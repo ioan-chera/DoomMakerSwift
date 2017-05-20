@@ -26,7 +26,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var sectorsModeItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
+        // Load resources
+        let data = try! Data(contentsOf: Bundle.main.url(forResource: "doom2", withExtension: "json")!)
+        let thingConfig = try! JSONSerialization.jsonObject(with: data) as! NSDictionary
+        loadIdThingMap(jsonConfig: thingConfig)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

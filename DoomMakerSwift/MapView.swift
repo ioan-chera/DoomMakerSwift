@@ -259,6 +259,24 @@ class MapView: NSView {
                                            height: Const.vertexRadius * 2))
         }
 
+        for thing in level.things {
+            let center = NSPoint(x: thing.x, y: thing.y)
+            let type = idThingMap[thing.type] ?? ThingType.unknown
+            let radius = type.radius
+            let points = [
+                transformed(center + CGPoint(x: -radius, y: -radius)),
+                transformed(center + CGPoint(x: radius, y: -radius)),
+                transformed(center + CGPoint(x: radius, y: radius)),
+                transformed(center + CGPoint(x: -radius, y: radius))
+            ]
+            context.setFillColor(type.color.withAlphaComponent(0.8).cgColor)
+            context.move(to: points[0])
+            context.addLine(to: points[1])
+            context.addLine(to: points[2])
+            context.addLine(to: points[3])
+            context.fillPath()
+        }
+
 //        let thingRadius = 16 * scale
 //        let biggerRect = NSRectFromCGRect(CGRectInset(NSRectToCGRect(dirtyRect), -thingRadius, -thingRadius))
 //        for thing in level.things {

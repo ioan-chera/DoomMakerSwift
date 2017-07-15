@@ -52,6 +52,7 @@ class Level
         case vertices
         case linedefs
         case sectors
+        case things
     }
 
     /// Lump load info
@@ -73,25 +74,6 @@ class Level
         .reject: LumpDefinition(name: "REJECT", recordSize: 1),
         .blockmap: LumpDefinition(name: "BLOCKMAP", recordSize: 2)
     ]
-
-    /// Map thing
-    final class Thing: MapItem {
-        var x = 0       // coordinate
-        var y = 0       // coordinate
-        var angle = 0   // angle
-        var type = 0    // doomednum
-        var flags = 0   // spawn options
-
-        init(data: [UInt8]) {
-            DataReader(data).short(&x).short(&y).short(&angle).short(&type)
-                .short(&flags)
-        }
-
-        func getData() -> [UInt8] {
-            return DataWriter([]).short(x).short(y).short(angle).short(type)
-                .short(flags).data
-        }
-    }
 
     /// BSP segment
     final class Seg: MapItem {
@@ -210,9 +192,11 @@ class Level
     //
 
     private(set) var verticesDirty = false  // update VERTEXES lump
+    private(set) var thingsDirty = false    // update THINGS lump
     /// Must be called when saving
     func cleanDirty() {
         verticesDirty = false
+        thingsDirty = false
     }
 
     //
@@ -235,12 +219,12 @@ class Level
     var gridSize = CGFloat(0.0)
 
     /// Selected vertices set
-    let selectedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
+    let selectedDragItems: NSHashTable<DraggedItem> = NSHashTable.weakObjects()
     let selectedLinedefs: NSHashTable<Linedef> = NSHashTable.weakObjects()
     let selectedSectors: NSHashTable<Sector> = NSHashTable.weakObjects()
 
     /// Dragged vertices set
-    let draggedVertices: NSHashTable<Vertex> = NSHashTable.weakObjects()
+    let draggedItems: NSHashTable<DraggedItem> = NSHashTable.weakObjects()
     var draggingDone = false
 
     init(wad: Wad, lumpIndex: Int) {
@@ -367,16 +351,34 @@ class Level
         MapItem?
     {
         var minDistance = CGFloat.greatestFiniteMagnitude
+        var minRadius = CGFloat.greatestFiniteMagnitude
         var nearestItem: MapItem? = nil
 
         switch mode {
         case .vertices:
-            for vertex in vertices {
-                let vertexPosition = NSPoint(vertex: vertex)
+            for item in vertices {
+                let vertexPosition = NSPoint(item: item)
                 let distance = position <-> vertexPosition
                 if distance < radius && distance < minDistance {
                     minDistance = distance
-                    nearestItem = vertex
+                    nearestItem = item
+                }
+            }
+        case .things:
+            for item in things {
+                let vertexPosition = NSPoint(item: item)
+                let thingRadius = CGFloat(item.info.radius)
+                let distance = position <-> vertexPosition
+                if distance < radius + thingRadius {
+                    if distance < minDistance {
+                        minDistance = distance
+                        minRadius = thingRadius
+                        nearestItem = item
+                    } else if distance == minDistance && thingRadius < minRadius {
+                        // equal position? Pick the thinnest one
+                        minRadius = thingRadius
+                        nearestItem = item
+                    }
                 }
             }
         case .linedefs:
@@ -387,8 +389,8 @@ class Level
                 guard let v2 = linedef.v2 else {
                     continue
                 }
-                let p1 = NSPoint(vertex: v1)
-                let p2 = NSPoint(vertex: v2)
+                let p1 = NSPoint(item: v1)
+                let p2 = NSPoint(item: v2)
                 let box = NSRect(point1: p1, point2: p2)
                     .insetBy(dx: -radius, dy: -radius)
                 if !NSPointInRect(position, box) {
@@ -408,8 +410,8 @@ class Level
                 guard let v2 = linedef.v2 else {
                     continue
                 }
-                let p1 = NSPoint(vertex: v1)
-                let p2 = NSPoint(vertex: v2)
+                let p1 = NSPoint(item: v1)
+                let p2 = NSPoint(item: v2)
                 let distance = position.distanceToSegment(point1: p1, point2: p2)
                 if distance < minDistance {
                     minDistance = distance
@@ -438,21 +440,26 @@ class Level
     ///
     /// Vertex movement operation
     ///
-    private func moveVertices(positions: NSMapTable<Vertex, ObjWrap<NSPoint>>) {
-        let currentPositions: NSMapTable<Vertex, ObjWrap<NSPoint>> =
+    private func moveDragItems(positions: NSMapTable<DraggedItem, ObjWrap<NSPoint>>)
+    {
+        let currentPositions: NSMapTable<DraggedItem, ObjWrap<NSPoint>> =
             NSMapTable.weakToStrongObjects()
         let enumerator = positions.keyEnumerator()
-        while let vertex = enumerator.nextObject() as? Vertex {
-            currentPositions.setObject(ObjWrap(NSPoint(vertex: vertex)),
-                                       forKey: vertex)
-            let point = positions.object(forKey: vertex)!
-            vertex.x = Int16(round(point.data.x))
-            vertex.y = Int16(round(point.data.y))
+        while let item = enumerator.nextObject() as? DraggedItem {
+            currentPositions.setObject(ObjWrap(NSPoint(item: item)),
+                                       forKey: item)
+            let point = positions.object(forKey: item)!
+            item.x = Int16(round(point.data.x))
+            item.y = Int16(round(point.data.y))
+            if item is Vertex {
+                verticesDirty = true
+            } else if item is Thing {
+                thingsDirty = true
+            }
         }
-        verticesDirty = true
         self.updateView()
         self.undo.registerUndo {
-            self.moveVertices(positions: currentPositions)
+            self.moveDragItems(positions: currentPositions)
         }
     }
 
@@ -472,46 +479,46 @@ class Level
         guard let item = clickedDownItem else {
             return
         }
-        if draggedVertices.count <= 0 {
+        if draggedItems.count <= 0 {
             switch mode {
-            case .vertices:
-                if let vertex = item as? Vertex {
-                    draggedVertices.add(vertex)
-                    draggedVertices.union(selectedVertices)
+            case .vertices, .things:
+                if let item = item as? DraggedItem {
+                    draggedItems.add(item)
+                    draggedItems.union(selectedDragItems)
                 }
             case .linedefs:
                 if let linedef = item as? Linedef {
-                    addToHashTable(draggedVertices, array: linedef.vertices)
+                    addToHashTable(draggedItems, array: linedef.vertices)
                     let enumerator = selectedLinedefs.objectEnumerator()
                     while let otherLine = enumerator.nextObject() as? Linedef {
-                        addToHashTable(draggedVertices, array: otherLine.vertices)
+                        addToHashTable(draggedItems, array: otherLine.vertices)
                     }
                 }
             case .sectors:
                 if let sector = item as? Sector {
-                    draggedVertices.union(sector.obtainVertices())
+                    addToHashTable(draggedItems, fromTable: sector.obtainVertices())
                     forEach(table: selectedSectors) { (otherSector) -> Bool in
-                        draggedVertices.union(otherSector.obtainVertices())
+                        addToHashTable(draggedItems, fromTable: otherSector.obtainVertices())
                         return true
                     }
                 }
             }
         }
 
-        forEach(table: draggedVertices) { (vertex) -> Bool in
+        forEach(table: draggedItems) { (item) -> Bool in
             let destination: NSPoint
-            if mode == .vertices {
-                guard let clickedVertex = clickedDownItem as? Vertex else {
+            if mode == .vertices || mode == .things {
+                guard let clickedItem = clickedDownItem as? DraggedItem else {
                     return false
                 }
-                let clickedPoint = NSPoint(vertex: clickedVertex)
+                let clickedPoint = NSPoint(item: clickedItem)
                 let delta = clickedDownPosition - clickedPoint
-                destination = snapToGrid(position - delta) + NSPoint(vertex: vertex) - clickedPoint
+                destination = snapToGrid(position - delta) + NSPoint(item: item) - clickedPoint
             } else {
                 let delta = snapToGrid(position - clickedDownPosition)
-                destination = NSPoint(vertex: vertex) + delta
+                destination = NSPoint(item: item) + delta
             }
-            if vertex.setDragging(point: destination) {
+            if item.setDragging(point: destination) {
                 draggingDone = true
                 document?.updateView()
             }
@@ -528,39 +535,39 @@ class Level
         }
         defer {
             draggingDone = false
-            draggedVertices.removeAllObjects()
+            draggedItems.removeAllObjects()
             self.clickedDownItem = nil
         }
 
-        if draggedVertices.count > 0 && draggingDone {
-            let positions = NSMapTable<Vertex, ObjWrap<NSPoint>>
+        if draggedItems.count > 0 && draggingDone {
+            let positions = NSMapTable<DraggedItem, ObjWrap<NSPoint>>
                 .weakToStrongObjects()
             var changed = false
 
-            let enumerator = draggedVertices.objectEnumerator()
-            while let vertex = enumerator.nextObject() as? Vertex {
-                let wrap = ObjWrap(NSPoint(x: Int(vertex.apparentX),
-                                           y: Int(vertex.apparentY)))
-                positions.setObject(wrap, forKey: vertex)
+            let enumerator = draggedItems.objectEnumerator()
+            while let item = enumerator.nextObject() as? DraggedItem {
+                let wrap = ObjWrap(NSPoint(x: Int(item.apparentX),
+                                           y: Int(item.apparentY)))
+                positions.setObject(wrap, forKey: item)
 
-                if vertex.apparentX != vertex.x || vertex.apparentY != vertex.y {
+                if item.apparentX != item.x || item.apparentY != item.y {
                     changed = true
                 }
-                vertex.endDragging()
+                item.endDragging()
             }
-            draggedVertices.removeAllObjects()
+            draggedItems.removeAllObjects()
 
             if changed {
-                moveVertices(positions: positions)
+                moveDragItems(positions: positions)
                 document?.updateChangeCount(.changeDone)
             }
             return
         }
 
         switch mode {
-        case .vertices:
-            if let vertex = clickedDownItem as? Vertex {
-                toggleHashTable(selectedVertices, object: vertex)
+        case .vertices, .things:
+            if let item = clickedDownItem as? DraggedItem {
+                toggleHashTable(selectedDragItems, object: item)
             }
         case .linedefs:
             if let linedef = clickedDownItem as? Linedef {
@@ -585,7 +592,9 @@ class Level
     func selectAll() {
         switch mode {
         case .vertices:
-            addToHashTable(selectedVertices, array: vertices)
+            addToHashTable(selectedDragItems, array: vertices)
+        case .things:
+            addToHashTable(selectedDragItems, array: things)
         case .linedefs:
             addToHashTable(selectedLinedefs, array: linedefs)
         case .sectors:
@@ -599,8 +608,8 @@ class Level
     ///
     func clearSelection() {
         switch mode {
-        case .vertices:
-            selectedVertices.removeAllObjects()
+        case .vertices, .things:
+            selectedDragItems.removeAllObjects()
         case .linedefs:
             selectedLinedefs.removeAllObjects()
         case .sectors:
@@ -619,10 +628,28 @@ class Level
         switch mode {
         case .vertices:
             for vertex in vertices {
-                let rotated = NSPoint(vertex: vertex).rotated(self.gridRotation)
+                let rotated = NSPoint(item: vertex).rotated(self.gridRotation)
                 if NSPointInRect(rotated, rotatedRect) {
-                    self.selectedVertices.add(vertex)
+                    self.selectedDragItems.add(vertex)
                     added = true
+                }
+            }
+        case .things:
+            for thing in things {
+                // pick each of the four corners
+                let center = NSPoint(item: thing)
+                let rad = thing.info.radius
+                let points = [center + NSPoint(x: -rad, y: -rad),
+                              center + NSPoint(x: rad, y: -rad),
+                              center + NSPoint(x: rad, y: rad),
+                              center + NSPoint(x: -rad, y: rad)]
+                for point in points {
+                    if NSPointInRect(point.rotated(self.gridRotation), rotatedRect)
+                    {
+                        self.selectedDragItems.add(thing)
+                        added = true
+                        break
+                    }
                 }
             }
         case .linedefs:
@@ -633,8 +660,8 @@ class Level
                 guard let v2 = linedef.v2 else {
                     continue
                 }
-                let rp1 = NSPoint(vertex: v1).rotated(self.gridRotation)
-                let rp2 = NSPoint(vertex: v2).rotated(self.gridRotation)
+                let rp1 = NSPoint(item: v1).rotated(self.gridRotation)
+                let rp2 = NSPoint(item: v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
                     self.selectedLinedefs.add(linedef)
                     added = true
@@ -648,8 +675,8 @@ class Level
                 guard let v2 = linedef.v2 else {
                     continue
                 }
-                let rp1 = NSPoint(vertex: v1).rotated(self.gridRotation)
-                let rp2 = NSPoint(vertex: v2).rotated(self.gridRotation)
+                let rp1 = NSPoint(item: v1).rotated(self.gridRotation)
+                let rp2 = NSPoint(item: v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
                     if let sector = linedef.frontsector {
                         selectedSectors.add(sector)
@@ -683,29 +710,31 @@ class Level
         case .vertices:
             if newMode == .linedefs {
                 for linedef in linedefs {
-                    if selectedVertices.contains(linedef.v1) &&
-                        selectedVertices.contains(linedef.v2)
+                    if selectedDragItems.contains(linedef.v1) &&
+                        selectedDragItems.contains(linedef.v2)
                     {
                         selectedLinedefs.add(linedef)
                     }
                 }
             } else if newMode == .sectors {
                 for sector in sectors {
-                    if sector.obtainVertices().isSubset(of: selectedVertices) {
+                    if sector.obtainVertices().isSubset(of: selectedDragItems) {
                         selectedSectors.add(sector)
                     }
                 }
+            } else if newMode == .things {
+                // TODO: select all things in containing sectors
             }
-            selectedVertices.removeAllObjects()
+            selectedDragItems.removeAllObjects()
         case .linedefs:
             if newMode == .vertices {
                 let enumerator = selectedLinedefs.objectEnumerator()
                 while let linedef = enumerator.nextObject() as? Linedef {
                     if linedef.v1 !== nil {
-                        selectedVertices.add(linedef.v1)
+                        selectedDragItems.add(linedef.v1)
                     }
                     if linedef.v2 !== nil {
-                        selectedVertices.add(linedef.v2)
+                        selectedDragItems.add(linedef.v2)
                     }
                 }
             } else if newMode == .sectors {
@@ -714,21 +743,28 @@ class Level
                         selectedSectors.add(sector)
                     }
                 }
+            } else if newMode == .things {
+                // TODO: select all things in containing sectors
             }
             selectedLinedefs.removeAllObjects()
         case .sectors:
             if newMode == .vertices {
                 let enumerator = selectedSectors.objectEnumerator()
                 while let sector = enumerator.nextObject() as? Sector {
-                    selectedVertices.union(sector.obtainVertices())
+                    selectedDragItems.union(sector.obtainVertices())
                 }
             } else if newMode == .linedefs {
                 let enumerator = selectedSectors.objectEnumerator()
                 while let sector = enumerator.nextObject() as? Sector {
                     selectedLinedefs.union(sector.obtainLinedefs())
                 }
+            } else if newMode == .things {
+                // TODO: select all things in containing sectors
             }
             selectedSectors.removeAllObjects()
+        case .things:
+            // TODO: select sectors if all things are selected
+            selectedDragItems.removeAllObjects()
         }
         document?.updateView()
     }

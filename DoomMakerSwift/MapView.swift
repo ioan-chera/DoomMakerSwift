@@ -246,7 +246,7 @@ class MapView: NSView {
 
             if vertex === level.highlightedItem as? Vertex {
                 context.setFillColor(Const.highlightColour.cgColor)
-            } else if level.selectedVertices.contains(vertex) {
+            } else if level.selectedDragItems.contains(vertex) {
                 context.setFillColor(Const.selectColour.cgColor)
             } else {
                 context.setFillColor(level.mode == .vertices ?
@@ -260,16 +260,29 @@ class MapView: NSView {
         }
 
         for thing in level.things {
-            let center = NSPoint(x: thing.x, y: thing.y)
-            let type = idThingMap[thing.type] ?? ThingType.unknown
+            let center = NSPoint(x: thing.apparentX, y: thing.apparentY)
+            let type = thing.info
             let radius = type.radius
+            if !NSPointInRect(transformed(center),
+                              dirtyRect.insetBy(dx: -1.5 * CGFloat(radius),
+                                                dy: -1.5 * CGFloat(radius)))
+            {
+                continue
+            }
             let points = [
                 transformed(center + CGPoint(x: -radius, y: -radius)),
                 transformed(center + CGPoint(x: radius, y: -radius)),
                 transformed(center + CGPoint(x: radius, y: radius)),
                 transformed(center + CGPoint(x: -radius, y: radius))
             ]
-            context.setFillColor(type.color.withAlphaComponent(0.8).cgColor)
+
+            if thing === level.highlightedItem as? Thing {
+                context.setFillColor(Const.highlightColour.cgColor)
+            } else if level.selectedDragItems.contains(thing) {
+                context.setFillColor(Const.selectColour.cgColor)
+            } else {
+                context.setFillColor(type.color.withAlphaComponent(0.8).cgColor)
+            }
             context.move(to: points[0])
             context.addLine(to: points[1])
             context.addLine(to: points[2])
@@ -579,6 +592,10 @@ class MapView: NSView {
         level?.mode = Level.Mode.sectors
     }
 
+    @IBAction func thingMode(_ sender: Any?) {
+        level?.mode = Level.Mode.things
+    }
+
     override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -601,7 +618,8 @@ class MapView: NSView {
             menuItem.action == #selector(MapView.clearSelection(_:)) ||
             menuItem.action == #selector(MapView.vertexMode(_:)) ||
             menuItem.action == #selector(MapView.linedefMode(_:)) ||
-            menuItem.action == #selector(MapView.sectorMode(_:))
+            menuItem.action == #selector(MapView.sectorMode(_:)) ||
+            menuItem.action == #selector(MapView.thingMode(_:))
         {
             return self.level != nil
         }

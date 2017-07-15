@@ -53,9 +53,9 @@ final class Sector: MapItem {
     ///
     /// Obtains vertices from sidedefs
     ///
-    func obtainVertices() -> NSHashTable<Vertex> {
+    func obtainVertices() -> NSHashTable<DraggedItem> {
         let sideEnum = sidedefs.objectEnumerator()
-        let result = NSHashTable<Vertex>.weakObjects()
+        let result = NSHashTable<DraggedItem>.weakObjects()
         while let side = sideEnum.nextObject() as? Sidedef {
             let lineEnum = side.lineEnumerator
             while let line = lineEnum.nextObject() as? Linedef {

@@ -35,6 +35,8 @@
 		4FA0A7791C54CA42009F3980 /* Wad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A7781C54CA42009F3980 /* Wad.swift */; };
 		4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */; };
 		4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77D1C54E5E1009F3980 /* Level.swift */; };
+		4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980B1F1A8CF200BEEB8A /* Thing.swift */; };
+		4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +91,8 @@
 		4FA0A7781C54CA42009F3980 /* Wad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wad.swift; path = DoomMakerSwift/Wad.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataExtension.swift; path = DoomMakerSwift/DataExtension.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A77D1C54E5E1009F3980 /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Level.swift; path = DoomMakerSwift/Level.swift; sourceTree = SOURCE_ROOT; };
+		4FB6980B1F1A8CF200BEEB8A /* Thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thing.swift; sourceTree = "<group>"; };
+		4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggedItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +195,7 @@
 				4F7788381D37F5DD0012EFC6 /* DataReader.swift */,
 				4F00928E1E63260B002A4A04 /* DataWriter.swift */,
 				4FA0A74C1C54C65E009F3980 /* Document.swift */,
+				4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */,
 				4F7788451D38AF590012EFC6 /* Geom.swift */,
 				4FA0A77D1C54E5E1009F3980 /* Level.swift */,
 				4F7788361D36C8C50012EFC6 /* LevelEditor.swift */,
@@ -203,6 +208,7 @@
 				4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */,
 				4F8A8D781E6C36A900FCFC2A /* Sector.swift */,
 				4F8A8D761E6C236700FCFC2A /* Sidedef.swift */,
+				4FB6980B1F1A8CF200BEEB8A /* Thing.swift */,
 				4F683F201ED0BEEC00D23D3E /* ThingConfig.swift */,
 				4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */,
 				4F10ECAD1E6A05860021C117 /* Utils.swift */,
@@ -348,6 +354,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F81A8761D3B7FD500D9EBA4 /* NSTextFieldExtension.swift in Sources */,
+				4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */,
 				4F8A8D751E6C029000FCFC2A /* NSHashTableExtension.swift in Sources */,
 				4F7788391D37F5DD0012EFC6 /* DataReader.swift in Sources */,
 				4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */,
@@ -366,6 +373,7 @@
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,
 				4F00928F1E63260B002A4A04 /* DataWriter.swift in Sources */,
 				4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */,
+				4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */,
 				4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */,
 				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,
 				4F97F9F91E694A6900C1155C /* Linedef.swift in Sources */,

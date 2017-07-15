@@ -18,13 +18,28 @@
 
 import Foundation
 
-final class Vertex: DraggedItem, MapItem {
+///
+/// Map thing
+///
+final class Thing: DraggedItem, MapItem {
+    var angle = 0   // angle
+    var type = 0    // doomednum
+    var flags = 0   // spawn options
+
+    var info: ThingType {
+        get {
+            return idThingMap[type] ?? ThingType.unknown
+        }
+    }
+
     init(data: [UInt8]) {
         super.init(x: 0, y: 0)
-        DataReader(data).short(&x).short(&y)
+        DataReader(data).short(&x).short(&y).short(&angle).short(&type)
+            .short(&flags)
     }
 
     func getData() -> [UInt8] {
-        return DataWriter([]).short(x).short(y).data
+        return DataWriter([]).short(x).short(y).short(angle).short(type)
+            .short(flags).data
     }
 }

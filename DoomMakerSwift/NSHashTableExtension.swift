@@ -18,9 +18,20 @@
 
 import Foundation
 
-func addToHashTable<T>(_ table: NSHashTable<T>, array: [T]) {
+func addToHashTable<T, U>(_ table: NSHashTable<T>, array: [U]) {
     for item in array {
-        table.add(item)
+        if let checkedItem = item as? T {
+            table.add(checkedItem)
+        }
+    }
+}
+
+func addToHashTable<T, U>(_ table: NSHashTable<T>, fromTable: NSHashTable<U>) {
+    let enumerator = fromTable.objectEnumerator()
+    while let object = enumerator.nextObject() as? U {
+        if let checkedObject = object as? T {
+            table.add(checkedObject)
+        }
     }
 }
 

@@ -24,6 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var verticesModeItem: NSMenuItem!
     @IBOutlet var linedefsModeItem: NSMenuItem!
     @IBOutlet var sectorsModeItem: NSMenuItem!
+    @IBOutlet var thingsModeItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Load resources
@@ -43,6 +44,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         verticesModeItem.state = check(Level.Mode.vertices)
         linedefsModeItem.state = check(Level.Mode.linedefs)
         sectorsModeItem.state = check(Level.Mode.sectors)
+        thingsModeItem.state = check(Level.Mode.things)
     }
 }
 

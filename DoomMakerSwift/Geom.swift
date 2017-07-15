@@ -156,8 +156,8 @@ extension NSPoint {
         return NSPoint(x: CGFloat(nx), y: CGFloat(ny))
     }
 
-    init(vertex: Vertex) {
-        self.init(x: Int(vertex.x), y: Int(vertex.y))
+    init(item: DraggedItem) {
+        self.init(x: Int(item.x), y: Int(item.y))
     }
 
     init(x: Int16, y: Int16) {

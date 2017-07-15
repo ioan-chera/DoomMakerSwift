@@ -94,6 +94,13 @@ class LevelEditor {
                         verticesLump.data += vertex.getData()
                     }
                 }
+                if level.thingsDirty {
+                    let thingsLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.things.rawValue]
+                    thingsLump.data = []
+                    for thing in level.things {
+                        thingsLump.data += thing.getData()
+                    }
+                }
                 level.cleanDirty()
             }
         }

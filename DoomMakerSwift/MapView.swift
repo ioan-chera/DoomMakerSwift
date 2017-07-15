@@ -373,16 +373,12 @@ class MapView: NSView {
     override func scrollWheel(with theEvent: NSEvent) {
         let pixelScale = NSScreen.main()?.backingScaleFactor ?? 1
 
-        // TODO: add scaling and rotation with the mouse wheel
-
         if theEvent.modifierFlags.contains(.option) {
             // Negative means move map towards me
             let cursorpos = self.convert(theEvent.locationInWindow, from: nil)
             self.doMagnification(theEvent.scrollingDeltaY / 40, cursorpos: cursorpos)
             return
         }
-
-        // TODO: also add hotkeys
 
         translate.x += theEvent.scrollingDeltaX * pixelScale
         translate.y -= theEvent.scrollingDeltaY * pixelScale

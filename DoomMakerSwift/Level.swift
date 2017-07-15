@@ -689,6 +689,12 @@ class Level
                         selectedLinedefs.add(linedef)
                     }
                 }
+            } else if newMode == .sectors {
+                for sector in sectors {
+                    if sector.obtainVertices().isSubset(of: selectedVertices) {
+                        selectedSectors.add(sector)
+                    }
+                }
             }
             selectedVertices.removeAllObjects()
         case .linedefs:
@@ -702,9 +708,27 @@ class Level
                         selectedVertices.add(linedef.v2)
                     }
                 }
+            } else if newMode == .sectors {
+                for sector in sectors {
+                    if sector.obtainLinedefs().isSubset(of: selectedLinedefs) {
+                        selectedSectors.add(sector)
+                    }
+                }
             }
             selectedLinedefs.removeAllObjects()
-        case .sectors: break    // TODO
+        case .sectors:
+            if newMode == .vertices {
+                let enumerator = selectedSectors.objectEnumerator()
+                while let sector = enumerator.nextObject() as? Sector {
+                    selectedVertices.union(sector.obtainVertices())
+                }
+            } else if newMode == .linedefs {
+                let enumerator = selectedSectors.objectEnumerator()
+                while let sector = enumerator.nextObject() as? Sector {
+                    selectedLinedefs.union(sector.obtainLinedefs())
+                }
+            }
+            selectedSectors.removeAllObjects()
         }
         document?.updateView()
     }

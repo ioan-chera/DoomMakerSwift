@@ -65,4 +65,19 @@ final class Sector: MapItem {
         }
         return result
     }
+
+    ///
+    /// Obtains linedefs from sidedefs
+    ///
+    func obtainLinedefs() -> NSHashTable<Linedef> {
+        let sideEnum = sidedefs.objectEnumerator()
+        let result = NSHashTable<Linedef>.weakObjects()
+        while let side = sideEnum.nextObject() as? Sidedef {
+            let lineEnum = side.lineEnumerator
+            while let line = lineEnum.nextObject() as? Linedef {
+                result.add(line)
+            }
+        }
+        return result
+    }
 }

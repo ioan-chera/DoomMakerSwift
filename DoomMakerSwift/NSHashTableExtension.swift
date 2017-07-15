@@ -24,13 +24,6 @@ func addToHashTable<T>(_ table: NSHashTable<T>, array: [T]) {
     }
 }
 
-func addToHashTable<T>(_ table: NSHashTable<T>, fromTable: NSHashTable<T>) {
-    let enumerator = fromTable.objectEnumerator()
-    while let object = enumerator.nextObject() as? T {
-        table.add(object)
-    }
-}
-
 @discardableResult
 func forEach<T>(table: NSHashTable<T>, closure: (T) -> Bool) -> Bool {
     let enumerator = table.objectEnumerator()

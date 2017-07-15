@@ -477,7 +477,7 @@ class Level
             case .vertices:
                 if let vertex = item as? Vertex {
                     draggedVertices.add(vertex)
-                    addToHashTable(draggedVertices, fromTable: selectedVertices)
+                    draggedVertices.union(selectedVertices)
                 }
             case .linedefs:
                 if let linedef = item as? Linedef {
@@ -489,9 +489,9 @@ class Level
                 }
             case .sectors:
                 if let sector = item as? Sector {
-                    addToHashTable(draggedVertices, fromTable: sector.obtainVertices())
+                    draggedVertices.union(sector.obtainVertices())
                     forEach(table: selectedSectors) { (otherSector) -> Bool in
-                        addToHashTable(draggedVertices, fromTable: otherSector.obtainVertices())
+                        draggedVertices.union(otherSector.obtainVertices())
                         return true
                     }
                 }

@@ -89,6 +89,9 @@ class MapView: NSView {
         static let vertexColourDim = NSColor.green.withAlphaComponent(0.75)
         static let vertexRadius = CGFloat(2)
         static let zoomKeyAmount = CGFloat(0.25)
+
+        static let thingAlpha = CGFloat(0.7)
+        static let thingAlphaDim = CGFloat(0.4)
     }
 
     override init(frame frameRect: NSRect) {
@@ -281,7 +284,8 @@ class MapView: NSView {
             } else if level.selectedDragItems.contains(thing) {
                 context.setFillColor(Const.selectColour.cgColor)
             } else {
-                context.setFillColor(type.color.withAlphaComponent(0.8).cgColor)
+                context.setFillColor(type.color.withAlphaComponent(
+                    level.mode == .things ? Const.thingAlpha : Const.thingAlphaDim).cgColor)
             }
             context.move(to: points[0])
             context.addLine(to: points[1])

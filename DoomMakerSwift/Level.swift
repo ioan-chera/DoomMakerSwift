@@ -192,6 +192,7 @@ class Level
     //
 
     private(set) var verticesDirty = false  // update VERTEXES lump
+    private(set) var vertexChangeTracking = 0
     private(set) var thingsDirty = false    // update THINGS lump
     /// Must be called when saving
     func cleanDirty() {
@@ -440,11 +441,15 @@ class Level
     ///
     /// Vertex movement operation
     ///
-    private func moveDragItems(positions: NSMapTable<DraggedItem, ObjWrap<NSPoint>>)
+    private func moveDragItems(positions: NSMapTable<DraggedItem, ObjWrap<NSPoint>>,
+                               undoing: Bool)
     {
         let currentPositions: NSMapTable<DraggedItem, ObjWrap<NSPoint>> =
             NSMapTable.weakToStrongObjects()
         let enumerator = positions.keyEnumerator()
+
+        var changeVertices = false
+
         while let item = enumerator.nextObject() as? DraggedItem {
             currentPositions.setObject(ObjWrap(NSPoint(item: item)),
                                        forKey: item)
@@ -452,14 +457,27 @@ class Level
             item.x = Int16(round(point.data.x))
             item.y = Int16(round(point.data.y))
             if item is Vertex {
-                verticesDirty = true
+                changeVertices = true
             } else if item is Thing {
                 thingsDirty = true
             }
         }
+
+        if changeVertices {
+            verticesDirty = true;
+            if !undoing {
+                vertexChangeTracking += 1
+            } else {
+                vertexChangeTracking -= 1
+                if vertexChangeTracking == 0 {
+                    verticesDirty = false
+                }
+            }
+        }
+
         self.updateView()
         self.undo.registerUndo {
-            self.moveDragItems(positions: currentPositions)
+            self.moveDragItems(positions: currentPositions, undoing: true)
         }
     }
 
@@ -558,7 +576,7 @@ class Level
             draggedItems.removeAllObjects()
 
             if changed {
-                moveDragItems(positions: positions)
+                moveDragItems(positions: positions, undoing: false)
                 document?.updateChangeCount(.changeDone)
             }
             return

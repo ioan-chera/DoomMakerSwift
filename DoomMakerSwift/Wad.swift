@@ -52,6 +52,17 @@ class Wad
     }
 
     ///
+    /// Adds a lump
+    ///
+    func add(lump: Lump) {
+        lumps.append(lump)
+    }
+
+    func replace(lumpAtIndex index: Int, with lump: Lump) {
+        lumps[index] = lump
+    }
+
+    ///
     /// Reads from NSData. Throws ReadError.Info(text) on failure.
     ///
     func read(_ data: Data) throws

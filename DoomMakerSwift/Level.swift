@@ -463,6 +463,8 @@ class Level
             }
         }
 
+        // Tracking vertex changes is more important, because of node-building
+        // considerations
         if changeVertices {
             verticesDirty = true;
             if !undoing {

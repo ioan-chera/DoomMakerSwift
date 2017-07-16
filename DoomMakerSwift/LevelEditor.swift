@@ -28,6 +28,10 @@ class LevelEditor {
     let wad: Wad
     private var levels: [Entry]
 
+    enum NodeBuildError: Error {
+        case info(text: String)
+    }
+
     var levelCount: Int {
         get {
             return levels.count
@@ -83,14 +87,121 @@ class LevelEditor {
         }
     }
 
-    /// Updates the wad by looking at the dirty levels
-    func checkDirty() {
+    ///
+    /// Builds node
+    ///
+    private func nodeBuild(entry: Entry) throws {
+
+        let inPattern = appDelegate().appSupportDir().appendingPathComponent("inbspXXXXXXXX.wad").path
+        let outPattern = appDelegate().appSupportDir().appendingPathComponent("outbspXXXXXXXX.wad").path
+        guard let inPath = makeTempPath(pattern: inPattern, suffixSize: 4) else {
+            throw NodeBuildError.info(text: "Failed preparing map for node-building.")
+        }
+        defer {
+            remove(inPath.path)
+        }
+
+        guard let outPath = makeTempPath(pattern: outPattern, suffixSize: 4) else {
+            throw NodeBuildError.info(text: "Failed preparing map for node-building.")
+        }
+
+        defer {
+            remove(outPath.path)
+        }
+
+        guard let zdbspPath = Bundle.main.resourceURL?.appendingPathComponent("zdbsp") else
+        {
+            throw NodeBuildError.info(text: "ZDBSP program missing.")
+        }
+
+        let tempWad = Wad(inType: .pwad)
+        let li = entry.lumpIndex
+        tempWad.add(lump: wad.lumps[li])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.things.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.linedefs.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.sidedefs.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.vertices.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.segs.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.subsectors.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.nodes.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.sectors.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.reject.rawValue])
+        tempWad.add(lump: wad.lumps[li + Level.LumpOffset.blockmap.rawValue])
+
+        do {
+            try tempWad.serialized().write(to: inPath)
+        } catch {
+            throw NodeBuildError.info(text: "Failed preparing map for node-builder.")
+        }
+
+        // TODO: don't trust ZDBSP to change REJECT. Since it's a ZDoom and Graf
+        // Zahl tool, you can bet they just want the lump to die.
+        let task = Process()
+        task.launchPath = zdbspPath.path
+        task.arguments = ["--map=" + entry.name, "--output=" + outPath.path,
+                          "--no-prune", "--zero-reject", inPath.path]
+        task.launch()
+        task.waitUntilExit()
+
+        let resultWad = Wad(inType: .pwad)
+        guard let readData = try? Data.init(contentsOf: outPath) else {
+            throw NodeBuildError.info(text: "Failed building nodes.")
+        }
+        do {
+            try resultWad.read(readData)
+        } catch Wad.ReadError.info(let info) {
+            throw NodeBuildError.info(text: "Failed building nodes. " + info)
+        }
+
+        // Now get back the lumps which changed
+        // Just make sure we pick the right lumps
+        var vertices: Lump? = nil
+        var segs: Lump? = nil
+        var subsectors: Lump? = nil
+        var nodes: Lump? = nil
+        var reject: Lump? = nil
+        var blockmap: Lump? = nil
+        for lump in resultWad.lumps {
+            if lump.name == "VERTEXES" {
+                vertices = lump
+            } else if lump.name == "SEGS" {
+                segs = lump
+            } else if lump.name == "SSECTORS" {
+                subsectors = lump
+            } else if lump.name == "NODES" {
+                nodes = lump
+            } else if lump.name == "REJECT" {
+                reject = lump
+            } else if lump.name == "BLOCKMAP" {
+                blockmap = lump
+            }
+        }
+
+        if vertices === nil || segs === nil || subsectors === nil || nodes === nil || reject === nil || blockmap === nil {
+            throw NodeBuildError.info(text: "Node-builder failed working properly.")
+        }
+
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.vertices.rawValue, with: vertices!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.segs.rawValue, with: segs!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.subsectors.rawValue, with: subsectors!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.nodes.rawValue, with: nodes!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.reject.rawValue, with: reject!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.blockmap.rawValue, with: blockmap!)
+
+
+    }
+
+    ///
+    /// Updates the wad by looking at the dirty levels.
+    /// Returns the names of the lumps which need node-building
+    ///
+    func checkDirty() throws {
         for entry in levels {
             if let level = entry.level {
                 if level.verticesDirty {
                     let verticesLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.vertices.rawValue]
                     verticesLump.data = []
-                    for vertex in level.vertices + level.bspVertices {
+                    for vertex in level.vertices {
                         verticesLump.data += vertex.getData()
                     }
                 }
@@ -100,6 +211,10 @@ class LevelEditor {
                     for thing in level.things {
                         thingsLump.data += thing.getData()
                     }
+                }
+
+                if level.verticesDirty {
+                    try nodeBuild(entry: entry)
                 }
                 level.cleanDirty()
             }

@@ -38,3 +38,15 @@ func safeArraySet<T>(_ value: inout T?, list: [T], index: Int) {
         value = nil
     }
 }
+
+func makeTempPath(pattern: String, suffixSize: Int) -> URL? {
+//    var buffer = [Int8](repeating: 0, count: Int(MAXPATHLEN))
+    var buffer = Array(pattern.utf8CString)
+    let fd = mkstemps(&buffer, Int32(suffixSize))
+    if fd == -1 {
+        return nil
+    }
+    let url = URL.init(fileURLWithFileSystemRepresentation: buffer, isDirectory: false, relativeTo: nil)
+    close(fd)
+    return url
+}

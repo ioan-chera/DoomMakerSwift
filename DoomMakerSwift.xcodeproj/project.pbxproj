@@ -37,6 +37,7 @@
 		4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77D1C54E5E1009F3980 /* Level.swift */; };
 		4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980B1F1A8CF200BEEB8A /* Thing.swift */; };
 		4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */; };
+		4FB6981F1F1AB72400BEEB8A /* zdbsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FB6981E1F1AB72400BEEB8A /* zdbsp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		4FA0A77D1C54E5E1009F3980 /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Level.swift; path = DoomMakerSwift/Level.swift; sourceTree = SOURCE_ROOT; };
 		4FB6980B1F1A8CF200BEEB8A /* Thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thing.swift; sourceTree = "<group>"; };
 		4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggedItem.swift; sourceTree = "<group>"; };
+		4FB6981E1F1AB72400BEEB8A /* zdbsp */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = zdbsp; path = submodules/zdbsp/build/zdbsp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +125,7 @@
 		4F683F1D1ED0BD3900D23D3E /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FB6981E1F1AB72400BEEB8A /* zdbsp */,
 				4F683F1E1ED0BD4900D23D3E /* doom2.json */,
 			);
 			name = resources;
@@ -328,6 +331,7 @@
 				4FA0A7521C54C65E009F3980 /* Assets.xcassets in Resources */,
 				4FA0A7501C54C65E009F3980 /* Document.xib in Resources */,
 				4FA0A7551C54C65E009F3980 /* MainMenu.xib in Resources */,
+				4FB6981F1F1AB72400BEEB8A /* zdbsp in Resources */,
 				4F683F1F1ED0BD4900D23D3E /* doom2.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

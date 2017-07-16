@@ -46,6 +46,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         sectorsModeItem.state = check(Level.Mode.sectors)
         thingsModeItem.state = check(Level.Mode.things)
     }
+
+    func appSupportDir() -> URL {
+        let urls = FileManager.default.urls(for: .applicationSupportDirectory,
+                                            in: .userDomainMask)
+        let url = urls[0]
+        let subUrl = url.appendingPathComponent(Bundle.main.bundleIdentifier!)
+        try! FileManager.default.createDirectory(at: subUrl, withIntermediateDirectories: true, attributes: nil)
+        return subUrl
+    }
 }
 
 func appDelegate() -> AppDelegate {

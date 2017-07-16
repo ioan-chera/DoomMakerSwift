@@ -146,8 +146,16 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     override func data(ofType typeName: String) throws -> Data {
         // Insert code here to write your document to data of the specified type. If outError != nil, ensure that you create and set an appropriate error when returning nil.
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-        editor.checkDirty()
+        do {
+            try editor.checkDirty()
+        } catch LevelEditor.NodeBuildError.info(let info) {
+            Swift.print(info)
+            throw NSError(domain: NSOSStatusErrorDomain, code: writErr, userInfo: [NSLocalizedDescriptionKey: info])
+        }
         return self.wad.serialized()
+
+        // But if it's not empty, it means we need to call in ZDBSP
+        
     }
 
     /// When opening
@@ -163,7 +171,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         }
         catch Wad.ReadError.info(let info)
         {
-            throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: [NSLocalizedDescriptionKey: info])
+            throw NSError(domain: NSOSStatusErrorDomain, code: readErr, userInfo: [NSLocalizedDescriptionKey: info])
         }
     }
 

@@ -155,14 +155,25 @@ class LevelEditor {
 
         // Now get back the lumps which changed
         // Just make sure we pick the right lumps
+
+        var things: Lump? = nil
+        var linedefs: Lump? = nil
+        var sidedefs: Lump? = nil
         var vertices: Lump? = nil
         var segs: Lump? = nil
         var subsectors: Lump? = nil
         var nodes: Lump? = nil
+        var sectors: Lump? = nil
         var reject: Lump? = nil
         var blockmap: Lump? = nil
         for lump in resultWad.lumps {
-            if lump.name == "VERTEXES" {
+            if lump.name == "THINGS" {
+                things = lump
+            } else if lump.name == "LINEDEFS" {
+                linedefs = lump
+            } else if lump.name == "SIDEDEFS" {
+                sidedefs = lump
+            } else if lump.name == "VERTEXES" {
                 vertices = lump
             } else if lump.name == "SEGS" {
                 segs = lump
@@ -170,6 +181,8 @@ class LevelEditor {
                 subsectors = lump
             } else if lump.name == "NODES" {
                 nodes = lump
+            } else if lump.name == "SECTORS" {
+                sectors = lump
             } else if lump.name == "REJECT" {
                 reject = lump
             } else if lump.name == "BLOCKMAP" {
@@ -177,14 +190,22 @@ class LevelEditor {
             }
         }
 
-        if vertices === nil || segs === nil || subsectors === nil || nodes === nil || reject === nil || blockmap === nil {
+        if things === nil || linedefs === nil || sidedefs === nil ||
+            vertices === nil || segs === nil || subsectors === nil ||
+            nodes === nil || sectors === nil || reject === nil ||
+            blockmap === nil
+        {
             throw NodeBuildError.info(text: "Node-builder failed working properly.")
         }
 
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.things.rawValue, with: things!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.linedefs.rawValue, with: linedefs!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.sidedefs.rawValue, with: sidedefs!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.vertices.rawValue, with: vertices!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.segs.rawValue, with: segs!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.subsectors.rawValue, with: subsectors!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.nodes.rawValue, with: nodes!)
+        wad.replace(lumpAtIndex: li + Level.LumpOffset.sectors.rawValue, with: sectors!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.reject.rawValue, with: reject!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.blockmap.rawValue, with: blockmap!)
 

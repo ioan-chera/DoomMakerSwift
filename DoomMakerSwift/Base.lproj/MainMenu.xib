@@ -670,6 +670,16 @@
                                     <action selector="rotateCounterclockwise:" target="-1" id="u0c-JM-q3h"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="9Y4-lv-JIR"/>
+                            <menuItem title="Enter Visual Mode" id="znb-jd-tQW">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CQ
+</string>
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="visualMode:" target="-1" id="pYB-cp-dJl"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

@@ -213,5 +213,20 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.modeLabel.setText("Mode: \(mode)")
         appDelegate().updateMode(mode)
     }
+
+
+    //
+    // Menu items
+    //
+
+    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(Document.visualMode(_:)) {
+            return self.currentLevel !== nil
+        }
+        return super.validateMenuItem(menuItem)
+    }
+
+    @IBAction func visualMode(_ sender: Any?) {
+    }
 }
 

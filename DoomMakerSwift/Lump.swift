@@ -42,9 +42,9 @@ class Lump
         set(value) {
             var string = value.uppercased()
             if value.characters.count > 8 {
-                string = string.substring(to: value.characters.index(value.startIndex, offsetBy: 8))
+                string = String(string[..<value.characters.index(value.startIndex, offsetBy: 8)])
                 while string.characters.count > 1 && string.utf8.count > 8 {
-                    string = string.substring(to: string.characters.index(before: string.endIndex))
+                    string = String(string[..<string.characters.index(before: string.endIndex)])
                 }
             }
             self.nameBytes = Array(string.utf8)

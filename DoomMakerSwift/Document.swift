@@ -130,16 +130,16 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
 //    }
 
     /// It should autosave.
-    override class func autosavesInPlace() -> Bool
+    override class var autosavesInPlace: Bool
     {
         return true
     }
 
     /// NIB name
-    override var windowNibName: String? {
+    override var windowNibName: NSNib.Name? {
         // Returns the nib file name of the document
         // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
-        return "Document"
+        return NSNib.Name("Document")
     }
 
     /// When saving
@@ -196,7 +196,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     }
 
     /// When the level popup is clicked
-    func levelChooserClicked(_ sender: AnyObject?) {
+    @objc func levelChooserClicked(_ sender: AnyObject?) {
         let index = (sender as! NSMenuItem).tag
         self.currentLevel = self.editor.levelAtIndex(index) ?? self.editor.loadLevelAtIndex(index)
     }

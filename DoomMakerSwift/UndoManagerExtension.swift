@@ -24,8 +24,8 @@ http://stackoverflow.com/a/32281971
 import Foundation
 
 @objc private class SwiftUndoPerformer : NSObject {
-    let closure: (Void) -> Void
-    init(closure: @escaping (Void) -> Void) {
+    let closure: () -> Void
+    init(closure: @escaping () -> Void) {
         self.closure = closure
     }
 
@@ -35,7 +35,7 @@ import Foundation
 }
 
 extension UndoManager {
-    func registerUndo(closure: @escaping (Void) -> Void) {
+    func registerUndo(closure: @escaping () -> Void) {
         let performer = SwiftUndoPerformer(closure: closure)
         self.registerUndo(withTarget: performer, selector: #selector(SwiftUndoPerformer.performWithSelf(retainedSelf:)), object: performer)
     }

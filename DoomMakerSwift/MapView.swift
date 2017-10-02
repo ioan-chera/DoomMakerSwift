@@ -74,7 +74,7 @@ class MapView: NSView {
         static let gridDefault = 8
         static let gridMax = 1024
         static let gridMin = 2
-        static let gridWidth = CGFloat(1) / (NSScreen.main()?.backingScaleFactor
+        static let gridWidth = CGFloat(1) / (NSScreen.main?.backingScaleFactor
             ?? 1)
         static let highlightColour = NSColor.orange
         static let linedefWidth = CGFloat(1)
@@ -107,7 +107,7 @@ class MapView: NSView {
     fileprivate func commonInit() {
         self.wantsLayer = true
         self.layer?.backgroundColor = NSColor.black.cgColor
-        let area = NSTrackingArea(rect: self.bounds, options: [.activeInKeyWindow, .inVisibleRect, .mouseMoved], owner: self, userInfo: nil)
+        let area = NSTrackingArea(rect: self.bounds, options: [NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.inVisibleRect, NSTrackingArea.Options.mouseMoved], owner: self, userInfo: nil)
         trackingArea = area
         self.addTrackingArea(area)
         self.acceptsTouchEvents = true
@@ -118,7 +118,7 @@ class MapView: NSView {
             return super.updateTrackingAreas()
         }
         removeTrackingArea(area)
-        area = NSTrackingArea(rect: self.bounds, options: [.activeInKeyWindow, .inVisibleRect, .mouseMoved], owner: self, userInfo: nil)
+        area = NSTrackingArea(rect: self.bounds, options: [NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.inVisibleRect, NSTrackingArea.Options.mouseMoved], owner: self, userInfo: nil)
         trackingArea = area
         addTrackingArea(area)
     }
@@ -137,7 +137,7 @@ class MapView: NSView {
         let gridf = CGFloat(gridSize) * scale   // for casting's sake
         if gridf <= 2 {
             Const.gridColor.setFill()
-            NSRectFill(dirtyRect)
+            dirtyRect.fill()
             return
         }
 
@@ -311,7 +311,7 @@ class MapView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 
-        guard let context = NSGraphicsContext.current()?.cgContext else {
+        guard let context = NSGraphicsContext.current?.cgContext else {
             return
         }
 
@@ -388,9 +388,9 @@ class MapView: NSView {
     }
 
     override func scrollWheel(with theEvent: NSEvent) {
-        let pixelScale = NSScreen.main()?.backingScaleFactor ?? 1
+        let pixelScale = NSScreen.main?.backingScaleFactor ?? 1
 
-        if theEvent.modifierFlags.contains(.option) {
+        if theEvent.modifierFlags.contains(NSEvent.ModifierFlags.option) {
             // Negative means move map towards me
             let cursorpos = self.convert(theEvent.locationInWindow, from: nil)
             self.doMagnification(theEvent.scrollingDeltaY / 40, cursorpos: cursorpos)
@@ -447,7 +447,7 @@ class MapView: NSView {
 
     override func touchesEnded(with event: NSEvent) {
         let cursorpos = self.convert(event.locationInWindow, from: nil)
-        if event.touches(matching: .touching, in: nil).count == 1 {
+        if event.touches(matching: NSTouch.Phase.touching, in: nil).count == 1 {
             self.snapRotation(updateDisplay: true, cursorpos: cursorpos)
         }
     }
@@ -517,7 +517,7 @@ class MapView: NSView {
             gridSize /= 2
             self.setNeedsDisplay(self.bounds)
         } else {
-            NSBeep()
+            NSSound.beep()
         }
     }
 
@@ -526,7 +526,7 @@ class MapView: NSView {
             gridSize *= 2
             self.setNeedsDisplay(self.bounds)
         } else {
-            NSBeep()
+            NSSound.beep()
         }
     }
 
@@ -542,7 +542,7 @@ class MapView: NSView {
             doMagnification(Const.zoomKeyAmount, cursorpos: self.pointerPosition())
             self.setNeedsDisplay(self.bounds)
         } else {
-            NSBeep()
+            NSSound.beep()
         }
     }
 
@@ -551,7 +551,7 @@ class MapView: NSView {
             doMagnification(-Const.zoomKeyAmount, cursorpos: self.pointerPosition())
             self.setNeedsDisplay(self.bounds)
         } else {
-            NSBeep()
+            NSSound.beep()
         }
     }
 
@@ -574,10 +574,10 @@ class MapView: NSView {
         level?.clearSelection()
     }
 
-    func undo(_ sender: Any?) {
+    @objc func undo(_ sender: Any?) {
         level?.runUndo()
     }
-    func redo(_ sender: Any?) {
+    @objc func redo(_ sender: Any?) {
         level?.runRedo()
     }
 

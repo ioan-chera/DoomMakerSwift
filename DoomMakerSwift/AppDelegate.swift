@@ -38,8 +38,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func updateMode(_ mode: Level.Mode) {
-        func check(_ val: Level.Mode) -> Int {
-            return mode == val ? NSOnState : NSOffState
+        func check(_ val: Level.Mode) -> NSControl.StateValue {
+            return mode == val ? NSControl.StateValue.on : NSControl.StateValue.off
         }
         verticesModeItem.state = check(Level.Mode.vertices)
         linedefsModeItem.state = check(Level.Mode.linedefs)

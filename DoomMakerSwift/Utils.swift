@@ -39,6 +39,20 @@ func safeArraySet<T>(_ value: inout T?, list: [T], index: Int) {
     }
 }
 
+func safeArrayGet<T>(_ list: [T], index: Int) -> T? {
+    if inRange(index, 0, list.count - 1) {
+        return list[index]
+    } else {
+        return nil
+    }
+}
+
+func removeFrom<T:AnyObject>(array: inout [T], item: T) {
+    if let index = array.index(where: {$0 === item}) {
+        array.remove(at: index)
+    }
+}
+
 func makeTempPath(pattern: String, suffixSize: Int) -> URL? {
 //    var buffer = [Int8](repeating: 0, count: Int(MAXPATHLEN))
     var buffer = Array(pattern.utf8CString)

@@ -28,10 +28,41 @@ final class Linedef: MapItem {
     private(set) var s1idx = -1      // side index
     private(set) var s2idx = -1      // side index
 
-    private(set) weak var v1: Vertex? = nil
-    private(set) weak var v2: Vertex? = nil
-    private(set) weak var s1: Sidedef? = nil
-    private(set) weak var s2: Sidedef? = nil
+    weak var v1: Vertex? = nil {
+        willSet(newValue) {
+            v1?.removeLine(self)
+        }
+        didSet {
+            v1?.addLine(self)
+        }
+    }
+
+    weak var v2: Vertex? = nil {
+        willSet(newValue) {
+            v2?.removeLine(self)
+        }
+        didSet {
+            v2?.addLine(self)
+        }
+    }
+
+    weak var s1: Sidedef? = nil {
+        willSet(newValue) {
+            s1?.removeLine(self)
+        }
+        didSet {
+            s1?.addLine(self)
+        }
+    }
+
+    weak var s2: Sidedef? = nil {
+        willSet(newValue) {
+            s2?.removeLine(self)
+        }
+        didSet {
+            s2?.addLine(self)
+        }
+    }
 
     init(data: [UInt8]) {
         DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
@@ -41,30 +72,6 @@ final class Linedef: MapItem {
     func getData() -> [UInt8] {
         return DataWriter([]).short(v1idx).short(v2idx).short(flags)
             .short(special).short(tag).short(s1idx).short(s2idx).data
-    }
-
-    func setV1(list: [Vertex], index: Int) {
-        v1idx = index
-        safeArraySet(&v1, list: list, index: index)
-    }
-
-    func setV2(list: [Vertex], index: Int) {
-        v2idx = index
-        safeArraySet(&v2, list: list, index: index)
-    }
-
-    func setS1(list: [Sidedef], index: Int) {
-        s1idx = index
-        s1?.removeLine(self)
-        safeArraySet(&s1, list: list, index: index)
-        s1?.addLine(self)
-    }
-
-    func setS2(list: [Sidedef], index: Int) {
-        s2idx = index
-        s2?.removeLine(self)
-        safeArraySet(&s2, list: list, index: index)
-        s2?.addLine(self)
     }
 
     var frontsector: Sector? {

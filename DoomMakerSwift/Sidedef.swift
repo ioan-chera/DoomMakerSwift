@@ -25,9 +25,16 @@ final class Sidedef: MapItem {
     var upper: [UInt8] = []     // upper texture
     var lower: [UInt8] = []     // lower texture
     var middle: [UInt8] = []    // middle texture
-    private(set) var secnum = -1              // sector reference
+    private(set) var secnum = -1    // sector reference. NEEDS to be updated.
 
-    private(set) weak var sector: Sector?
+    weak var sector: Sector? {
+        willSet(newValue) {
+            sector?.removeSide(self)
+        }
+        didSet {
+            sector?.addSide(self)
+        }
+    }
 
     private let linedefs = NSHashTable<Linedef>.weakObjects()
 
@@ -39,13 +46,6 @@ final class Sidedef: MapItem {
     func getData() -> [UInt8] {
         return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
             .lumpName(lower).lumpName(middle).short(secnum).data
-    }
-
-    func setSector(list: [Sector], index: Int) {
-        secnum = index
-        sector?.removeSide(self)
-        safeArraySet(&sector, list: list, index: index)
-        sector?.addSide(self)
     }
 
     func addLine(_ line: Linedef) {

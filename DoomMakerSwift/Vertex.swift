@@ -19,6 +19,9 @@
 import Foundation
 
 final class Vertex: DraggedItem, MapItem {
+
+    let linedefs: NSHashTable<Linedef> = NSHashTable.weakObjects()
+
     init(data: [UInt8]) {
         super.init(x: 0, y: 0)
         DataReader(data).short(&x).short(&y)
@@ -26,5 +29,19 @@ final class Vertex: DraggedItem, MapItem {
 
     func getData() -> [UInt8] {
         return DataWriter([]).short(x).short(y).data
+    }
+
+    func addLine(_ line: Linedef) {
+        linedefs.add(line)
+    }
+
+    func removeLine(_ line: Linedef) {
+        linedefs.remove(line)
+    }
+
+    var lineEnumerator: NSEnumerator {
+        get {
+            return linedefs.objectEnumerator()
+        }
     }
 }

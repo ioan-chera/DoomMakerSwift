@@ -259,9 +259,9 @@ class Level
 
         self.loadBlockmap(
             wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
-        checkBspVertices()
         setupLinedefs()
         setupSidedefs()
+        checkBspVertices()
     }
 
     private func loadBlockmap(_ blockmapData: [UInt8]) {
@@ -273,28 +273,14 @@ class Level
     }
 
     private func checkBspVertices() {
-        var visited = [Bool](repeating: false, count: vertices.count)
-        func tryVisit(_ vertexIndex: Int) {
-            if vertexIndex >= 0 && vertexIndex < visited.count {
-                visited[vertexIndex] = true
+        var index = 0
+        for vertex in vertices {
+            if vertex.linedefs.count == 0 {
+                bspVertices.append(vertex)
+                vertices.remove(at: index)
+                index -= 1
             }
-        }
-        for line in linedefs {
-            tryVisit(line.v1idx)
-            tryVisit(line.v2idx)
-        }
-        var index = vertices.count
-        for status in visited.reversed() {
-            if status {
-                break
-            }
-            index -= 1
-        }
-        if index < vertices.count {
-            for i in index..<vertices.count {
-                bspVertices.append(vertices[i])
-            }
-            vertices.removeLast(vertices.count - index)
+            index += 1
         }
     }
 
@@ -303,10 +289,10 @@ class Level
     //
     private func setupLinedefs() {
         for line in linedefs {
-            line.setV1(list: vertices, index: line.v1idx)
-            line.setV2(list: vertices, index: line.v2idx)
-            line.setS1(list: sidedefs, index: line.s1idx)
-            line.setS2(list: sidedefs, index: line.s2idx)
+            line.v1 = safeArrayGet(vertices, index: line.v1idx)
+            line.v2 = safeArrayGet(vertices, index: line.v2idx)
+            line.s1 = safeArrayGet(sidedefs, index: line.s1idx)
+            line.s2 = safeArrayGet(sidedefs, index: line.s2idx)
         }
     }
 
@@ -315,7 +301,7 @@ class Level
     //
     private func setupSidedefs() {
         for side in sidedefs {
-            side.setSector(list: sectors, index: side.secnum)
+            side.sector = safeArrayGet(sectors, index: side.secnum)
         }
     }
 

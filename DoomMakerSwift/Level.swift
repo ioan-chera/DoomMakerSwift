@@ -701,6 +701,39 @@ class Level
 
     //==========================================================================
     //
+    // Complex operations
+    //
+
+    ///
+    /// Merge a vertex into another vertex, by transferring properties
+    ///
+    private func merge(vertex v1: Vertex, into v2: Vertex) {
+        // Locate all linedefs from v1 and reattach them
+        let lineEnum = v1.lineEnumerator
+
+        var v1lines = [Linedef]()
+        var v2lines = [Linedef]()
+
+        // need to add them first to list, then transfer values
+        while let line = lineEnum.nextObject() as? Linedef {
+            if line.v1 === v1 {
+                v1lines.append(line)
+            } else if line.v2 === v1 {
+                v2lines.append(line)
+            }
+        }
+
+        for line in v1lines {
+            line.v1 = v2
+        }
+        for line in v2lines {
+            line.v2 = v2
+        }
+        removeFrom(array: &vertices, item: v1)
+    }
+
+    //==========================================================================
+    //
     // Mode switching
     //
 

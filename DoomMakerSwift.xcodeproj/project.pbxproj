@@ -11,6 +11,7 @@
 		4F0092911E64B69C002A4A04 /* Vertex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0092901E64B69C002A4A04 /* Vertex.swift */; };
 		4F0D555D1E63121F008C6E07 /* UndoManagerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */; };
 		4F10ECAE1E6A05860021C117 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10ECAD1E6A05860021C117 /* Utils.swift */; };
+		4F1282EF1F80F326004DBD49 /* Rendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F1282EE1F80F326004DBD49 /* Rendering.swift */; };
 		4F683F1F1ED0BD4900D23D3E /* doom2.json in Resources */ = {isa = PBXBuildFile; fileRef = 4F683F1E1ED0BD4900D23D3E /* doom2.json */; };
 		4F683F211ED0BEEC00D23D3E /* ThingConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F683F201ED0BEEC00D23D3E /* ThingConfig.swift */; };
 		4F683F231ED0C34100D23D3E /* NSColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F683F221ED0C34100D23D3E /* NSColorExtension.swift */; };
@@ -62,6 +63,7 @@
 		4F0092901E64B69C002A4A04 /* Vertex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Vertex.swift; sourceTree = "<group>"; };
 		4F0D555C1E63121F008C6E07 /* UndoManagerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManagerExtension.swift; sourceTree = "<group>"; };
 		4F10ECAD1E6A05860021C117 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		4F1282EE1F80F326004DBD49 /* Rendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rendering.swift; sourceTree = "<group>"; };
 		4F683F1E1ED0BD4900D23D3E /* doom2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = doom2.json; path = resources/doom2.json; sourceTree = "<group>"; };
 		4F683F201ED0BEEC00D23D3E /* ThingConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThingConfig.swift; sourceTree = "<group>"; };
 		4F683F221ED0C34100D23D3E /* NSColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSColorExtension.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */,
 				4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */,
 				4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */,
+				4F1282EE1F80F326004DBD49 /* Rendering.swift */,
 				4F8A8D781E6C36A900FCFC2A /* Sector.swift */,
 				4F8A8D761E6C236700FCFC2A /* Sidedef.swift */,
 				4FB6980B1F1A8CF200BEEB8A /* Thing.swift */,
@@ -372,6 +375,7 @@
 				4F0092911E64B69C002A4A04 /* Vertex.swift in Sources */,
 				4F683F231ED0C34100D23D3E /* NSColorExtension.swift in Sources */,
 				4F8A8D791E6C36A900FCFC2A /* Sector.swift in Sources */,
+				4F1282EF1F80F326004DBD49 /* Rendering.swift in Sources */,
 				4F10ECAE1E6A05860021C117 /* Utils.swift in Sources */,
 				4F7788461D38AF590012EFC6 /* Geom.swift in Sources */,
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,

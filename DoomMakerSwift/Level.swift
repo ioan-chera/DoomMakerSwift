@@ -479,7 +479,7 @@ class Level
 
         self.updateView()
         self.undo.registerUndo {
-            self.moveDragItems(positions: currentPositions, undoing: true)
+            self.moveDragItems(positions: currentPositions, undoing: !undoing)
         }
     }
 

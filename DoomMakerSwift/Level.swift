@@ -737,6 +737,70 @@ class Level
     }
 
     ///
+    /// Adds a new linedef
+    ///
+    private func add(linedef: Linedef, index: Int, v1: Vertex?, v2: Vertex?,
+                     s1: Sidedef?, s2: Sidedef?)
+    {
+        linedefs.insert(linedef, at: index)
+        linedef.s1 = s1
+        linedef.s2 = s2
+        linedef.v1 = v1
+        linedef.v2 = v2
+        document?.undoManager?.registerUndo {
+            self.delete(linedef: linedef)
+        }
+        // TODO: mark linedefs dirty
+        updateView()
+    }
+
+    ///
+    /// Adds a deleted sidedef
+    ///
+    private func add(sidedef: Sidedef, index: Int, sector: Sector?,
+                     s1lines: NSHashTable<Linedef>,
+                     s2lines: NSHashTable<Linedef>)
+    {
+        sidedefs.insert(sidedef, at: index)
+        while let linedef = s1lines.objectEnumerator().nextObject() as? Linedef {
+            linedef.s1 = sidedef
+        }
+        while let linedef = s2lines.objectEnumerator().nextObject() as? Linedef {
+            linedef.s2 = sidedef
+        }
+        sidedef.sector = sector
+        document?.undoManager?.registerUndo {
+            self.delete(sidedef: sidedef)
+        }
+        // TODO: mark dirty
+        updateView()
+    }
+
+    ///
+    /// Add back a vertex
+    ///
+    private func add(vertex: Vertex, index: Int) {
+        vertices.insert(vertex, at: index)
+        document?.undoManager?.registerUndo {
+            self.delete(vertex: vertex)
+        }
+        // TODO: mark vertex dirty
+        updateView()
+    }
+
+    ///
+    /// Add back a sector
+    ///
+    private func add(sector: Sector, index: Int) {
+        sectors.insert(sector, at: index)
+        document?.undoManager?.registerUndo {
+            self.delete(sector: sector)
+        }
+        // TODO: mark vertex dirty
+        updateView()
+    }
+
+    ///
     /// Deletes a thing and provides undo
     ///
     private func delete(thing: Thing) {
@@ -748,6 +812,128 @@ class Level
             self.add(thing: thing, index: index)
         }
         thingsDirty = true
+        updateView()
+    }
+
+    ///
+    /// Deletes a sector
+    ///
+    private func delete(sector: Sector) {
+        guard let index = indexOf(array: sectors, item: sector) else {
+            return
+        }
+        if sector.sidedefs.count == 0 {
+            sectors.remove(at: index)
+            document?.undoManager?.registerUndo {
+                self.add(sector: sector, index: index)
+            }
+            // TODO: mark dirty
+            updateView()
+            return
+        }
+        while let sidedef = sector.sideEnumerator.nextObject() as? Sidedef {
+            delete(sidedef: sidedef)
+        }
+        // TODO: mark dirty
+        updateView()
+        return
+    }
+
+    ///
+    /// Deletes a sidedef
+    ///
+    private func delete(sidedef: Sidedef) {
+        guard let index = indexOf(array: sidedefs, item: sidedef) else {
+            return
+        }
+        let sector = sidedef.sector
+        let s1lines = NSHashTable<Linedef>.weakObjects()
+        let s2lines = NSHashTable<Linedef>.weakObjects()
+        sidedef.sector = nil
+        while let linedef = sidedef.lineEnumerator.nextObject() as? Linedef {
+            if linedef.s1 === sidedef {
+                s1lines.add(linedef)
+                linedef.s1 = nil
+            }
+            if linedef.s2 === sidedef {
+                s2lines.add(linedef)
+                linedef.s2 = nil
+            }
+        }
+        sidedefs.remove(at: index)
+        document?.undoManager?.registerUndo {
+            self.add(sidedef: sidedef, index: index, sector: sector,
+                     s1lines: s1lines, s2lines: s2lines)
+        }
+        if sector !== nil && sector!.sidedefs.count == 0 {
+            delete(sector: sector!)
+        }
+        // TODO: mark dirty
+        updateView()
+    }
+
+    ///
+    /// Deletes a linedef
+    ///
+    private func delete(linedef: Linedef) {
+        guard let index = indexOf(array: linedefs, item: linedef) else {
+            return
+        }
+        // first unreference sidedefs
+        let s1 = linedef.s1
+        let s2 = linedef.s2
+        let v1 = linedef.v1
+        let v2 = linedef.v2
+        linedef.s1 = nil
+        linedef.s2 = nil
+        linedef.v1 = nil
+        linedef.v2 = nil
+        // Check if sidedefs are orphaned. Then delete them
+        linedefs.remove(at: index)
+        document?.undoManager?.registerUndo {
+            self.add(linedef: linedef, index: index, v1: v1, v2: v2,
+                     s1: s1, s2: s2)
+        }
+        if v1 !== nil && v1!.linedefs.count == 0 {
+            delete(vertex: v1!)
+        }
+        if v2 !== nil && v2!.linedefs.count == 0 {
+            delete(vertex: v2!)
+        }
+        if s1 !== nil && s1!.linedefs.count == 0 {
+            delete(sidedef: s1!)
+        }
+        if s2 !== nil && s2!.linedefs.count == 0 {
+            delete(sidedef: s2!)
+        }
+        // TODO: mark dirty
+        updateView()
+    }
+
+    ///
+    /// Deletes a vertex
+    ///
+    private func delete(vertex: Vertex) {
+        guard let index = indexOf(array: vertices, item: vertex) else {
+            return
+        }
+        // first delete linedefs
+        if vertex.linedefs.count == 0 {
+            vertices.remove(at: index)
+            document?.undoManager?.registerUndo {
+                self.add(vertex: vertex, index: index)
+            }
+            // TODO: mark dirty
+            updateView()
+            return
+        }
+
+        // Otherwise delete the connected linedefs
+        let enumerator = vertex.lineEnumerator
+        while let linedef = enumerator.nextObject() as? Linedef {
+            delete(linedef: linedef)
+        }
+        // TODO: mark dirty
         updateView()
     }
 

@@ -28,7 +28,7 @@ final class Sector: MapItem {
     var special = 0             // sector special
     var tag = 0                 // sector trigger tag
 
-    private let sidedefs: NSHashTable<Sidedef> = NSHashTable.weakObjects()
+    let sidedefs: NSHashTable<Sidedef> = NSHashTable.weakObjects()
 
     init(data: [UInt8]) {
         DataReader(data).short(&floorheight).short(&ceilingheight)
@@ -48,6 +48,12 @@ final class Sector: MapItem {
 
     func removeSide(_ side: Sidedef) {
         sidedefs.remove(side)
+    }
+
+    var sideEnumerator: NSEnumerator {
+        get {
+            return sidedefs.objectEnumerator()
+        }
     }
 
     ///

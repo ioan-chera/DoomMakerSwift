@@ -36,7 +36,7 @@ final class Sidedef: MapItem {
         }
     }
 
-    private let linedefs = NSHashTable<Linedef>.weakObjects()
+    let linedefs = NSHashTable<Linedef>.weakObjects()
 
     init(data: [UInt8]) {
         DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)

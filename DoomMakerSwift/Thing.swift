@@ -22,13 +22,13 @@ import Foundation
 /// Map thing
 ///
 final class Thing: DraggedItem, MapItem {
-    var angle = 0   // angle
-    var type = 0    // doomednum
-    var flags = 0   // spawn options
+    var angle:Int16 = 0   // angle
+    var type:Int16 = 0    // doomednum
+    var flags:Int16 = 0   // spawn options
 
     var info: ThingType {
         get {
-            return idThingMap[type] ?? ThingType.unknown
+            return idThingMap[Int(type)] ?? ThingType.unknown
         }
     }
 

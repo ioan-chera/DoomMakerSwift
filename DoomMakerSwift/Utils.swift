@@ -31,6 +31,23 @@ func inRange(_ value: Int, _ min: Int, _ max: Int) -> Bool {
     return value >= min && value <= max
 }
 
+///
+/// Clamps value in range
+///
+func clamp(_ value: Int, _ min: Int, _ max: Int) -> Int {
+    if value < min {
+        return min
+    }
+    if value > max {
+        return max
+    }
+    return value
+}
+
+func toInt16Clamped(_ value: Int) -> Int16 {
+    return Int16(clamp(value, Int(Int16.min), Int(Int16.max)))
+}
+
 func safeArraySet<T>(_ value: inout T?, list: [T], index: Int) {
     if inRange(index, 0, list.count - 1) {
         value = list[index]
@@ -45,6 +62,10 @@ func safeArrayGet<T>(_ list: [T], index: Int) -> T? {
     } else {
         return nil
     }
+}
+
+func indexOf<T:AnyObject>(array: [T], item: T) -> Int? {
+    return array.index(where: {$0 === item})
 }
 
 func removeFrom<T:AnyObject>(array: inout [T], item: T) {

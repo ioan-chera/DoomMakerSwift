@@ -158,33 +158,26 @@ class Level
     //
 
     /// The undo manager specific to this level
-    let undo = UndoManager()
     weak var document: Document?
 
     func runUndo() {
-        if undo.canUndo {
-            undo.undo()
-            document?.updateChangeCount(.changeUndone)
+        if document?.undoManager?.canUndo == true {
+            document?.undoManager?.undo()
         }
     }
     func runRedo() {
-        if undo.canRedo {
-            undo.redo()
-            document?.updateChangeCount(.changeRedone)
+        if document?.undoManager?.canRedo == true {
+            document?.undoManager?.redo()
         }
     }
     func canUndo() -> Bool {
-        return undo.canUndo
+        return document?.undoManager?.canUndo == true
     }
     func canRedo() -> Bool {
-        return undo.canRedo
+        return document?.undoManager?.canRedo == true
     }
     func updateView() {
         self.document?.updateView()
-    }
-    func markChange() {
-        self.undo.endUndoGrouping()
-        document?.updateChangeCount(.changeDone)
     }
 
     //
@@ -464,7 +457,7 @@ class Level
         }
 
         self.updateView()
-        self.undo.registerUndo {
+        self.document?.undoManager?.registerUndo {
             self.moveDragItems(positions: currentPositions, undoing: !undoing)
         }
     }
@@ -565,7 +558,6 @@ class Level
 
             if changed {
                 moveDragItems(positions: positions, undoing: false)
-                document?.updateChangeCount(.changeDone)
             }
             return
         }
@@ -730,6 +722,58 @@ class Level
             line.v2 = v2
         }
         removeFrom(array: &vertices, item: v1)
+    }
+
+    ///
+    /// Adds a thing
+    ///
+    private func add(thing: Thing, index: Int) {
+        things.insert(thing, at: index)
+        self.document?.undoManager?.registerUndo {
+            self.delete(thing: thing)
+        }
+        thingsDirty = true
+        updateView()
+    }
+
+    ///
+    /// Deletes a thing and provides undo
+    ///
+    private func delete(thing: Thing) {
+        guard let index = indexOf(array: things, item: thing) else {
+            return
+        }
+        things.remove(at: index)
+        self.document?.undoManager?.registerUndo {
+            self.add(thing: thing, index: index)
+        }
+        thingsDirty = true
+        updateView()
+    }
+
+    //==========================================================================
+    //
+    // Menu results
+    //
+    func deleteSelection() {
+        switch mode {
+        case .things:
+            let enumerator = selectedDragItems.objectEnumerator()
+            while let thing = enumerator.nextObject() as? Thing {
+                delete(thing: thing)
+            }
+        default:
+            return
+        }
+    }
+
+    func canDeleteSelection() -> Bool {
+        switch mode {
+        case .things:
+            return selectedDragItems.count > 0
+        default:
+            return false
+        }
     }
 
     //==========================================================================

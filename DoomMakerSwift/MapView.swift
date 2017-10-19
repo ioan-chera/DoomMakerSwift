@@ -581,6 +581,10 @@ class MapView: NSView {
         level?.runRedo()
     }
 
+    @objc func delete(_ sender: Any?) {
+        level?.deleteSelection()
+    }
+
     //
     // Mode select
     //
@@ -632,6 +636,9 @@ class MapView: NSView {
         }
         if menuItem.action == #selector(MapView.redo(_:)) {
             return self.level != nil && self.level!.canRedo()
+        }
+        if menuItem.action == #selector(MapView.delete(_:)) {
+            return self.level != nil && self.level!.canDeleteSelection()
         }
         return super.validateMenuItem(menuItem)
     }

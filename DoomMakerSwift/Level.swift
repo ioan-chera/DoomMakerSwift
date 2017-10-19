@@ -758,8 +758,12 @@ class Level
     func deleteSelection() {
         switch mode {
         case .things:
-            let enumerator = selectedDragItems.objectEnumerator()
-            while let thing = enumerator.nextObject() as? Thing {
+            if selectedDragItems.count > 0 {
+                let enumerator = selectedDragItems.objectEnumerator()
+                while let thing = enumerator.nextObject() as? Thing {
+                    delete(thing: thing)
+                }
+            } else if let thing = highlightedItem as? Thing {
                 delete(thing: thing)
             }
         default:
@@ -770,7 +774,7 @@ class Level
     func canDeleteSelection() -> Bool {
         switch mode {
         case .things:
-            return selectedDragItems.count > 0
+            return selectedDragItems.count > 0 || highlightedItem !== nil
         default:
             return false
         }

@@ -179,18 +179,39 @@ class Level
     func updateView() {
         self.document?.updateView()
     }
+    private var undo: UndoManager? {
+        get {
+            return document?.undoManager
+        }
+    }
 
     //
     // MAP SAVING STUFF
     //
 
-    private(set) var verticesDirty = false  // update VERTEXES lump
-    private(set) var vertexChangeTracking = 0
-    private(set) var thingsDirty = false    // update THINGS lump
+    private(set) var linedefTracking = 0
+    private(set) var sectorTracking = 0
+    private(set) var sidedefTracking = 0
+    private(set) var thingTracking = 0    // update THINGS lump
+    private(set) var vertexTracking = 0  // update VERTEXES lump
+    private(set) var nodeTracking = 0   // rebuild BSP
+
+    private func updateDirty(_ value: inout Int) {
+        if undo?.isUndoing == false {
+            value += 1
+        } else {
+            value -= 1
+        }
+    }
+
     /// Must be called when saving
     func cleanDirty() {
-        verticesDirty = false
-        thingsDirty = false
+        linedefTracking = 0
+        sectorTracking = 0
+        sidedefTracking = 0
+        thingTracking = 0
+        vertexTracking = 0
+        nodeTracking = 0
     }
 
     //
@@ -420,14 +441,14 @@ class Level
     ///
     /// Vertex movement operation
     ///
-    private func moveDragItems(positions: NSMapTable<DraggedItem, ObjWrap<NSPoint>>,
-                               undoing: Bool)
+    private func moveDragItems(positions: NSMapTable<DraggedItem, ObjWrap<NSPoint>>)
     {
         let currentPositions: NSMapTable<DraggedItem, ObjWrap<NSPoint>> =
             NSMapTable.weakToStrongObjects()
         let enumerator = positions.keyEnumerator()
 
         var changeVertices = false
+        var changeThings = false
 
         while let item = enumerator.nextObject() as? DraggedItem {
             currentPositions.setObject(ObjWrap(NSPoint(item: item)),
@@ -438,27 +459,23 @@ class Level
             if item is Vertex {
                 changeVertices = true
             } else if item is Thing {
-                thingsDirty = true
+                changeThings = true
             }
         }
 
         // Tracking vertex changes is more important, because of node-building
         // considerations
         if changeVertices {
-            verticesDirty = true;
-            if !undoing {
-                vertexChangeTracking += 1
-            } else {
-                vertexChangeTracking -= 1
-                if vertexChangeTracking == 0 {
-                    verticesDirty = false
-                }
-            }
+            updateDirty(&vertexTracking)
+            updateDirty(&nodeTracking)
+        }
+        if changeThings {
+            updateDirty(&thingTracking)
         }
 
         self.updateView()
         self.document?.undoManager?.registerUndo {
-            self.moveDragItems(positions: currentPositions, undoing: !undoing)
+            self.moveDragItems(positions: currentPositions)
         }
     }
 
@@ -557,7 +574,7 @@ class Level
             draggedItems.removeAllObjects()
 
             if changed {
-                moveDragItems(positions: positions, undoing: false)
+                moveDragItems(positions: positions)
             }
             return
         }
@@ -701,18 +718,18 @@ class Level
     ///
     private func merge(vertex v1: Vertex, into v2: Vertex) {
         // Locate all linedefs from v1 and reattach them
-        let lineEnum = v1.lineEnumerator
 
         var v1lines = [Linedef]()
         var v2lines = [Linedef]()
 
         // need to add them first to list, then transfer values
-        while let line = lineEnum.nextObject() as? Linedef {
+        forEach(table: v1.linedefs) { (line) -> Bool in
             if line.v1 === v1 {
                 v1lines.append(line)
             } else if line.v2 === v1 {
                 v2lines.append(line)
             }
+            return true
         }
 
         for line in v1lines {
@@ -732,7 +749,7 @@ class Level
         self.document?.undoManager?.registerUndo {
             self.delete(thing: thing)
         }
-        thingsDirty = true
+        updateDirty(&thingTracking)
         updateView()
     }
 
@@ -750,7 +767,8 @@ class Level
         document?.undoManager?.registerUndo {
             self.delete(linedef: linedef)
         }
-        // TODO: mark linedefs dirty
+        updateDirty(&linedefTracking)
+        updateDirty(&nodeTracking)
         updateView()
     }
 
@@ -762,17 +780,21 @@ class Level
                      s2lines: NSHashTable<Linedef>)
     {
         sidedefs.insert(sidedef, at: index)
-        while let linedef = s1lines.objectEnumerator().nextObject() as? Linedef {
+        var enumerator = s1lines.objectEnumerator()
+        while let linedef = enumerator.nextObject() as? Linedef {
             linedef.s1 = sidedef
         }
-        while let linedef = s2lines.objectEnumerator().nextObject() as? Linedef {
+        enumerator = s2lines.objectEnumerator()
+        while let linedef = enumerator.nextObject() as? Linedef {
             linedef.s2 = sidedef
         }
         sidedef.sector = sector
         document?.undoManager?.registerUndo {
             self.delete(sidedef: sidedef)
         }
-        // TODO: mark dirty
+
+        updateDirty(&sidedefTracking)
+        updateDirty(&nodeTracking)
         updateView()
     }
 
@@ -784,7 +806,8 @@ class Level
         document?.undoManager?.registerUndo {
             self.delete(vertex: vertex)
         }
-        // TODO: mark vertex dirty
+        updateDirty(&vertexTracking)
+        updateDirty(&nodeTracking)
         updateView()
     }
 
@@ -796,7 +819,8 @@ class Level
         document?.undoManager?.registerUndo {
             self.delete(sector: sector)
         }
-        // TODO: mark vertex dirty
+        updateDirty(&sectorTracking)
+        updateDirty(&nodeTracking)
         updateView()
     }
 
@@ -811,7 +835,7 @@ class Level
         self.document?.undoManager?.registerUndo {
             self.add(thing: thing, index: index)
         }
-        thingsDirty = true
+        updateDirty(&thingTracking)
         updateView()
     }
 
@@ -827,14 +851,16 @@ class Level
             document?.undoManager?.registerUndo {
                 self.add(sector: sector, index: index)
             }
-            // TODO: mark dirty
+
+            updateDirty(&sectorTracking)
+            updateDirty(&nodeTracking)
             updateView()
             return
         }
-        while let sidedef = sector.sideEnumerator.nextObject() as? Sidedef {
+        while let sidedef = sector.sidedefs.anyObject {
             delete(sidedef: sidedef)
         }
-        // TODO: mark dirty
+
         updateView()
         return
     }
@@ -850,7 +876,11 @@ class Level
         let s1lines = NSHashTable<Linedef>.weakObjects()
         let s2lines = NSHashTable<Linedef>.weakObjects()
         sidedef.sector = nil
-        while let linedef = sidedef.lineEnumerator.nextObject() as? Linedef {
+
+        while let linedef = sidedef.linedefs.anyObject {
+            if linedef.s1 === sidedef || linedef.s2 === sidedef {
+                setLineFlags(linedef: linedef, flags: (linedef.flags | LineFlagImpassable) & ~LineFlagTwoSided)
+            }
             if linedef.s1 === sidedef {
                 s1lines.add(linedef)
                 linedef.s1 = nil
@@ -860,6 +890,7 @@ class Level
                 linedef.s2 = nil
             }
         }
+
         sidedefs.remove(at: index)
         document?.undoManager?.registerUndo {
             self.add(sidedef: sidedef, index: index, sector: sector,
@@ -868,14 +899,42 @@ class Level
         if sector !== nil && sector!.sidedefs.count == 0 {
             delete(sector: sector!)
         }
-        // TODO: mark dirty
+
+        // Make sure to flip lines whose first side is deleted. Or just delete
+        // them if they're fully emptied
+        let linesToDelete = NSHashTable<Linedef>.weakObjects()
+        forEach(table: s1lines) { (line) -> Bool in
+            if line.s2 === nil {
+                // Totally cleared
+                linesToDelete.add(line)
+            } else {
+                self.flip(linedef: line)
+            }
+            return true
+        }
+
+        // Also delete any other totally cleared lines
+        forEach(table: s2lines) { (line) -> Bool in
+            if line.s1 === nil {
+                linesToDelete.add(line)
+            }
+            return true
+        }
+
+        while let linedef = linesToDelete.anyObject {
+            delete(linedef: linedef)
+            linesToDelete.remove(linedef)
+        }
+
+        updateDirty(&sidedefTracking)
+        updateDirty(&nodeTracking)
         updateView()
     }
 
     ///
     /// Deletes a linedef
     ///
-    private func delete(linedef: Linedef) {
+    private func delete(linedef: Linedef, keepVertices: Bool = false) {
         guard let index = indexOf(array: linedefs, item: linedef) else {
             return
         }
@@ -894,11 +953,13 @@ class Level
             self.add(linedef: linedef, index: index, v1: v1, v2: v2,
                      s1: s1, s2: s2)
         }
-        if v1 !== nil && v1!.linedefs.count == 0 {
-            delete(vertex: v1!)
-        }
-        if v2 !== nil && v2!.linedefs.count == 0 {
-            delete(vertex: v2!)
+        if !keepVertices {
+            if v1 !== nil && v1!.linedefs.count == 0 {
+                delete(vertex: v1!)
+            }
+            if v2 !== nil && v2!.linedefs.count == 0 {
+                delete(vertex: v2!)
+            }
         }
         if s1 !== nil && s1!.linedefs.count == 0 {
             delete(sidedef: s1!)
@@ -906,7 +967,9 @@ class Level
         if s2 !== nil && s2!.linedefs.count == 0 {
             delete(sidedef: s2!)
         }
-        // TODO: mark dirty
+
+        updateDirty(&linedefTracking)
+        updateDirty(&nodeTracking)
         updateView()
     }
 
@@ -917,23 +980,135 @@ class Level
         guard let index = indexOf(array: vertices, item: vertex) else {
             return
         }
-        // first delete linedefs
+
+        // Delete vertex if it's isolated
         if vertex.linedefs.count == 0 {
             vertices.remove(at: index)
             document?.undoManager?.registerUndo {
                 self.add(vertex: vertex, index: index)
             }
-            // TODO: mark dirty
+            updateDirty(&vertexTracking)
+            updateDirty(&nodeTracking)
             updateView()
             return
         }
 
+        // If it's connected to two linedefs, then delete the shorter one and
+        // join the longer one with the other vertex
+        if vertex.linedefs.count == 2 {
+
+            func changeVertex(linedef: Linedef, which: Int, target: Vertex) {
+                let original: Vertex
+                if which == 1 {
+                    original = linedef.v1!
+                    linedef.v1 = target
+                } else {
+                    original = linedef.v2!
+                    linedef.v2 = target
+                }
+                self.document?.undoManager?.registerUndo {
+                    changeVertex(linedef: linedef, which: which, target: original)
+                }
+                self.updateDirty(&linedefTracking)
+            }
+
+            // Pick the longer linedef
+            let enumerator = vertex.linedefs.objectEnumerator()
+            let line1 = enumerator.nextObject() as! Linedef
+            let length1 = line1.length()
+            let line2 = enumerator.nextObject() as! Linedef
+            let length2 = line2.length()
+            let lineToDelete = length1 < length2 ? line1 : line2
+            let lineToKeep = length1 < length2 ? line2 : line1
+
+            // Keep reference to other vertex
+            let otherVertex = lineToDelete.v1 === vertex ? lineToDelete.v2 :
+                lineToDelete.v1
+
+            let originVertex = lineToKeep.v1 === vertex ? lineToKeep.v2 :
+                lineToKeep.v1
+
+            // If the "shorter" linedef is actually a degenerate one without a
+            // vertex, then just fall through to normal deletion of adjacent
+            // lines
+            // Also avoid degenerating triangle sectors
+            if otherVertex !== nil && originVertex !== nil &&
+                !originVertex!.linedefs.intersects(otherVertex!.linedefs)
+            {
+                // Delete the linedef
+                delete(linedef: lineToDelete, keepVertices: true)
+
+                let vindex: Int
+                if lineToKeep.v1 === vertex {
+                    vindex = 1
+                } else {
+                    vindex = 2
+                }
+
+                changeVertex(linedef: lineToKeep, which: vindex, target: otherVertex!)
+
+                vertices.remove(at: index)
+                document?.undoManager?.registerUndo {
+                    self.add(vertex: vertex, index: index)
+                }
+
+                updateDirty(&vertexTracking)
+                updateDirty(&nodeTracking)
+                updateView()
+                return
+            }
+        }
+
         // Otherwise delete the connected linedefs
-        let enumerator = vertex.lineEnumerator
-        while let linedef = enumerator.nextObject() as? Linedef {
+        while let linedef = vertex.linedefs.anyObject {
             delete(linedef: linedef)
         }
-        // TODO: mark dirty
+
+        updateDirty(&vertexTracking)
+        updateDirty(&nodeTracking)
+        updateView()
+    }
+
+    ///
+    /// Flip linedefs
+    ///
+    func flip(linedef: Linedef) {
+        guard let v1 = linedef.v1 else {
+            return
+        }
+        guard let v2 = linedef.v2 else {
+            return
+        }
+        // Can't simply swap, because self-looping lines are illegal
+        linedef.v1 = nil
+        linedef.v2 = nil
+        linedef.v1 = v2
+        linedef.v2 = v1
+        let s1 = linedef.s1
+        let s2 = linedef.s2
+        linedef.s1 = nil
+        linedef.s2 = nil
+        linedef.s1 = s2
+        linedef.s2 = s1
+        document?.undoManager?.registerUndo {
+            self.flip(linedef: linedef)
+        }
+
+        updateDirty(&linedefTracking)
+        updateDirty(&nodeTracking)
+        updateView()
+    }
+
+    ///
+    /// Set linedef flags
+    ///
+    func setLineFlags(linedef: Linedef, flags: Int) {
+        let curFlags = linedef.flags
+        linedef.flags = flags
+        undo?.registerUndo {
+            self.setLineFlags(linedef: linedef, flags: curFlags)
+        }
+        updateDirty(&linedefTracking)
         updateView()
     }
 
@@ -952,17 +1127,45 @@ class Level
             } else if let thing = highlightedItem as? Thing {
                 delete(thing: thing)
             }
-        default:
-            return
+        case .vertices:
+            if selectedDragItems.count > 0 {
+                let enumerator = selectedDragItems.objectEnumerator()
+                while let vertex = enumerator.nextObject() as? Vertex {
+                    delete(vertex: vertex)
+                }
+            } else if let vertex = highlightedItem as? Vertex {
+                delete(vertex: vertex)
+            }
+        case .linedefs:
+            if selectedLinedefs.count > 0 {
+                let enumerator = selectedLinedefs.objectEnumerator()
+                while let linedef = enumerator.nextObject() as? Linedef {
+                    delete(linedef: linedef)
+                }
+            } else if let linedef = highlightedItem as? Linedef {
+                delete(linedef: linedef)
+            }
+        case .sectors:
+            if selectedSectors.count > 0 {
+                let enumerator = selectedSectors.objectEnumerator()
+                while let sector = enumerator.nextObject() as? Sector {
+                    delete(sector: sector)
+                }
+            } else if let sector = highlightedItem as? Sector {
+                delete(sector: sector)
+            }
         }
+        clearSelection()
     }
 
     func canDeleteSelection() -> Bool {
         switch mode {
-        case .things:
+        case .things, .vertices:
             return selectedDragItems.count > 0 || highlightedItem !== nil
-        default:
-            return false
+        case .linedefs:
+            return selectedLinedefs.count > 0 || highlightedItem as? Linedef !== nil
+        case .sectors:
+            return selectedSectors.count > 0 || highlightedItem as? Sector !== nil
         }
     }
 

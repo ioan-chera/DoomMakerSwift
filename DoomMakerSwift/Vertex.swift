@@ -38,10 +38,4 @@ final class Vertex: DraggedItem, MapItem {
     func removeLine(_ line: Linedef) {
         linedefs.remove(line)
     }
-
-    var lineEnumerator: NSEnumerator {
-        get {
-            return linedefs.objectEnumerator()
-        }
-    }
 }

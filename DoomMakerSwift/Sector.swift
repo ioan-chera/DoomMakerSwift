@@ -50,25 +50,21 @@ final class Sector: MapItem {
         sidedefs.remove(side)
     }
 
-    var sideEnumerator: NSEnumerator {
-        get {
-            return sidedefs.objectEnumerator()
-        }
-    }
-
     ///
     /// Obtains vertices from sidedefs
     ///
     func obtainVertices() -> NSHashTable<DraggedItem> {
-        let sideEnum = sidedefs.objectEnumerator()
         let result = NSHashTable<DraggedItem>.weakObjects()
-        while let side = sideEnum.nextObject() as? Sidedef {
-            let lineEnum = side.lineEnumerator
-            while let line = lineEnum.nextObject() as? Linedef {
+
+        forEach(table: sidedefs) { (side) -> Bool in
+            forEach(table: side.linedefs, closure: { (line) -> Bool in
                 result.add(line.v1)
                 result.add(line.v2)
-            }
+                return true
+            })
+            return true
         }
+
         return result
     }
 
@@ -76,13 +72,14 @@ final class Sector: MapItem {
     /// Obtains linedefs from sidedefs
     ///
     func obtainLinedefs() -> NSHashTable<Linedef> {
-        let sideEnum = sidedefs.objectEnumerator()
         let result = NSHashTable<Linedef>.weakObjects()
-        while let side = sideEnum.nextObject() as? Sidedef {
-            let lineEnum = side.lineEnumerator
-            while let line = lineEnum.nextObject() as? Linedef {
+
+        forEach(table: sidedefs) { (side) -> Bool in
+            forEach(table: side.linedefs, closure: { (line) -> Bool in
                 result.add(line)
-            }
+                return true
+            })
+            return true
         }
         return result
     }

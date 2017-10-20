@@ -18,6 +18,9 @@
 
 import Foundation
 
+let LineFlagImpassable = 1
+let LineFlagTwoSided = 4
+
 /// Map linedef
 final class Linedef: MapItem {
     private(set) var v1idx = 0      // vertex index
@@ -95,5 +98,16 @@ final class Linedef: MapItem {
             }
             return ret
         }
+    }
+
+    func length() -> Double {
+        guard let v1 = self.v1 else {
+            return 0
+        }
+        guard let v2 = self.v2 else {
+            return 0
+        }
+        return sqrt(pow(Double(v1.x) - Double(v2.x), 2) +
+            pow(Double(v1.y) - Double(v2.y), 2))
     }
 }

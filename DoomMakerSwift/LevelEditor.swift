@@ -219,14 +219,15 @@ class LevelEditor {
     func checkDirty() throws {
         for entry in levels {
             if let level = entry.level {
-                if level.verticesDirty {
+                if level.vertexTracking > 0 {
                     let verticesLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.vertices.rawValue]
                     verticesLump.data = []
                     for vertex in level.vertices {
                         verticesLump.data += vertex.getData()
                     }
                 }
-                if level.thingsDirty {
+
+                if level.thingTracking > 0 {
                     let thingsLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.things.rawValue]
                     thingsLump.data = []
                     for thing in level.things {
@@ -234,7 +235,7 @@ class LevelEditor {
                     }
                 }
 
-                if level.verticesDirty {
+                if level.nodeTracking > 0 {
                     try nodeBuild(entry: entry)
                 }
                 level.cleanDirty()

@@ -193,6 +193,10 @@ class Level
     private(set) var vertexTracking = 0  // update VERTEXES lump
     private(set) var nodeTracking = 0   // rebuild BSP
 
+    /// True if the external node-builder shuffled the map items. In this case,
+    //
+    var bspDesynced = false
+
     private func updateDirty(_ value: inout Int) {
         if undo?.isUndoing == false {
             value += 1

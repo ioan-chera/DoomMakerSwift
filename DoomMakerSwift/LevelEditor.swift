@@ -208,8 +208,7 @@ class LevelEditor {
         wad.replace(lumpAtIndex: li + Level.LumpOffset.sectors.rawValue, with: sectors!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.reject.rawValue, with: reject!)
         wad.replace(lumpAtIndex: li + Level.LumpOffset.blockmap.rawValue, with: blockmap!)
-
-
+        entry.level?.bspDesynced = true
     }
 
     ///
@@ -250,7 +249,7 @@ class LevelEditor {
                                   list: level.sectors)
                 ]
                 for row in table {
-                    if row.trackingVariable > 0 {
+                    if row.trackingVariable > 0 || level.bspDesynced {
                         let lump = wad.lumps[entry.lumpIndex +
                             row.offset.rawValue]
                         lump.data = []

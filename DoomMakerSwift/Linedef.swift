@@ -87,18 +87,6 @@ final class Linedef: InteractiveItem, Serializable {
             return s2?.sector
         }
     }
-    var vertices: [Vertex] {
-        get {
-            var ret: [Vertex] = []
-            if let v1 = self.v1 {
-                ret.append(v1)
-            }
-            if let v2 = self.v2 {
-                ret.append(v2)
-            }
-            return ret
-        }
-    }
 
     func length() -> Double {
         guard let v1 = self.v1 else {
@@ -119,5 +107,36 @@ final class Linedef: InteractiveItem, Serializable {
         v2idx = indexOf(array: vertices, item: v2) ?? -1
         s1idx = indexOf(array: sidedefs, item: s1) ?? -1
         s2idx = indexOf(array: sidedefs, item: s2) ?? -1
+    }
+
+    //==========================================================================
+    //
+    // MARK: InteractiveItem
+    //
+
+    override var draggables: Set<DraggedItem> {
+        var ret = Set<DraggedItem>()
+        if let v1 = self.v1 {
+            ret.insert(v1)
+        }
+        if let v2 = self.v2 {
+            ret.insert(v2)
+        }
+        return ret
+    }
+
+    override var linedefs: Set<Linedef> {
+        return Set([self])
+    }
+
+    override var sectors: Set<Sector> {
+        var result = Set<Sector>()
+        if let sector = s1?.sector {
+            result.insert(sector)
+        }
+        if let sector = s2?.sector {
+            result.insert(sector)
+        }
+        return result
     }
 }

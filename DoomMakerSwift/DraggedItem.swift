@@ -68,4 +68,11 @@ class DraggedItem: InteractiveItem {
             y = Int16(round(value.y))
         }
     }
+
+    //
+    // MARK: InteractiveItem
+    //
+    override var draggables: Set<DraggedItem> {
+        return Set([self])
+    }
 }

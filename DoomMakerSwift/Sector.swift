@@ -50,10 +50,15 @@ final class Sector: InteractiveItem, Serializable {
         sidedefs.remove(side)
     }
 
+    //==========================================================================
+    //
+    // MARK: VertexContainer
+    //
+
     ///
     /// Obtains vertices from sidedefs
     ///
-    func obtainVertices() -> Set<DraggedItem> {
+    override var draggables: Set<DraggedItem> {
         var result = Set<DraggedItem>()
 
         for side in sidedefs {
@@ -71,7 +76,7 @@ final class Sector: InteractiveItem, Serializable {
     ///
     /// Obtains linedefs from sidedefs
     ///
-    func obtainLinedefs() -> Set<Linedef> {
+    override var linedefs: Set<Linedef> {
         var result = Set<Linedef>()
 
         for side in sidedefs {
@@ -81,5 +86,9 @@ final class Sector: InteractiveItem, Serializable {
         }
 
         return result
+    }
+
+    override var sectors: Set<Sector> {
+        return Set([self])
     }
 }

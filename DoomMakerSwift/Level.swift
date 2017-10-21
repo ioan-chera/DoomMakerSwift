@@ -240,9 +240,7 @@ class Level
     var gridSize = CGFloat(0.0)
 
     /// Selected vertices set
-    var selectedDragItems = Set<DraggedItem>()
-    var selectedLinedefs = Set<Linedef>()
-    var selectedSectors = Set<Sector>()
+    private(set) var selectedItems = Set<InteractiveItem>()
 
     /// Dragged vertices set
     var draggedItems = Set<DraggedItem>()
@@ -502,27 +500,10 @@ class Level
             return
         }
 
-        if draggedItems.count <= 0 {
-            switch mode {
-            case .vertices, .things:
-                if let item = item as? DraggedItem {
-                    draggedItems.insert(item)
-                    draggedItems.formUnion(selectedDragItems)
-                }
-            case .linedefs:
-                if let linedef = item as? Linedef {
-                    draggedItems.formUnion(linedef.vertices as [DraggedItem])
-                    for otherLine in selectedLinedefs {
-                        draggedItems.formUnion(otherLine.vertices as [DraggedItem])
-                    }
-                }
-            case .sectors:
-                if let sector = item as? Sector {
-                    draggedItems.formUnion(sector.obtainVertices())
-                    for otherSector in selectedSectors {
-                        draggedItems.formUnion(otherSector.obtainVertices())
-                    }
-                }
+        if draggedItems.isEmpty {
+            draggedItems.formUnion(item.draggables)
+            for otherItem in selectedItems {
+                draggedItems.formUnion(otherItem.draggables)
             }
         }
 
@@ -581,20 +562,8 @@ class Level
             return
         }
 
-        switch mode {
-        case .vertices, .things:
-            if let item = clickedDownItem as? DraggedItem {
-                selectedDragItems.toggle(item)
-            }
-        case .linedefs:
-            if let linedef = clickedDownItem as? Linedef {
-                selectedLinedefs.toggle(linedef)
-            }
-        case .sectors:
-            if let sector = clickedDownItem as? Sector {
-                selectedSectors.toggle(sector)
-            }
-        }
+        selectedItems.toggle(clickedDownItem)
+
         document?.updateView()
     }
 
@@ -609,13 +578,13 @@ class Level
     func selectAll() {
         switch mode {
         case .vertices:
-            selectedDragItems.formUnion(vertices as [DraggedItem])
+            selectedItems.formUnion(vertices as [InteractiveItem])
         case .things:
-            selectedDragItems.formUnion(things as [DraggedItem])
+            selectedItems.formUnion(things as [InteractiveItem])
         case .linedefs:
-            selectedLinedefs.formUnion(linedefs)
+            selectedItems.formUnion(linedefs as [InteractiveItem])
         case .sectors:
-            selectedSectors.formUnion(sectors)
+            selectedItems.formUnion(sectors as [InteractiveItem])
         }
         document?.updateView()
     }
@@ -624,14 +593,7 @@ class Level
     /// Deselects all
     ///
     func clearSelection() {
-        switch mode {
-        case .vertices, .things:
-            selectedDragItems.removeAll()
-        case .linedefs:
-            selectedLinedefs.removeAll()
-        case .sectors:
-            selectedSectors.removeAll()
-        }
+        selectedItems.removeAll()
         document?.updateView()
     }
 
@@ -647,7 +609,7 @@ class Level
             for vertex in vertices {
                 let rotated = NSPoint(item: vertex).rotated(self.gridRotation)
                 if NSPointInRect(rotated, rotatedRect) {
-                    selectedDragItems.insert(vertex)
+                    selectedItems.insert(vertex)
                     added = true
                 }
             }
@@ -663,7 +625,7 @@ class Level
                 for point in points {
                     if NSPointInRect(point.rotated(self.gridRotation), rotatedRect)
                     {
-                        selectedDragItems.insert(thing)
+                        selectedItems.insert(thing)
                         added = true
                         break
                     }
@@ -680,7 +642,7 @@ class Level
                 let rp1 = NSPoint(item: v1).rotated(self.gridRotation)
                 let rp2 = NSPoint(item: v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
-                    selectedLinedefs.insert(linedef)
+                    selectedItems.insert(linedef)
                     added = true
                 }
             }
@@ -696,10 +658,10 @@ class Level
                 let rp2 = NSPoint(item: v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
                     if let sector = linedef.frontsector {
-                        selectedSectors.insert(sector)
+                        selectedItems.insert(sector)
                     }
                     if let sector = linedef.backsector {
-                        selectedSectors.insert(sector)
+                        selectedItems.insert(sector)
                     }
                     added = true
                 }
@@ -1105,52 +1067,29 @@ class Level
     // MARK: Menu results
     //
     func deleteSelection() {
-        switch mode {
-        case .things:
-            if selectedDragItems.count > 0 {
-                for thing in selectedDragItems {
-                    if let thing = thing as? Thing {
-                        delete(thing: thing)
-                    }
-                }
-            } else if let thing = highlightedItem as? Thing {
+        func deleteHelper(item: InteractiveItem) {
+            if let thing = item as? Thing {
                 delete(thing: thing)
-            }
-        case .vertices:
-            if selectedDragItems.count > 0 {
-                for vertex in selectedDragItems {
-                    if let vertex = vertex as? Vertex {
-                        delete(vertex: vertex)
-                    }
-                }
-            } else if let vertex = highlightedItem as? Vertex {
+            } else if let vertex = item as? Vertex {
                 delete(vertex: vertex)
-            }
-        case .linedefs:
-            if selectedLinedefs.count > 0 {
-                selectedLinedefs.forEach { delete(linedef: $0) }
-            } else if let linedef = highlightedItem as? Linedef {
+            } else if let linedef = item as? Linedef {
                 delete(linedef: linedef)
-            }
-        case .sectors:
-            if selectedSectors.count > 0 {
-                selectedSectors.forEach { delete(sector: $0 ) }
-            } else if let sector = highlightedItem as? Sector {
+            } else if let sector = item as? Sector {
                 delete(sector: sector)
             }
         }
+
+        if !selectedItems.isEmpty {
+            selectedItems.forEach { deleteHelper(item: $0) }
+        } else if let item = highlightedItem {
+            deleteHelper(item: item)
+        }
+
         clearSelection()
     }
 
     func canDeleteSelection() -> Bool {
-        switch mode {
-        case .things, .vertices:
-            return selectedDragItems.count > 0 || highlightedItem !== nil
-        case .linedefs:
-            return selectedLinedefs.count > 0 || highlightedItem as? Linedef !== nil
-        case .sectors:
-            return selectedSectors.count > 0 || highlightedItem as? Sector !== nil
-        }
+        return !selectedItems.isEmpty || highlightedItem !== nil
     }
 
     //==========================================================================
@@ -1166,65 +1105,46 @@ class Level
         if newMode == oldMode {
             return
         }
-        switch oldMode {
-        case .vertices:
-            if newMode == .linedefs {
-                for linedef in linedefs {
-                    if let v1 = linedef.v1, let v2 = linedef.v2 {
-                        if selectedDragItems.contains(v1) &&
-                            selectedDragItems.contains(v2)
-                        {
-                            selectedLinedefs.insert(linedef)
-                        }
+
+        var newSelected = Set<InteractiveItem>()
+
+        func addTouched(set: Set<InteractiveItem>) {
+            for item in set {
+                if oldMode == .vertices {
+                    if (item.draggables as Set<InteractiveItem>).isSubset(of: selectedItems) {
+                        newSelected.insert(item)
+                    }
+                } else if oldMode == .linedefs {
+                    if (item.linedefs as Set<InteractiveItem>).isSubset(of: selectedItems) {
+                        newSelected.insert(item)
+                    }
+                } else if oldMode == .sectors {
+                    if !(item.sectors as Set<InteractiveItem>).isDisjoint(with: selectedItems) {
+                        newSelected.insert(item)
                     }
                 }
-            } else if newMode == .sectors {
-                for sector in sectors {
-                    if sector.obtainVertices().isSubset(of: selectedDragItems) {
-                        selectedSectors.insert(sector)
-                    }
-                }
-            } else if newMode == .things {
-                // TODO: select all things in containing sectors
             }
-            selectedDragItems.removeAll()
-        case .linedefs:
-            if newMode == .vertices {
-                for linedef in selectedLinedefs {
-                    if let v1 = linedef.v1 {
-                        selectedDragItems.insert(v1)
-                    }
-                    if let v2 = linedef.v2 {
-                        selectedDragItems.insert(v2)
-                    }
-                }
-            } else if newMode == .sectors {
-                for sector in sectors {
-                    if sector.obtainLinedefs().isSubset(of: selectedLinedefs) {
-                        selectedSectors.insert(sector)
-                    }
-                }
-            } else if newMode == .things {
-                // TODO: select all things in containing sectors
-            }
-            selectedLinedefs.removeAll()
-        case .sectors:
-            if newMode == .vertices {
-                for sector in selectedSectors {
-                    selectedDragItems.formUnion(sector.obtainVertices())
-                }
-            } else if newMode == .linedefs {
-                for sector in selectedSectors {
-                    selectedLinedefs.formUnion(sector.obtainLinedefs())
-                }
-            } else if newMode == .things {
-                // TODO: select all things in containing sectors
-            }
-            selectedSectors.removeAll()
-        case .things:
-            // TODO: select sectors if all things are selected
-            selectedDragItems.removeAll()
         }
+
+        switch newMode {
+        case .things:
+        // TODO: update selected things
+            break
+        case .linedefs:
+            for item in selectedItems {
+                addTouched(set: item.linedefs)
+            }
+        case .vertices:
+            for item in selectedItems {
+                newSelected.formUnion(item.draggables as Set<InteractiveItem>)
+            }
+        case .sectors:
+            for item in selectedItems {
+                addTouched(set: item.sectors)
+            }
+        }
+
+        selectedItems = newSelected
         document?.updateView()
     }
 

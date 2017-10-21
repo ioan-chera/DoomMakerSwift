@@ -208,12 +208,12 @@ class MapView: NSView {
                     line.backsector === level.highlightedItem)
             {
                 context.setStrokeColor(Const.highlightColour.cgColor)
-            } else if level.selectedLinedefs.contains(line) {
+            } else if level.selectedItems.contains(line) {
                 context.setStrokeColor(Const.selectColour.cgColor)
             } else if (line.frontsector !== nil &&
-                level.selectedSectors.contains(line.frontsector!)) ||
+                level.selectedItems.contains(line.frontsector!)) ||
                 (line.backsector !== nil &&
-                    level.selectedSectors.contains(line.backsector!))
+                    level.selectedItems.contains(line.backsector!))
             {
                 context.setStrokeColor(Const.selectColour.cgColor)
             } else if line.flags & LineFlagImpassable != 0 {
@@ -251,7 +251,7 @@ class MapView: NSView {
 
             if vertex === level.highlightedItem as? Vertex {
                 context.setFillColor(Const.highlightColour.cgColor)
-            } else if level.selectedDragItems.contains(vertex) {
+            } else if level.selectedItems.contains(vertex) {
                 context.setFillColor(Const.selectColour.cgColor)
             } else {
                 context.setFillColor(level.mode == .vertices ?
@@ -283,7 +283,7 @@ class MapView: NSView {
 
             if thing === level.highlightedItem as? Thing {
                 context.setFillColor(Const.highlightColour.cgColor)
-            } else if level.selectedDragItems.contains(thing) {
+            } else if level.selectedItems.contains(thing) {
                 context.setFillColor(Const.selectColour.cgColor)
             } else {
                 context.setFillColor(type.color.withAlphaComponent(

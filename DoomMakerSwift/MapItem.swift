@@ -41,4 +41,13 @@ class IndividualItem: Hashable {
 /// excluded.
 ///
 class InteractiveItem: IndividualItem {
+    var draggables: Set<DraggedItem> {
+        return Set()
+    }
+    var linedefs: Set<Linedef> {
+        return Set()
+    }
+    var sectors: Set<Sector> {
+        return Set()
+    }
 }

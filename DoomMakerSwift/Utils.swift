@@ -27,6 +27,16 @@ extension Set {
             insert(element)
         }
     }
+
+    func conforming<T>() -> Set<T> {
+        var result = Set<T>()
+        for item in self {
+            if item is T {
+                result.insert(item as! T)
+            }
+        }
+        return result
+    }
 }
 
 func inRange(_ value: Int, _ min: Int, _ max: Int) -> Bool {

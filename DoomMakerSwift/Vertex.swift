@@ -20,7 +20,7 @@ import Foundation
 
 final class Vertex: DraggedItem, Serializable {
 
-    private(set) var linedefs = Set<Linedef>()
+    private var mLinedefs = Set<Linedef>()
 
     init(data: [UInt8]) {
         super.init(x: 0, y: 0)
@@ -32,10 +32,25 @@ final class Vertex: DraggedItem, Serializable {
     }
 
     func addLine(_ line: Linedef) {
-        linedefs.insert(line)
+        mLinedefs.insert(line)
     }
 
     func removeLine(_ line: Linedef) {
-        linedefs.remove(line)
+        mLinedefs.remove(line)
+    }
+
+    //
+    // Mark: InteractiveItem
+    //
+    override var linedefs: Set<Linedef> {
+        return mLinedefs
+    }
+
+    override var sectors: Set<Sector> {
+        var result = Set<Sector>()
+        for linedef in mLinedefs {
+            result.formUnion(linedef.sectors)
+        }
+        return result
     }
 }

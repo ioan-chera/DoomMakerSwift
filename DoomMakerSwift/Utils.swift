@@ -64,7 +64,7 @@ func safeArrayGet<T>(_ list: [T], index: Int) -> T? {
     }
 }
 
-func indexOf<T:AnyObject>(array: [T], item: T) -> Int? {
+func indexOf<T:AnyObject>(array: [T], item: T?) -> Int? {
     return array.index(where: {$0 === item})
 }
 

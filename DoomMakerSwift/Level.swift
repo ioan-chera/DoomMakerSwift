@@ -142,12 +142,12 @@ class Level
 
     fileprivate(set) var things: [Thing]
     private(set) var linedefs: [Linedef]
-    fileprivate var sidedefs: [Sidedef]
+    private(set) var sidedefs: [Sidedef]
     private(set) var vertices: [Vertex]
     fileprivate var segs: [Seg]
     fileprivate var subsectors: [Subsector]
     fileprivate var nodes: [Node]
-    fileprivate var sectors: [Sector]
+    private(set) var sectors: [Sector]
     fileprivate var reject: [UInt8]
     fileprivate var blockmap: [Int]
 
@@ -214,6 +214,14 @@ class Level
         thingTracking = 0
         vertexTracking = 0
         nodeTracking = 0
+    }
+
+    ///
+    /// Fixes references prior to saving
+    ///
+    func fixReferenceIndices() {
+        linedefs.forEach { $0.fixIndices(vertices: vertices, sidedefs: sidedefs) }
+        sidedefs.forEach { $0.fixIndices(sectors: sectors) }
     }
 
     //==========================================================================

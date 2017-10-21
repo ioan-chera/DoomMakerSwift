@@ -110,4 +110,14 @@ final class Linedef: MapItem {
         return sqrt(pow(Double(v1.x) - Double(v2.x), 2) +
             pow(Double(v1.y) - Double(v2.y), 2))
     }
+
+    ///
+    /// Updates the vertex indices to be in sync with array
+    ///
+    func fixIndices(vertices: [Vertex], sidedefs: [Sidedef]) {
+        v1idx = indexOf(array: vertices, item: v1) ?? -1
+        v2idx = indexOf(array: vertices, item: v2) ?? -1
+        s1idx = indexOf(array: sidedefs, item: s1) ?? -1
+        s2idx = indexOf(array: sidedefs, item: s2) ?? -1
+    }
 }

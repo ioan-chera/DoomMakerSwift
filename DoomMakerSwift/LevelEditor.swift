@@ -213,25 +213,50 @@ class LevelEditor {
     }
 
     ///
+    /// Holds data about each checkDirty action
+    ///
+    struct MapItemUpdate {
+        let trackingVariable: Int
+        let offset: Level.LumpOffset
+        let list: [MapItem]
+    }
+
+    ///
     /// Updates the wad by looking at the dirty levels.
     /// Returns the names of the lumps which need node-building
     ///
     func checkDirty() throws {
         for entry in levels {
             if let level = entry.level {
-                if level.vertexTracking > 0 {
-                    let verticesLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.vertices.rawValue]
-                    verticesLump.data = []
-                    for vertex in level.vertices {
-                        verticesLump.data += vertex.getData()
-                    }
-                }
 
-                if level.thingTracking > 0 {
-                    let thingsLump = wad.lumps[entry.lumpIndex + Level.LumpOffset.things.rawValue]
-                    thingsLump.data = []
-                    for thing in level.things {
-                        thingsLump.data += thing.getData()
+                // Fix the references now, necessary before serialization
+                level.fixReferenceIndices()
+
+                let table = [
+                    MapItemUpdate(trackingVariable: level.vertexTracking,
+                                  offset: .vertices,
+                                  list: level.vertices),
+                    MapItemUpdate(trackingVariable: level.thingTracking,
+                                  offset: .things,
+                                  list: level.things),
+                    MapItemUpdate(trackingVariable: level.linedefTracking,
+                                  offset: .linedefs,
+                                  list: level.linedefs),
+                    MapItemUpdate(trackingVariable: level.sidedefTracking,
+                                  offset: .sidedefs,
+                                  list: level.sidedefs),
+                    MapItemUpdate(trackingVariable: level.sectorTracking,
+                                  offset: .sectors,
+                                  list: level.sectors)
+                ]
+                for row in table {
+                    if row.trackingVariable > 0 {
+                        let lump = wad.lumps[entry.lumpIndex +
+                            row.offset.rawValue]
+                        lump.data = []
+                        for mapItem in row.list {
+                            lump.data += mapItem.getData()
+                        }
                     }
                 }
 

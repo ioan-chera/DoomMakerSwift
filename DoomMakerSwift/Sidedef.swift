@@ -55,4 +55,8 @@ final class Sidedef: MapItem {
     func removeLine(_ line: Linedef) {
         linedefs.remove(line)
     }
+
+    func fixIndices(sectors: [Sector]) {
+        secnum = indexOf(array: sectors, item: sector) ?? -1
+    }
 }

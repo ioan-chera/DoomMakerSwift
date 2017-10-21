@@ -300,15 +300,13 @@ class Level
     }
 
     private func checkBspVertices() {
-        var index = 0
-        for vertex in vertices {
-            if vertex.linedefs.count == 0 {
-                bspVertices.append(vertex)
-                vertices.remove(at: index)
-                index -= 1
+        for vertex in vertices.reversed() {
+            if !vertex.linedefs.isEmpty {
+                break
             }
-            index += 1
+            bspVertices.append(vertex)
         }
+        vertices.removeLast(bspVertices.count)
     }
 
     //

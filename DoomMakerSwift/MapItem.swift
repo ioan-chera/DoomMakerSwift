@@ -17,16 +17,15 @@
  */
 
 ///
-/// Item that appears in the map. This is a protocol that defines the serializa-
-/// ble data
+/// Item that has to be saved and loaded from map
 ///
-protocol MapItem: class {
+protocol Serializable: class {
     init(data: [UInt8])
-    func getData() -> [UInt8]
+    var serialized: [UInt8] { get }
 }
 
 ///
-/// Ultra-generic class that implements identity support in Swift sets
+/// Individual map item. It mainly is storable in sets
 ///
 class IndividualItem: Hashable {
     var hashValue: Int {
@@ -35,4 +34,11 @@ class IndividualItem: Hashable {
     static func == (lhs: IndividualItem, rhs: IndividualItem) -> Bool {
         return lhs === rhs
     }
+}
+
+///
+/// This is a map editor item (thing, linedef, vertex, sector). Sidedefs are
+/// excluded.
+///
+class InteractiveItem: IndividualItem {
 }

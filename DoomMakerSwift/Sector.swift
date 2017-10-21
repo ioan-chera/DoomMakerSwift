@@ -19,7 +19,7 @@
 import Foundation
 
 /// Map sector
-final class Sector: IndividualItem, MapItem {
+final class Sector: InteractiveItem, Serializable {
     var floorheight = 0         // floor height
     var ceilingheight = 0       // ceiling height
     var floor: [UInt8] = []     // floor
@@ -36,7 +36,7 @@ final class Sector: IndividualItem, MapItem {
             .short(&special).short(&tag)
     }
 
-    func getData() -> [UInt8] {
+    var serialized: [UInt8] {
         return DataWriter().short(floorheight).short(ceilingheight)
             .lumpName(floor).lumpName(ceiling).short(light).short(special)
             .short(tag).data

@@ -21,7 +21,7 @@ import Foundation
 ///
 /// Map thing
 ///
-final class Thing: DraggedItem, MapItem {
+final class Thing: DraggedItem, Serializable {
     var angle:Int16 = 0   // angle
     var type:Int16 = 0    // doomednum
     var flags:Int16 = 0   // spawn options
@@ -38,7 +38,7 @@ final class Thing: DraggedItem, MapItem {
             .short(&flags)
     }
 
-    func getData() -> [UInt8] {
+    var serialized: [UInt8] {
         return DataWriter([]).short(x).short(y).short(angle).short(type)
             .short(flags).data
     }

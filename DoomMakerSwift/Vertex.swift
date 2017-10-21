@@ -18,7 +18,7 @@
 
 import Foundation
 
-final class Vertex: DraggedItem, MapItem {
+final class Vertex: DraggedItem, Serializable {
 
     private(set) var linedefs = Set<Linedef>()
 
@@ -27,7 +27,7 @@ final class Vertex: DraggedItem, MapItem {
         DataReader(data).short(&x).short(&y)
     }
 
-    func getData() -> [UInt8] {
+    var serialized: [UInt8] {
         return DataWriter([]).short(x).short(y).data
     }
 

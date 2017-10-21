@@ -18,8 +18,10 @@
 
 import Foundation
 
-/// Map sidedef
-final class Sidedef: IndividualItem, MapItem {
+///
+/// Map sidedef.
+///
+final class Sidedef: IndividualItem, Serializable {
     var xOffset = 0             // x offset
     var yOffset = 0             // y offset
     var upper: [UInt8] = []     // upper texture
@@ -43,7 +45,7 @@ final class Sidedef: IndividualItem, MapItem {
             .lumpName(&lower).lumpName(&middle).short(&secnum)
     }
 
-    func getData() -> [UInt8] {
+    var serialized: [UInt8] {
         return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
             .lumpName(lower).lumpName(middle).short(secnum).data
     }

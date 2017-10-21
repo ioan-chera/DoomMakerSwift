@@ -22,7 +22,7 @@ let LineFlagImpassable = 1
 let LineFlagTwoSided = 4
 
 /// Map linedef
-final class Linedef: IndividualItem, MapItem {
+final class Linedef: InteractiveItem, Serializable {
     private(set) var v1idx = 0      // vertex index
     private(set) var v2idx = 0      // vertex index
     var flags = 0   // linedef bits
@@ -72,7 +72,7 @@ final class Linedef: IndividualItem, MapItem {
             .short(&tag).short(&s1idx).short(&s2idx)
     }
 
-    func getData() -> [UInt8] {
+    var serialized: [UInt8] {
         return DataWriter([]).short(v1idx).short(v2idx).short(flags)
             .short(special).short(tag).short(s1idx).short(s2idx).data
     }

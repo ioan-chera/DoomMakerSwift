@@ -218,7 +218,7 @@ class LevelEditor {
     struct MapItemUpdate {
         let trackingVariable: Int
         let offset: Level.LumpOffset
-        let list: [MapItem]
+        let list: [Serializable]
     }
 
     ///
@@ -255,7 +255,7 @@ class LevelEditor {
                             row.offset.rawValue]
                         lump.data = []
                         for mapItem in row.list {
-                            lump.data += mapItem.getData()
+                            lump.data += mapItem.serialized
                         }
                     }
                 }

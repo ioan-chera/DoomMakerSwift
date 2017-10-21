@@ -71,7 +71,7 @@ class Level
     ]
 
     /// BSP segment
-    final class Seg: MapItem {
+    final class Seg: Serializable {
         var v1 = 0      // vertex one
         var v2 = 0      // vertex two
         var angle = 0   // direction angle (unused?)
@@ -84,14 +84,14 @@ class Level
                 .short(&dir).short(&offset)
         }
 
-        func getData() -> [UInt8] {
+        var serialized: [UInt8] {
             return DataWriter().short(v1).short(v2).short(angle).short(line)
                 .short(dir).short(offset).data
         }
     }
 
     /// BSP subsector
-    final class Subsector: MapItem {
+    final class Subsector: Serializable {
         var segCount = 0    // number of segs
         var firstSeg = 0    // first seg
 
@@ -99,13 +99,13 @@ class Level
             DataReader(data).short(&segCount).short(&firstSeg)
         }
 
-        func getData() -> [UInt8] {
+        var serialized: [UInt8] {
             return DataWriter().short(segCount).short(firstSeg).data
         }
     }
 
     /// BSP split
-    final class Node: MapItem {
+    final class Node: Serializable {
         var x0 = 0  // split start position
         var y0 = 0  // split start position
         var dx = 0  // split move to end
@@ -124,7 +124,7 @@ class Level
                 .short(&rightChild).short(&leftChild)
         }
 
-        func getData() -> [UInt8] {
+        var serialized: [UInt8] {
             return DataWriter().short(x0).short(y0).short(dx).short(dy)
                 .short(rightBox.top).short(rightBox.bottom).short(rightBox.left)
                 .short(rightBox.right).short(leftBox.top).short(leftBox.bottom)
@@ -225,10 +225,10 @@ class Level
     //
 
     /// the vertex currently highlighted by the mouse
-    private(set) weak var highlightedItem: MapItem?
+    private(set) weak var highlightedItem: InteractiveItem?
 
     /// the vertex the user started holding down the mouse
-    private(set) weak var clickedDownItem: MapItem?
+    private(set) weak var clickedDownItem: InteractiveItem?
 
     /// the map position the user started holding down the mouse
     private var clickedDownPosition = NSPoint()
@@ -254,7 +254,7 @@ class Level
     //
 
     init(wad: Wad, lumpIndex: Int) {
-        func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
+        func loadItems<T: Serializable>(_ type: LumpOffset) -> [T] {
             let data = wad.lumps[lumpIndex + type.rawValue].data
             var list: [T] = []
             let recordSize = Level.lumpMap[type]!.recordSize
@@ -360,11 +360,11 @@ class Level
     /// Finds the nearest vertex to a point, within a radius
     ///
     private func findNearestItem(position: NSPoint, radius: CGFloat) ->
-        MapItem?
+        InteractiveItem?
     {
         var minDistance = CGFloat.greatestFiniteMagnitude
         var minRadius = CGFloat.greatestFiniteMagnitude
-        var nearestItem: MapItem? = nil
+        var nearestItem: InteractiveItem? = nil
 
         switch mode {
         case .vertices:

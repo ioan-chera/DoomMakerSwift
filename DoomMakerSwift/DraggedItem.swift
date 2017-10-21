@@ -23,7 +23,7 @@ import Foundation
 /// when dragging objects, without changing state until user releases the mouse
 /// button.
 ///
-class DraggedItem: IndividualItem {
+class DraggedItem: InteractiveItem {
     var x, y: Int16 // coordinates to map area
     private(set) var dragging = false
     private var dragX: Int16 = 0, dragY: Int16 = 0

@@ -1079,8 +1079,23 @@ class Level
             }
         }
 
+        var selectedVertices = [Vertex]()
+
         if !selectedItems.isEmpty {
-            selectedItems.forEach { deleteHelper(item: $0) }
+            // Special case for vertices: prioritize the higher-degree nodes,
+            // because we want to keep linedefs alive if possible
+            if mode == .vertices {
+                for item in selectedItems {
+                    if let vertex = item as? Vertex {
+                        selectedVertices.append(vertex)
+                    }
+                }
+                // Keep the highest degree nodes first
+                selectedVertices.sort { v1, v2 in v1.linedefs.count > v2.linedefs.count }
+                selectedVertices.forEach { delete(vertex: $0) }
+            } else {
+                selectedItems.forEach { deleteHelper(item: $0) }
+            }
         } else if let item = highlightedItem {
             deleteHelper(item: item)
         }

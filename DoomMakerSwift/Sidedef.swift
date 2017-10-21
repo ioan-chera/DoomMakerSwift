@@ -24,9 +24,9 @@ import Foundation
 final class Sidedef: IndividualItem, Serializable {
     var xOffset = 0             // x offset
     var yOffset = 0             // y offset
-    var upper: [UInt8] = []     // upper texture
-    var lower: [UInt8] = []     // lower texture
-    var middle: [UInt8] = []    // middle texture
+    var upper = TextureName()
+    var lower = TextureName()
+    var middle = TextureName()
     private(set) var secnum = -1    // sector reference. NEEDS to be updated.
 
     weak var sector: Sector? {
@@ -41,13 +41,19 @@ final class Sidedef: IndividualItem, Serializable {
     private(set) var linedefs = Set<Linedef>()
 
     init(data: [UInt8]) {
-        DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
-            .lumpName(&lower).lumpName(&middle).short(&secnum)
+        var upperBytes = [UInt8]()
+        var lowerBytes = [UInt8]()
+        var middleBytes = [UInt8]()
+        DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upperBytes)
+            .lumpName(&lowerBytes).lumpName(&middleBytes).short(&secnum)
+        upper = TextureName(bytes: upperBytes)
+        lower = TextureName(bytes: lowerBytes)
+        middle = TextureName(bytes: middleBytes)
     }
 
     var serialized: [UInt8] {
-        return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
-            .lumpName(lower).lumpName(middle).short(secnum).data
+        return DataWriter().short(xOffset).short(yOffset).lumpName(upper.data)
+            .lumpName(lower.data).lumpName(middle.data).short(secnum).data
     }
 
     func addLine(_ line: Linedef) {

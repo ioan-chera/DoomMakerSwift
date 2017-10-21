@@ -837,7 +837,6 @@ class Level
         let sector = sidedef.sector
         var s1lines = Set<Linedef>()
         var s2lines = Set<Linedef>()
-        sidedef.sector = nil
 
         while let linedef = sidedef.linedefs.first {
             if linedef.s1 === sidedef || linedef.s2 === sidedef {
@@ -846,12 +845,20 @@ class Level
             if linedef.s1 === sidedef {
                 s1lines.insert(linedef)
                 linedef.s1 = nil
+                if let s2 = linedef.s2 {
+                    setSideTexture1Sided(sidedef: s2, backSide: sidedef)
+                }
             }
             if linedef.s2 === sidedef {
                 s2lines.insert(linedef)
                 linedef.s2 = nil
+                if let s1 = linedef.s1 {
+                    setSideTexture1Sided(sidedef: s1, backSide: sidedef)
+                }
             }
         }
+
+        sidedef.sector = nil
 
         sidedefs.remove(at: index)
         document?.undoManager?.registerUndo {
@@ -1026,7 +1033,7 @@ class Level
     ///
     /// Flip linedefs
     ///
-    func flip(linedef: Linedef) {
+    private func flip(linedef: Linedef) {
         guard let v1 = linedef.v1 else {
             return
         }
@@ -1056,7 +1063,7 @@ class Level
     ///
     /// Set linedef flags
     ///
-    func setLineFlags(linedef: Linedef, flags: Int) {
+    private func setLineFlags(linedef: Linedef, flags: Int) {
         let curFlags = linedef.flags
         linedef.flags = flags
         undo?.registerUndo {
@@ -1064,6 +1071,69 @@ class Level
         }
         updateDirty(&linedefTracking)
         updateView()
+    }
+
+    ///
+    /// Set sidedef textures
+    ///
+    private func setSideTextures(sidedef: Sidedef, upper: TextureName? = nil,
+                                 middle: TextureName? = nil, lower: TextureName? = nil)
+    {
+        if upper == nil && middle == nil && lower == nil {
+            return
+        }
+
+        let currentUpper = sidedef.upper
+        let currentMiddle = sidedef.middle
+        let currentLower = sidedef.lower
+
+        if let upper = upper {
+            sidedef.upper = upper
+        }
+        if let middle = middle {
+            sidedef.middle = middle
+        }
+        if let lower = lower {
+            sidedef.lower = lower
+        }
+
+        undo?.registerUndo {
+            self.setSideTextures(sidedef: sidedef, upper: currentUpper,
+                                 middle: currentMiddle, lower: currentLower)
+        }
+
+        updateDirty(&sidedefTracking)
+        updateView()
+    }
+
+    ///
+    /// Switches texture to one-side-style
+    ///
+    private func setSideTexture1Sided(sidedef: Sidedef, backSide: Sidedef) {
+        guard let sector = sidedef.sector else {
+            return
+        }
+        guard let backSector = backSide.sector else {
+            return
+        }
+        // Make sure the useful difference is positive
+        let deltaFloor = backSector.floorheight - sector.floorheight
+        let deltaCeiling = sector.ceilingheight - backSector.ceilingheight
+        let maxDelta = max(deltaFloor, deltaCeiling)
+        let minDelta = min(deltaFloor, deltaCeiling)
+        if maxDelta > 0 {
+            if maxDelta == deltaFloor {
+                setSideTextures(sidedef: sidedef, middle: sidedef.lower)
+            } else {
+                setSideTextures(sidedef: sidedef, middle: sidedef.upper)
+            }
+        } else {
+            if minDelta == deltaFloor {
+                setSideTextures(sidedef: sidedef, middle: backSide.lower)
+            } else {
+                setSideTextures(sidedef: sidedef, middle: backSide.upper)
+            }
+        }
     }
 
     //==========================================================================
@@ -1176,3 +1246,4 @@ class Level
         }
     }
 }
+

@@ -54,6 +54,7 @@ class DataReader {
  */
     func lumpName(_ val: inout [UInt8]) -> DataReader {
         val = Lump.truncateZero(Array(data[pos ..< pos + 8]))
+        val.append(0)   // ensure null terminator
         pos += 8
         return self
     }

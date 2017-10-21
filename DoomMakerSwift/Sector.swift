@@ -19,7 +19,7 @@
 import Foundation
 
 /// Map sector
-final class Sector: MapItem {
+final class Sector: IndividualItem, MapItem {
     var floorheight = 0         // floor height
     var ceilingheight = 0       // ceiling height
     var floor: [UInt8] = []     // floor
@@ -28,7 +28,7 @@ final class Sector: MapItem {
     var special = 0             // sector special
     var tag = 0                 // sector trigger tag
 
-    let sidedefs: NSHashTable<Sidedef> = NSHashTable.weakObjects()
+    private(set) var sidedefs = Set<Sidedef>()
 
     init(data: [UInt8]) {
         DataReader(data).short(&floorheight).short(&ceilingheight)
@@ -43,7 +43,7 @@ final class Sector: MapItem {
     }
 
     func addSide(_ side: Sidedef) {
-        sidedefs.add(side)
+        sidedefs.insert(side)
     }
 
     func removeSide(_ side: Sidedef) {
@@ -53,16 +53,16 @@ final class Sector: MapItem {
     ///
     /// Obtains vertices from sidedefs
     ///
-    func obtainVertices() -> NSHashTable<DraggedItem> {
-        let result = NSHashTable<DraggedItem>.weakObjects()
+    func obtainVertices() -> Set<DraggedItem> {
+        var result = Set<DraggedItem>()
 
-        forEach(table: sidedefs) { (side) -> Bool in
-            forEach(table: side.linedefs, closure: { (line) -> Bool in
-                result.add(line.v1)
-                result.add(line.v2)
-                return true
-            })
-            return true
+        for side in sidedefs {
+            for line in side.linedefs {
+                if let v1 = line.v1, let v2 = line.v2 {
+                    result.insert(v1)
+                    result.insert(v2)
+                }
+            }
         }
 
         return result
@@ -71,16 +71,15 @@ final class Sector: MapItem {
     ///
     /// Obtains linedefs from sidedefs
     ///
-    func obtainLinedefs() -> NSHashTable<Linedef> {
-        let result = NSHashTable<Linedef>.weakObjects()
+    func obtainLinedefs() -> Set<Linedef> {
+        var result = Set<Linedef>()
 
-        forEach(table: sidedefs) { (side) -> Bool in
-            forEach(table: side.linedefs, closure: { (line) -> Bool in
-                result.add(line)
-                return true
-            })
-            return true
+        for side in sidedefs {
+            for line in side.linedefs {
+                result.insert(line)
+            }
         }
+
         return result
     }
 }

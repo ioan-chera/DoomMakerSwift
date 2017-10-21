@@ -19,11 +19,13 @@
 import AppKit
 import Foundation
 
-func toggleHashTable<T>(_ table: NSHashTable<T>, object: T) {
-    if table.contains(object) {
-        table.remove(object)
-    } else {
-        table.add(object)
+extension Set {
+    mutating func toggle(_ element: Element) {
+        if contains(element) {
+            remove(element)
+        } else {
+            insert(element)
+        }
     }
 }
 

@@ -19,7 +19,7 @@
 import Foundation
 
 /// Map sidedef
-final class Sidedef: MapItem {
+final class Sidedef: IndividualItem, MapItem {
     var xOffset = 0             // x offset
     var yOffset = 0             // y offset
     var upper: [UInt8] = []     // upper texture
@@ -36,7 +36,7 @@ final class Sidedef: MapItem {
         }
     }
 
-    let linedefs = NSHashTable<Linedef>.weakObjects()
+    private(set) var linedefs = Set<Linedef>()
 
     init(data: [UInt8]) {
         DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
@@ -49,7 +49,7 @@ final class Sidedef: MapItem {
     }
 
     func addLine(_ line: Linedef) {
-        linedefs.add(line)
+        linedefs.insert(line)
     }
 
     func removeLine(_ line: Linedef) {

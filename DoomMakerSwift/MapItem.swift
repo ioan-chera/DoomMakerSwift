@@ -16,26 +16,23 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Foundation
+///
+/// Item that appears in the map. This is a protocol that defines the serializa-
+/// ble data
+///
+protocol MapItem: class {
+    init(data: [UInt8])
+    func getData() -> [UInt8]
+}
 
-final class Vertex: DraggedItem, MapItem {
-
-    private(set) var linedefs = Set<Linedef>()
-
-    init(data: [UInt8]) {
-        super.init(x: 0, y: 0)
-        DataReader(data).short(&x).short(&y)
+///
+/// Ultra-generic class that implements identity support in Swift sets
+///
+class IndividualItem: Hashable {
+    var hashValue: Int {
+        return ObjectIdentifier(self).hashValue
     }
-
-    func getData() -> [UInt8] {
-        return DataWriter([]).short(x).short(y).data
-    }
-
-    func addLine(_ line: Linedef) {
-        linedefs.insert(line)
-    }
-
-    func removeLine(_ line: Linedef) {
-        linedefs.remove(line)
+    static func == (lhs: IndividualItem, rhs: IndividualItem) -> Bool {
+        return lhs === rhs
     }
 }

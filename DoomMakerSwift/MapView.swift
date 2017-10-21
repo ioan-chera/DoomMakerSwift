@@ -210,8 +210,10 @@ class MapView: NSView {
                 context.setStrokeColor(Const.highlightColour.cgColor)
             } else if level.selectedLinedefs.contains(line) {
                 context.setStrokeColor(Const.selectColour.cgColor)
-            } else if level.selectedSectors.contains(line.frontsector) ||
-                level.selectedSectors.contains(line.backsector)
+            } else if (line.frontsector !== nil &&
+                level.selectedSectors.contains(line.frontsector!)) ||
+                (line.backsector !== nil &&
+                    level.selectedSectors.contains(line.backsector!))
             {
                 context.setStrokeColor(Const.selectColour.cgColor)
             } else if line.flags & LineFlagImpassable != 0 {

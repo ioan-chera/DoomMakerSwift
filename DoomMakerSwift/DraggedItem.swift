@@ -23,7 +23,7 @@ import Foundation
 /// when dragging objects, without changing state until user releases the mouse
 /// button.
 ///
-class DraggedItem {
+class DraggedItem: IndividualItem {
     var x, y: Int16 // coordinates to map area
     private(set) var dragging = false
     private var dragX: Int16 = 0, dragY: Int16 = 0
@@ -57,5 +57,15 @@ class DraggedItem {
 
     func endDragging() {
         dragging = false
+    }
+
+    var position: NSPoint {
+        get {
+            return NSPoint(x: x, y: y)
+        }
+        set(value) {
+            x = Int16(round(value.x))
+            y = Int16(round(value.y))
+        }
     }
 }

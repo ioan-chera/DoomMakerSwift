@@ -22,7 +22,6 @@
 		4F7788461D38AF590012EFC6 /* Geom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788451D38AF590012EFC6 /* Geom.swift */; };
 		4F81A8761D3B7FD500D9EBA4 /* NSTextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */; };
 		4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */; };
-		4F8A8D751E6C029000FCFC2A /* NSHashTableExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */; };
 		4F8A8D771E6C236700FCFC2A /* Sidedef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D761E6C236700FCFC2A /* Sidedef.swift */; };
 		4F8A8D791E6C36A900FCFC2A /* Sector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D781E6C36A900FCFC2A /* Sector.swift */; };
 		4F97F9F91E694A6900C1155C /* Linedef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F97F9F81E694A6900C1155C /* Linedef.swift */; };
@@ -39,6 +38,7 @@
 		4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980B1F1A8CF200BEEB8A /* Thing.swift */; };
 		4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */; };
 		4FB6981F1F1AB72400BEEB8A /* zdbsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FB6981E1F1AB72400BEEB8A /* zdbsp */; };
+		4FF7CACF1F9B48FA00A46851 /* MapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF7CACE1F9B48FA00A46851 /* MapItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,7 +74,6 @@
 		4F7788451D38AF590012EFC6 /* Geom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Geom.swift; sourceTree = "<group>"; };
 		4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSTextFieldExtension.swift; sourceTree = "<group>"; };
 		4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
-		4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSHashTableExtension.swift; sourceTree = "<group>"; };
 		4F8A8D761E6C236700FCFC2A /* Sidedef.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sidedef.swift; sourceTree = "<group>"; };
 		4F8A8D781E6C36A900FCFC2A /* Sector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sector.swift; sourceTree = "<group>"; };
 		4F97F9F81E694A6900C1155C /* Linedef.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Linedef.swift; sourceTree = "<group>"; };
@@ -97,6 +96,7 @@
 		4FB6980B1F1A8CF200BEEB8A /* Thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thing.swift; sourceTree = "<group>"; };
 		4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggedItem.swift; sourceTree = "<group>"; };
 		4FB6981E1F1AB72400BEEB8A /* zdbsp */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = zdbsp; path = submodules/zdbsp/build/zdbsp; sourceTree = SOURCE_ROOT; };
+		4FF7CACE1F9B48FA00A46851 /* MapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,9 +206,9 @@
 				4F7788361D36C8C50012EFC6 /* LevelEditor.swift */,
 				4F97F9F81E694A6900C1155C /* Linedef.swift */,
 				4F7788341D36C2030012EFC6 /* Lump.swift */,
+				4FF7CACE1F9B48FA00A46851 /* MapItem.swift */,
 				4F7788431D38A59A0012EFC6 /* MapView.swift */,
 				4F683F221ED0C34100D23D3E /* NSColorExtension.swift */,
-				4F8A8D741E6C029000FCFC2A /* NSHashTableExtension.swift */,
 				4F81A8751D3B7FD500D9EBA4 /* NSTextFieldExtension.swift */,
 				4F81A8771D3B8B6300D9EBA4 /* Preferences.swift */,
 				4F1282EE1F80F326004DBD49 /* Rendering.swift */,
@@ -362,7 +362,6 @@
 			files = (
 				4F81A8761D3B7FD500D9EBA4 /* NSTextFieldExtension.swift in Sources */,
 				4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */,
-				4F8A8D751E6C029000FCFC2A /* NSHashTableExtension.swift in Sources */,
 				4F7788391D37F5DD0012EFC6 /* DataReader.swift in Sources */,
 				4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */,
 				4FA0A7791C54CA42009F3980 /* Wad.swift in Sources */,
@@ -381,6 +380,7 @@
 				4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */,
 				4F00928F1E63260B002A4A04 /* DataWriter.swift in Sources */,
 				4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */,
+				4FF7CACF1F9B48FA00A46851 /* MapItem.swift in Sources */,
 				4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */,
 				4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */,
 				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,

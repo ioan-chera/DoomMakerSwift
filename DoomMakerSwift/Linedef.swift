@@ -22,7 +22,7 @@ let LineFlagImpassable = 1
 let LineFlagTwoSided = 4
 
 /// Map linedef
-final class Linedef: MapItem {
+final class Linedef: IndividualItem, MapItem {
     private(set) var v1idx = 0      // vertex index
     private(set) var v2idx = 0      // vertex index
     var flags = 0   // linedef bits

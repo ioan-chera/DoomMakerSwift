@@ -249,16 +249,6 @@ extension NSRect {
     }
 }
 
-/// Used to wrap a structure type into an class, useful for NSMapTable and
-/// NSHashTable
-class ObjWrap<T> {
-    var data: T
-
-    init(_ data: T) {
-        self.data = data
-    }
-}
-
 infix operator /• : MultiplicationPrecedence
 
 func /• (left: CGFloat, right: CGFloat) -> CGFloat {

@@ -153,8 +153,9 @@ class Level
 
     private(set) var bspVertices: [Vertex]
 
+    //==========================================================================
     //
-    // UNDO STUFF
+    // MARK: UNDO STUFF
     //
 
     /// The undo manager specific to this level
@@ -185,8 +186,9 @@ class Level
         }
     }
 
+    //==========================================================================
     //
-    // MAP SAVING STUFF
+    // MARK: MAP SAVING STUFF
     //
 
     private(set) var linedefTracking = 0
@@ -214,8 +216,9 @@ class Level
         nodeTracking = 0
     }
 
+    //==========================================================================
     //
-    // VERTEX USER INTERACTION
+    // MARK: VERTEX USER INTERACTION
     //
 
     /// the vertex currently highlighted by the mouse
@@ -241,6 +244,11 @@ class Level
     /// Dragged vertices set
     let draggedItems: NSHashTable<DraggedItem> = NSHashTable.weakObjects()
     var draggingDone = false
+
+    //==========================================================================
+    //
+    // MARK: INITIALIZATION
+    //
 
     init(wad: Wad, lumpIndex: Int) {
         func loadItems<T: MapItem>(_ type: LumpOffset) -> [T] {
@@ -321,7 +329,7 @@ class Level
 
     //==========================================================================
     //
-    // Grid stuff
+    // MARK: Grid stuff
     //
 
     /// Snaps a point to grid
@@ -342,7 +350,7 @@ class Level
 
     //==========================================================================
     //
-    // Mouse actions
+    // MARK: Mouse actions
     //
 
     ///
@@ -598,7 +606,7 @@ class Level
 
     //==========================================================================
     //
-    // Object selection
+    // MARK: Object selection
     //
 
     ///
@@ -710,7 +718,7 @@ class Level
 
     //==========================================================================
     //
-    // Complex operations
+    // MARK: Complex operations
     //
 
     ///
@@ -1114,7 +1122,7 @@ class Level
 
     //==========================================================================
     //
-    // Menu results
+    // MARK: Menu results
     //
     func deleteSelection() {
         switch mode {
@@ -1171,7 +1179,7 @@ class Level
 
     //==========================================================================
     //
-    // Mode switching
+    // MARK: Mode switching
     //
 
     ///

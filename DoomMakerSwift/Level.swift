@@ -137,6 +137,7 @@ class Level
 
     fileprivate(set) var things: [Thing]
     private(set) var linedefs: [Linedef]
+    private(set) var linedefData: [LinedefData]
     private(set) var sidedefs: [Sidedef]
     private(set) var vertices: [Vertex]
     fileprivate var segs: [Seg]
@@ -219,7 +220,10 @@ class Level
     /// Fixes references prior to saving
     ///
     func fixReferenceIndices() {
-        linedefs.forEach { $0.fixIndices(vertices: vertices, sidedefs: sidedefs) }
+        linedefData = linedefs.map { line in
+            LinedefData(linedef: line, vertices: vertices, sidedefs: sidedefs)
+        }
+
         sidedefs.forEach { $0.fixIndices(sectors: sectors) }
     }
 
@@ -270,7 +274,8 @@ class Level
         self.name = wad.lumps[lumpIndex].name
 
         self.things = loadItems(.things)
-        self.linedefs = loadItems(.linedefs)
+        self.linedefs = []
+        self.linedefData = loadItems(.linedefs)
         self.sidedefs = loadItems(.sidedefs)
         self.vertices = loadItems(.vertices)
         self.segs = loadItems(.segs)
@@ -313,11 +318,11 @@ class Level
     // Validates linedefs
     //
     private func setupLinedefs() {
-        for line in linedefs {
-            line.v1 = safeArrayGet(vertices, index: line.v1idx)
-            line.v2 = safeArrayGet(vertices, index: line.v2idx)
-            line.s1 = safeArrayGet(sidedefs, index: line.s1idx)
-            line.s2 = safeArrayGet(sidedefs, index: line.s2idx)
+        linedefs.removeAll()
+        for data in linedefData {
+            if let line = Linedef(data: data, vertices: vertices, sidedefs: sidedefs) {
+                linedefs.append(line)
+            }
         }
     }
 
@@ -395,14 +400,8 @@ class Level
             }
         case .linedefs:
             for linedef in linedefs {
-                guard let v1 = linedef.v1 else {
-                    continue
-                }
-                guard let v2 = linedef.v2 else {
-                    continue
-                }
-                let p1 = NSPoint(item: v1)
-                let p2 = NSPoint(item: v2)
+                let p1 = NSPoint(item: linedef.v1)
+                let p2 = NSPoint(item: linedef.v2)
                 let box = NSRect(point1: p1, point2: p2)
                     .insetBy(dx: -radius, dy: -radius)
                 if !NSPointInRect(position, box) {
@@ -416,14 +415,8 @@ class Level
             }
         case .sectors:
             for linedef in linedefs {
-                guard let v1 = linedef.v1 else {
-                    continue
-                }
-                guard let v2 = linedef.v2 else {
-                    continue
-                }
-                let p1 = NSPoint(item: v1)
-                let p2 = NSPoint(item: v2)
+                let p1 = NSPoint(item: linedef.v1)
+                let p2 = NSPoint(item: linedef.v2)
                 let distance = position.distanceToSegment(point1: p1, point2: p2)
                 if distance < minDistance {
                     minDistance = distance
@@ -635,14 +628,8 @@ class Level
             }
         case .linedefs:
             for linedef in linedefs {
-                guard let v1 = linedef.v1 else {
-                    continue
-                }
-                guard let v2 = linedef.v2 else {
-                    continue
-                }
-                let rp1 = NSPoint(item: v1).rotated(self.gridRotation)
-                let rp2 = NSPoint(item: v2).rotated(self.gridRotation)
+                let rp1 = NSPoint(item: linedef.v1).rotated(self.gridRotation)
+                let rp2 = NSPoint(item: linedef.v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
                     selectedItems.insert(linedef)
                     added = true
@@ -650,14 +637,8 @@ class Level
             }
         case .sectors:
             for linedef in linedefs {
-                guard let v1 = linedef.v1 else {
-                    continue
-                }
-                guard let v2 = linedef.v2 else {
-                    continue
-                }
-                let rp1 = NSPoint(item: v1).rotated(self.gridRotation)
-                let rp2 = NSPoint(item: v2).rotated(self.gridRotation)
+                let rp1 = NSPoint(item: linedef.v1).rotated(self.gridRotation)
+                let rp2 = NSPoint(item: linedef.v2).rotated(self.gridRotation)
                 if Geom.lineClipsRect(rp1, rp2, rect: rotatedRect) {
                     if let sector = linedef.frontsector {
                         selectedItems.insert(sector)
@@ -721,7 +702,7 @@ class Level
     ///
     /// Adds a new linedef
     ///
-    private func add(linedef: Linedef, index: Int, v1: Vertex?, v2: Vertex?,
+    private func add(linedef: Linedef, index: Int, v1: Vertex, v2: Vertex,
                      s1: Sidedef?, s2: Sidedef?)
     {
         linedefs.insert(linedef, at: index)
@@ -907,8 +888,8 @@ class Level
         let v2 = linedef.v2
         linedef.s1 = nil
         linedef.s2 = nil
-        linedef.v1 = nil
-        linedef.v2 = nil
+        linedef.v1.removeLine(linedef)
+        linedef.v2.removeLine(linedef)
         // Check if sidedefs are orphaned. Then delete them
         linedefs.remove(at: index)
         document?.undoManager?.registerUndo {
@@ -916,11 +897,11 @@ class Level
                      s1: s1, s2: s2)
         }
         if !keepVertices {
-            if v1 !== nil && v1!.linedefs.count == 0 {
-                delete(vertex: v1!)
+            if v1.linedefs.count == 0 {
+                delete(vertex: v1)
             }
-            if v2 !== nil && v2!.linedefs.count == 0 {
-                delete(vertex: v2!)
+            if v2.linedefs.count == 0 {
+                delete(vertex: v2)
             }
         }
         if s1 !== nil && s1!.linedefs.count == 0 {
@@ -933,6 +914,28 @@ class Level
         updateDirty(&linedefTracking)
         updateDirty(&nodeTracking)
         updateView()
+    }
+
+    ///
+    /// Moves a vertex from a line to a new vertex
+    ///
+    private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex) {
+        let original: Vertex
+        if linedef.v1 === source {
+            original = linedef.v1
+            linedef.v1 = target
+        } else if linedef.v2 === source {
+            original = linedef.v2
+            linedef.v2 = target
+        } else {
+            return
+        }
+        undo?.registerUndo {
+            self.changeVertex(linedef: linedef, source: target,
+                              target: original)
+        }
+        updateDirty(&linedefTracking)
+        updateDirty(&nodeTracking)
     }
 
     ///
@@ -959,21 +962,6 @@ class Level
         // join the longer one with the other vertex
         if vertex.linedefs.count == 2 {
 
-            func changeVertex(linedef: Linedef, which: Int, target: Vertex) {
-                let original: Vertex
-                if which == 1 {
-                    original = linedef.v1!
-                    linedef.v1 = target
-                } else {
-                    original = linedef.v2!
-                    linedef.v2 = target
-                }
-                self.document?.undoManager?.registerUndo {
-                    changeVertex(linedef: linedef, which: which, target: original)
-                }
-                self.updateDirty(&linedefTracking)
-            }
-
             // Pick the longer linedef
             let lines = Array(vertex.linedefs)
             let lengths = lines.map { $0.length() }
@@ -991,20 +979,13 @@ class Level
             // vertex, then just fall through to normal deletion of adjacent
             // lines
             // Also avoid degenerating triangle sectors
-            if otherVertex !== nil && originVertex !== nil &&
-                originVertex!.linedefs.intersection(otherVertex!.linedefs).count == 0
+            if originVertex.linedefs.intersection(otherVertex.linedefs).count == 0
             {
                 // Delete the linedef
                 delete(linedef: lineToDelete, keepVertices: true)
 
-                let vindex: Int
-                if lineToKeep.v1 === vertex {
-                    vindex = 1
-                } else {
-                    vindex = 2
-                }
-
-                changeVertex(linedef: lineToKeep, which: vindex, target: otherVertex!)
+                changeVertex(linedef: lineToKeep, source: vertex,
+                             target: otherVertex)
 
                 vertices.remove(at: index)
                 document?.undoManager?.registerUndo {
@@ -1032,17 +1013,13 @@ class Level
     /// Flip linedefs
     ///
     private func flip(linedef: Linedef) {
-        guard let v1 = linedef.v1 else {
-            return
-        }
-        guard let v2 = linedef.v2 else {
-            return
-        }
         // Can't simply swap, because self-looping lines are illegal
-        linedef.v1 = nil
-        linedef.v2 = nil
-        linedef.v1 = v2
-        linedef.v2 = v1
+        let aux = linedef.v1
+        linedef.v1 = linedef.v2
+        linedef.v2 = aux
+        // Ensure connections
+        linedef.v1.addLine(linedef)
+        linedef.v2.addLine(linedef)
         let s1 = linedef.s1
         let s2 = linedef.s2
         linedef.s1 = nil

@@ -40,7 +40,7 @@ final class Vertex: DraggedItem, Serializable {
     }
 
     //
-    // Mark: InteractiveItem
+    // MARK: InteractiveItem
     //
     override var linedefs: Set<Linedef> {
         return mLinedefs
@@ -52,5 +52,12 @@ final class Vertex: DraggedItem, Serializable {
             result.formUnion(linedef.sectors)
         }
         return result
+    }
+
+    //
+    // MARK: various map utilities
+    //
+    func connectingLine(with vertex: Vertex) -> Linedef? {
+        return linedefs.intersection(vertex.linedefs).first
     }
 }

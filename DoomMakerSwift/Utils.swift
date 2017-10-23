@@ -43,6 +43,21 @@ func inRange(_ value: Int, _ min: Int, _ max: Int) -> Bool {
     return value >= min && value <= max
 }
 
+extension Int {
+    func inRange(min: Int, max: Int) -> Bool {
+        return self >= min && self <= max
+    }
+    func clamped(min: Int, max: Int) -> Int {
+        if self < min {
+            return min
+        }
+        if self > max {
+            return max
+        }
+        return self
+    }
+}
+
 ///
 /// Clamps value in range
 ///
@@ -73,6 +88,12 @@ func safeArrayGet<T>(_ list: [T], index: Int) -> T? {
         return list[index]
     } else {
         return nil
+    }
+}
+
+extension Array {
+    func safeAt(_ index: Int) -> Element? {
+        return index.inRange(min: 0, max: count - 1) ? self[index] : nil
     }
 }
 

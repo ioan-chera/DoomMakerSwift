@@ -21,31 +21,64 @@ import Foundation
 let LineFlagImpassable = 1
 let LineFlagTwoSided = 4
 
-/// Map linedef
-final class Linedef: InteractiveItem, Serializable {
-    private(set) var v1idx = 0      // vertex index
-    private(set) var v2idx = 0      // vertex index
-    var flags = 0   // linedef bits
-    var special = 0 // linedef trigger special
-    var tag = 0     // linedef trigger tag
-    private(set) var s1idx = -1      // side index
-    private(set) var s2idx = -1      // side index
+/// This is the structure needed for linedefs to load and save file. Separate
+/// from Linedef because of non-nullable constraints
+struct LinedefData: Serializable {
 
-    weak var v1: Vertex? = nil {
-        willSet(newValue) {
-            v1?.removeLine(self)
+    private(set) var v1idx = 0
+    private(set) var v2idx = 0
+    private(set) var flags = 0
+    private(set) var special = 0
+    private(set) var tag = 0
+    private(set) var s1idx = -1
+    private(set) var s2idx = -1
+
+    init(data: [UInt8]) {
+        DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
+            .short(&tag).short(&s1idx).short(&s2idx)
+    }
+
+    init(linedef: Linedef, vertices: [Vertex], sidedefs: [Sidedef]) {
+        v1idx = vertices.index(of: linedef.v1) ?? -1
+        v2idx = vertices.index(of: linedef.v2) ?? -1
+        flags = linedef.flags
+        special = linedef.special
+        tag = linedef.tag
+        if let s1 = linedef.s1 {
+            s1idx = sidedefs.index(of: s1) ?? -1
         }
-        didSet {
-            v1?.addLine(self)
+        if let s2 = linedef.s2 {
+            s2idx = sidedefs.index(of: s2) ?? -1
         }
     }
 
-    weak var v2: Vertex? = nil {
+    var serialized: [UInt8] {
+        return DataWriter([]).short(v1idx).short(v2idx).short(flags)
+            .short(special).short(tag).short(s1idx).short(s2idx).data
+    }
+}
+
+/// Map linedef
+final class Linedef: InteractiveItem {
+    var flags = 0   // linedef bits
+    var special = 0 // linedef trigger special
+    var tag = 0     // linedef trigger tag
+
+    var v1: Vertex {
         willSet(newValue) {
-            v2?.removeLine(self)
+            v1.removeLine(self)
         }
         didSet {
-            v2?.addLine(self)
+            v1.addLine(self)
+        }
+    }
+
+    var v2: Vertex {
+        willSet(newValue) {
+            v2.removeLine(self)
+        }
+        didSet {
+            v2.addLine(self)
         }
     }
 
@@ -67,14 +100,19 @@ final class Linedef: InteractiveItem, Serializable {
         }
     }
 
-    init(data: [UInt8]) {
-        DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
-            .short(&tag).short(&s1idx).short(&s2idx)
-    }
-
-    var serialized: [UInt8] {
-        return DataWriter([]).short(v1idx).short(v2idx).short(flags)
-            .short(special).short(tag).short(s1idx).short(s2idx).data
+    init?(data: LinedefData, vertices: [Vertex], sidedefs: [Sidedef]) {
+        if !data.v1idx.inRange(min: 0, max: vertices.count - 1) ||
+            !data.v2idx.inRange(min: 0, max: vertices.count - 1)
+        {
+            return nil
+        }
+        flags = data.flags
+        special = data.special
+        tag = data.tag
+        v1 = vertices[data.v1idx]
+        v2 = vertices[data.v2idx]
+        s1 = sidedefs.safeAt(data.s1idx)
+        s2 = sidedefs.safeAt(data.s2idx)
     }
 
     var frontsector: Sector? {
@@ -89,24 +127,8 @@ final class Linedef: InteractiveItem, Serializable {
     }
 
     func length() -> Double {
-        guard let v1 = self.v1 else {
-            return 0
-        }
-        guard let v2 = self.v2 else {
-            return 0
-        }
         return sqrt(pow(Double(v1.x) - Double(v2.x), 2) +
             pow(Double(v1.y) - Double(v2.y), 2))
-    }
-
-    ///
-    /// Updates the vertex indices to be in sync with array
-    ///
-    func fixIndices(vertices: [Vertex], sidedefs: [Sidedef]) {
-        v1idx = indexOf(array: vertices, item: v1) ?? -1
-        v2idx = indexOf(array: vertices, item: v2) ?? -1
-        s1idx = indexOf(array: sidedefs, item: s1) ?? -1
-        s2idx = indexOf(array: sidedefs, item: s2) ?? -1
     }
 
     //==========================================================================
@@ -115,18 +137,11 @@ final class Linedef: InteractiveItem, Serializable {
     //
 
     override var draggables: Set<DraggedItem> {
-        var ret = Set<DraggedItem>()
-        if let v1 = self.v1 {
-            ret.insert(v1)
-        }
-        if let v2 = self.v2 {
-            ret.insert(v2)
-        }
-        return ret
+        return [v1, v2]
     }
 
     override var linedefs: Set<Linedef> {
-        return Set([self])
+        return [self]
     }
 
     override var sectors: Set<Sector> {

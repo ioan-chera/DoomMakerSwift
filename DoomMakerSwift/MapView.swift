@@ -180,14 +180,8 @@ class MapView: NSView {
 
         context.setLineWidth(Const.linedefWidth)
         for line in level.linedefs {
-            guard let v1 = line.v1 else {
-                continue
-            }
-            guard let v2 = line.v2 else {
-                continue
-            }
-            let p1 = transformed(NSPoint(x: v1.apparentX, y: v1.apparentY))
-            let p2 = transformed(NSPoint(x: v2.apparentX, y: v2.apparentY))
+            let p1 = transformed(NSPoint(x: line.v1.apparentX, y: line.v1.apparentY))
+            let p2 = transformed(NSPoint(x: line.v2.apparentX, y: line.v2.apparentY))
 
             if p1.x < dirtyRect.minX && p2.x < dirtyRect.minX ||
                 p1.x >= dirtyRect.maxX && p2.x >= dirtyRect.maxX ||

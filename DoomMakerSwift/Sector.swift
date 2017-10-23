@@ -63,10 +63,7 @@ final class Sector: InteractiveItem, Serializable {
 
         for side in sidedefs {
             for line in side.linedefs {
-                if let v1 = line.v1, let v2 = line.v2 {
-                    result.insert(v1)
-                    result.insert(v2)
-                }
+                result.formUnion([line.v1, line.v2])
             }
         }
 

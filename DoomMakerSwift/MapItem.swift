@@ -19,7 +19,7 @@
 ///
 /// Item that has to be saved and loaded from map
 ///
-protocol Serializable: class {
+protocol Serializable {
     init(data: [UInt8])
     var serialized: [UInt8] { get }
 }

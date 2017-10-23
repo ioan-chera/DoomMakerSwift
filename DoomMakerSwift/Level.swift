@@ -139,6 +139,7 @@ class Level
     private(set) var linedefs: [Linedef]
     private(set) var linedefData: [LinedefData]
     private(set) var sidedefs: [Sidedef]
+    private(set) var sidedefData: [SidedefData]
     private(set) var vertices: [Vertex]
     fileprivate var segs: [Seg]
     fileprivate var subsectors: [Subsector]
@@ -223,8 +224,9 @@ class Level
         linedefData = linedefs.map { line in
             LinedefData(linedef: line, vertices: vertices, sidedefs: sidedefs)
         }
-
-        sidedefs.forEach { $0.fixIndices(sectors: sectors) }
+        sidedefData = sidedefs.map { side in
+            SidedefData(sidedef: side, sectors: sectors)
+        }
     }
 
     //==========================================================================
@@ -276,7 +278,8 @@ class Level
         self.things = loadItems(.things)
         self.linedefs = []
         self.linedefData = loadItems(.linedefs)
-        self.sidedefs = loadItems(.sidedefs)
+        sidedefs = []
+        self.sidedefData = loadItems(.sidedefs)
         self.vertices = loadItems(.vertices)
         self.segs = loadItems(.segs)
         self.subsectors = loadItems(.subsectors)
@@ -291,8 +294,8 @@ class Level
 
         self.loadBlockmap(
             wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
-        setupLinedefs()
         setupSidedefs()
+        setupLinedefs()
         checkBspVertices()
     }
 
@@ -330,8 +333,11 @@ class Level
     // Validates sidedefs
     //
     private func setupSidedefs() {
-        for side in sidedefs {
-            side.sector = safeArrayGet(sectors, index: side.secnum)
+        sidedefs.removeAll()
+        for data in sidedefData {
+            if let side = Sidedef(data: data, sectors: sectors) {
+                sidedefs.append(side)
+            }
         }
     }
 
@@ -721,7 +727,7 @@ class Level
     ///
     /// Adds a deleted sidedef
     ///
-    private func add(sidedef: Sidedef, index: Int, sector: Sector?,
+    private func add(sidedef: Sidedef, index: Int, sector: Sector,
                      s1lines: Set<Linedef>, s2lines: Set<Linedef>)
     {
         sidedefs.insert(sidedef, at: index)
@@ -837,15 +843,15 @@ class Level
             }
         }
 
-        sidedef.sector = nil
-
+        sidedef.sector.removeSide(sidedef)  // unref it before removing side
         sidedefs.remove(at: index)
+
         document?.undoManager?.registerUndo {
             self.add(sidedef: sidedef, index: index, sector: sector,
                      s1lines: s1lines, s2lines: s2lines)
         }
-        if sector !== nil && sector!.sidedefs.count == 0 {
-            delete(sector: sector!)
+        if sector.sidedefs.count == 0 {
+            delete(sector: sector)
         }
 
         // Make sure to flip lines whose first side is deleted. Or just delete
@@ -1085,15 +1091,9 @@ class Level
     /// Switches texture to one-side-style
     ///
     private func setSideTexture1Sided(sidedef: Sidedef, backSide: Sidedef) {
-        guard let sector = sidedef.sector else {
-            return
-        }
-        guard let backSector = backSide.sector else {
-            return
-        }
         // Make sure the useful difference is positive
-        let deltaFloor = backSector.floorheight - sector.floorheight
-        let deltaCeiling = sector.ceilingheight - backSector.ceilingheight
+        let deltaFloor = backSide.sector.floorheight - sidedef.sector.floorheight
+        let deltaCeiling = sidedef.sector.ceilingheight - backSide.sector.ceilingheight
         let maxDelta = max(deltaFloor, deltaCeiling)
         let minDelta = min(deltaFloor, deltaCeiling)
         if maxDelta > 0 {

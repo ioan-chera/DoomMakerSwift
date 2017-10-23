@@ -243,7 +243,7 @@ class LevelEditor {
                                   list: level.linedefData),
                     MapItemUpdate(trackingVariable: level.sidedefTracking,
                                   offset: .sidedefs,
-                                  list: level.sidedefs),
+                                  list: level.sidedefData),
                     MapItemUpdate(trackingVariable: level.sectorTracking,
                                   offset: .sectors,
                                   list: level.sectors)

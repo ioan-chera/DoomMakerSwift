@@ -60,9 +60,9 @@ struct LinedefData: Serializable {
 
 /// Map linedef
 final class Linedef: InteractiveItem {
-    var flags = 0   // linedef bits
-    var special = 0 // linedef trigger special
-    var tag = 0     // linedef trigger tag
+    var flags: Int   // linedef bits
+    var special: Int // linedef trigger special
+    var tag: Int     // linedef trigger tag
 
     var v1: Vertex {
         willSet(newValue) {
@@ -113,6 +113,11 @@ final class Linedef: InteractiveItem {
         v2 = vertices[data.v2idx]
         s1 = sidedefs.safeAt(data.s1idx)
         s2 = sidedefs.safeAt(data.s2idx)
+        super.init()
+        v1.addLine(self)
+        v2.addLine(self)
+        s1?.addLine(self)
+        s2?.addLine(self)
     }
 
     var frontsector: Sector? {

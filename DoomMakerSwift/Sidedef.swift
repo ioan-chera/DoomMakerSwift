@@ -18,42 +18,67 @@
 
 import Foundation
 
+struct SidedefData: Serializable {
+    var xOffset = 0
+    var yOffset = 0
+    var upper = [UInt8]()
+    var lower = [UInt8]()
+    var middle = [UInt8]()
+    var secnum = -1
+
+    init(data: [UInt8]) {
+        DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
+            .lumpName(&lower).lumpName(&middle).short(&secnum)
+    }
+
+    init(sidedef: Sidedef, sectors: [Sector]) {
+        xOffset = sidedef.xOffset
+        yOffset = sidedef.yOffset
+        upper = sidedef.upper.data
+        lower = sidedef.lower.data
+        middle = sidedef.middle.data
+        secnum = sectors.index(of: sidedef.sector) ?? -1
+    }
+
+    var serialized: [UInt8] {
+        return DataWriter().short(xOffset).short(yOffset).lumpName(upper)
+            .lumpName(lower).lumpName(middle).short(secnum).data
+    }
+}
+
 ///
 /// Map sidedef.
 ///
-final class Sidedef: IndividualItem, Serializable {
-    var xOffset = 0             // x offset
-    var yOffset = 0             // y offset
-    var upper = TextureName()
-    var lower = TextureName()
-    var middle = TextureName()
-    private(set) var secnum = -1    // sector reference. NEEDS to be updated.
+final class Sidedef: IndividualItem {
+    var xOffset: Int             // x offset
+    var yOffset: Int             // y offset
+    var upper: TextureName
+    var lower: TextureName
+    var middle: TextureName
 
-    weak var sector: Sector? {
+    var sector: Sector {
         willSet(newValue) {
-            sector?.removeSide(self)
+            sector.removeSide(self)
         }
         didSet {
-            sector?.addSide(self)
+            sector.addSide(self)
         }
     }
 
     private(set) var linedefs = Set<Linedef>()
 
-    init(data: [UInt8]) {
-        var upperBytes = [UInt8]()
-        var lowerBytes = [UInt8]()
-        var middleBytes = [UInt8]()
-        DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upperBytes)
-            .lumpName(&lowerBytes).lumpName(&middleBytes).short(&secnum)
-        upper = TextureName(bytes: upperBytes)
-        lower = TextureName(bytes: lowerBytes)
-        middle = TextureName(bytes: middleBytes)
-    }
-
-    var serialized: [UInt8] {
-        return DataWriter().short(xOffset).short(yOffset).lumpName(upper.data)
-            .lumpName(lower.data).lumpName(middle.data).short(secnum).data
+    init?(data: SidedefData, sectors: [Sector]) {
+        if !data.secnum.inRange(min: 0, max: sectors.count - 1) {
+            return nil
+        }
+        xOffset = data.xOffset
+        yOffset = data.yOffset
+        upper = TextureName(bytes: data.upper)
+        lower = TextureName(bytes: data.lower)
+        middle = TextureName(bytes: data.middle)
+        sector = sectors[data.secnum]
+        super.init()
+        sector.addSide(self)
     }
 
     func addLine(_ line: Linedef) {
@@ -62,9 +87,5 @@ final class Sidedef: IndividualItem, Serializable {
 
     func removeLine(_ line: Linedef) {
         linedefs.remove(line)
-    }
-
-    func fixIndices(sectors: [Sector]) {
-        secnum = indexOf(array: sectors, item: sector) ?? -1
     }
 }

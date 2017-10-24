@@ -148,7 +148,16 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         // You can also choose to override fileWrapperOfType:error:, writeToURL:ofType:error:, or writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
         do {
             try editor.checkDirty()
-        } catch LevelEditor.NodeBuildError.info(let info) {
+        } catch let error as DMError {
+            let info: String
+            switch error {
+            case .integerOverflow:
+                info = "This map can't be saved in this WAD format."
+            case .nodeBuilding(let text):
+                info = text
+            default:
+                info = "Unspecified error."
+            }
             Swift.print(info)
             throw NSError(domain: NSOSStatusErrorDomain, code: writErr, userInfo: [NSLocalizedDescriptionKey: info])
         }
@@ -169,7 +178,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
             self.editor.updateFromWad()
             self.updateLevelChooser()
         }
-        catch Wad.ReadError.info(let info)
+        catch DMError.wadReading(let info)
         {
             throw NSError(domain: NSOSStatusErrorDomain, code: readErr, userInfo: [NSLocalizedDescriptionKey: info])
         }

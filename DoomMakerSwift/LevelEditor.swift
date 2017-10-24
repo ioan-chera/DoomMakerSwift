@@ -28,10 +28,6 @@ class LevelEditor {
     let wad: Wad
     private var levels: [Entry]
 
-    enum NodeBuildError: Error {
-        case info(text: String)
-    }
-
     var levelCount: Int {
         get {
             return levels.count
@@ -95,14 +91,14 @@ class LevelEditor {
         let inPattern = appDelegate().appSupportDir().appendingPathComponent("inbspXXXXXXXX.wad").path
         let outPattern = appDelegate().appSupportDir().appendingPathComponent("outbspXXXXXXXX.wad").path
         guard let inPath = makeTempPath(pattern: inPattern, suffixSize: 4) else {
-            throw NodeBuildError.info(text: "Failed preparing map for node-building.")
+            throw DMError.nodeBuilding(info: "Failed preparing map for node-building.")
         }
         defer {
             remove(inPath.path)
         }
 
         guard let outPath = makeTempPath(pattern: outPattern, suffixSize: 4) else {
-            throw NodeBuildError.info(text: "Failed preparing map for node-building.")
+            throw DMError.nodeBuilding(info: "Failed preparing map for node-building.")
         }
 
         defer {
@@ -111,7 +107,7 @@ class LevelEditor {
 
         guard let zdbspPath = Bundle.main.resourceURL?.appendingPathComponent("zdbsp") else
         {
-            throw NodeBuildError.info(text: "ZDBSP program missing.")
+            throw DMError.nodeBuilding(info: "ZDBSP program missing.")
         }
 
         let tempWad = Wad(inType: .pwad)
@@ -131,7 +127,7 @@ class LevelEditor {
         do {
             try tempWad.serialized().write(to: inPath)
         } catch {
-            throw NodeBuildError.info(text: "Failed preparing map for node-builder.")
+            throw DMError.nodeBuilding(info: "Failed preparing map for node-builder.")
         }
 
         // TODO: don't trust ZDBSP to change REJECT. Since it's a ZDoom and Graf
@@ -145,12 +141,12 @@ class LevelEditor {
 
         let resultWad = Wad(inType: .pwad)
         guard let readData = try? Data.init(contentsOf: outPath) else {
-            throw NodeBuildError.info(text: "Failed building nodes.")
+            throw DMError.nodeBuilding(info: "Failed building nodes.")
         }
         do {
             try resultWad.read(readData)
-        } catch Wad.ReadError.info(let info) {
-            throw NodeBuildError.info(text: "Failed building nodes. " + info)
+        } catch DMError.wadReading(let info) {
+            throw DMError.nodeBuilding(info: "Failed building nodes. " + info)
         }
 
         // Now get back the lumps which changed
@@ -195,7 +191,7 @@ class LevelEditor {
             nodes === nil || sectors === nil || reject === nil ||
             blockmap === nil
         {
-            throw NodeBuildError.info(text: "Node-builder failed working properly.")
+            throw DMError.nodeBuilding(info: "Node-builder failed working properly.")
         }
 
         wad.replace(lumpAtIndex: li + Level.LumpOffset.things.rawValue, with: things!)
@@ -229,7 +225,7 @@ class LevelEditor {
             if let level = entry.level {
 
                 // Fix the references now, necessary before serialization
-                level.fixReferenceIndices()
+                try level.serializeItems()
 
                 let table = [
                     MapItemUpdate(trackingVariable: level.vertexTracking,

@@ -107,6 +107,15 @@ func removeFrom<T:AnyObject>(array: inout [T], item: T) {
     }
 }
 
+extension Int16 {
+    init(throwing number: Int) throws {
+        guard let n = Int16(exactly: number) else {
+            throw DMError.integerOverflow
+        }
+        self.init(n)
+    }
+}
+
 func makeTempPath(pattern: String, suffixSize: Int) -> URL? {
 //    var buffer = [Int8](repeating: 0, count: Int(MAXPATHLEN))
     var buffer = Array(pattern.utf8CString)

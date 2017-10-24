@@ -49,13 +49,26 @@ class DataReader {
         return self
     }
 
+    func short() -> Int16 {
+        let val = Int16(data[pos]) | (Int16(data[pos + 1]) << 8)
+        pos += 2
+        return val
+    }
+
     /**
     Reads a lump name
  */
+    @discardableResult
     func lumpName(_ val: inout [UInt8]) -> DataReader {
         val = Lump.truncateZero(Array(data[pos ..< pos + 8]))
         val.append(0)   // ensure null terminator
         pos += 8
         return self
+    }
+
+    func lumpName() -> [UInt8] {
+        var result = [UInt8]()
+        lumpName(&result)
+        return result
     }
 }

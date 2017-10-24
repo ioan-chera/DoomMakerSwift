@@ -25,30 +25,40 @@ let LineFlagTwoSided = 4
 /// from Linedef because of non-nullable constraints
 struct LinedefData: Serializable {
 
-    private(set) var v1idx = 0
-    private(set) var v2idx = 0
-    private(set) var flags = 0
-    private(set) var special = 0
-    private(set) var tag = 0
-    private(set) var s1idx = -1
-    private(set) var s2idx = -1
+    let v1idx: Int16
+    let v2idx: Int16
+    let flags: Int16
+    let special: Int16
+    let tag: Int16
+    let s1idx: Int16
+    let s2idx: Int16
 
     init(data: [UInt8]) {
-        DataReader(data).short(&v1idx).short(&v2idx).short(&flags).short(&special)
-            .short(&tag).short(&s1idx).short(&s2idx)
+        let reader = DataReader(data)
+        v1idx = reader.short()
+        v2idx = reader.short()
+        flags = reader.short()
+        special = reader.short()
+        tag = reader.short()
+        s1idx = reader.short()
+        s2idx = reader.short()
     }
 
-    init(linedef: Linedef, vertices: [Vertex], sidedefs: [Sidedef]) {
-        v1idx = vertices.index(of: linedef.v1) ?? -1
-        v2idx = vertices.index(of: linedef.v2) ?? -1
-        flags = linedef.flags
-        special = linedef.special
-        tag = linedef.tag
+    init(linedef: Linedef, vertices: [Vertex], sidedefs: [Sidedef]) throws {
+        v1idx = try Int16(throwing: vertices.index(of: linedef.v1) ?? -1)
+        v2idx = try Int16(throwing: vertices.index(of: linedef.v2) ?? -1)
+        flags = try Int16(throwing: linedef.flags)
+        special = try Int16(throwing: linedef.special)
+        tag = try Int16(throwing: linedef.tag)
         if let s1 = linedef.s1 {
-            s1idx = sidedefs.index(of: s1) ?? -1
+            s1idx = try Int16(throwing: sidedefs.index(of: s1) ?? -1)
+        } else {
+            s1idx = -1
         }
         if let s2 = linedef.s2 {
-            s2idx = sidedefs.index(of: s2) ?? -1
+            s2idx = try Int16(throwing: sidedefs.index(of: s2) ?? -1)
+        } else {
+            s2idx = -1
         }
     }
 
@@ -101,18 +111,18 @@ final class Linedef: InteractiveItem {
     }
 
     init?(data: LinedefData, vertices: [Vertex], sidedefs: [Sidedef]) {
-        if !data.v1idx.inRange(min: 0, max: vertices.count - 1) ||
-            !data.v2idx.inRange(min: 0, max: vertices.count - 1)
+        if !Int(data.v1idx).inRange(min: 0, max: vertices.count - 1) ||
+            !Int(data.v2idx).inRange(min: 0, max: vertices.count - 1)
         {
             return nil
         }
-        flags = data.flags
-        special = data.special
-        tag = data.tag
-        v1 = vertices[data.v1idx]
-        v2 = vertices[data.v2idx]
-        s1 = sidedefs.safeAt(data.s1idx)
-        s2 = sidedefs.safeAt(data.s2idx)
+        flags = Int(data.flags)
+        special = Int(data.special)
+        tag = Int(data.tag)
+        v1 = vertices[Int(data.v1idx)]
+        v2 = vertices[Int(data.v2idx)]
+        s1 = sidedefs.safeAt(Int(data.s1idx))
+        s2 = sidedefs.safeAt(Int(data.s2idx))
         super.init()
         v1.addLine(self)
         v2.addLine(self)

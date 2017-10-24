@@ -34,14 +34,6 @@ class Wad
         case pwad
     }
 
-    ///
-    /// Read error throwable
-    ///
-    enum ReadError: Error
-    {
-        case info(text: String)
-    }
-
     fileprivate(set) var type: WadType
     fileprivate(set) var lumps: [Lump]
 
@@ -69,12 +61,12 @@ class Wad
     {
         if data.count < 12 || data.count > 0x7fffffff  // also handle int32 overflows
         {
-            throw ReadError.info(text: "File size invalid")
+            throw DMError.wadReading(info: "File size invalid")
         }
 
         guard let newType: WadType = ["IWAD": WadType.iwad, "PWAD": WadType.pwad][data.string(0, len: 4)] else
         {
-            throw ReadError.info(text: "File is not a PWAD or IWAD")
+            throw DMError.wadReading(info: "File is not a PWAD or IWAD")
         }
 
         let numLumps = data.int32(4)
@@ -82,7 +74,7 @@ class Wad
 
         if numLumps < 0 || numLumps * 16 < 0 || numLumps > 0 && infoTableOfs + 16 * numLumps > Int32(data.count)
         {
-            throw ReadError.info(text: "WAD file is corrupted")
+            throw DMError.wadReading(info: "WAD file is corrupted")
         }
 
         var newLumps: [Lump] = []
@@ -97,7 +89,7 @@ class Wad
             // check validity
             if size < 0 || size > 0 && (filepos < 0 || filepos + size > Int32(data.count) || filepos + size < 0)
             {
-                throw ReadError.info(text: "WAD file is corrupted at lump '\(String(describing: nameData))' index \(i)")
+                throw DMError.wadReading(info: "WAD file is corrupted at lump '\(String(describing: nameData))' index \(i)")
             }
 
             let data = data.subdata(in: Int(filepos) ..< (Int(filepos) + Int(size)))

@@ -23,12 +23,6 @@ import Foundation
 ///
 class Level
 {
-    /// Load exception
-    enum LoadError: Error
-    {
-        case info(text: String)
-    }
-
     /// This will allow both getting the lump name and lump index
     enum LumpOffset: Int {
         case things = 1
@@ -218,14 +212,15 @@ class Level
     }
 
     ///
-    /// Fixes references prior to saving
+    /// Fixes references prior to saving. Returns false on failure.
     ///
-    func fixReferenceIndices() {
-        linedefData = linedefs.map { line in
-            LinedefData(linedef: line, vertices: vertices, sidedefs: sidedefs)
+    func serializeItems() throws {
+        linedefData = try linedefs.map { line in
+            try LinedefData(linedef: line, vertices: vertices,
+                            sidedefs: sidedefs)
         }
-        sidedefData = sidedefs.map { side in
-            SidedefData(sidedef: side, sectors: sectors)
+        sidedefData = try sidedefs.map { side in
+            try SidedefData(sidedef: side, sectors: sectors)
         }
     }
 

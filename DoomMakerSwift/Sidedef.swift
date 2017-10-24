@@ -19,25 +19,30 @@
 import Foundation
 
 struct SidedefData: Serializable {
-    var xOffset = 0
-    var yOffset = 0
-    var upper = [UInt8]()
-    var lower = [UInt8]()
-    var middle = [UInt8]()
-    var secnum = -1
+    let xOffset: Int16
+    let yOffset: Int16
+    let upper: [UInt8]
+    let lower: [UInt8]
+    let middle: [UInt8]
+    let secnum: Int16
 
     init(data: [UInt8]) {
-        DataReader(data).short(&xOffset).short(&yOffset).lumpName(&upper)
-            .lumpName(&lower).lumpName(&middle).short(&secnum)
+        let reader = DataReader(data)
+        xOffset = reader.short()
+        yOffset = reader.short()
+        upper = reader.lumpName()
+        lower = reader.lumpName()
+        middle = reader.lumpName()
+        secnum = reader.short()
     }
 
-    init(sidedef: Sidedef, sectors: [Sector]) {
-        xOffset = sidedef.xOffset
-        yOffset = sidedef.yOffset
+    init(sidedef: Sidedef, sectors: [Sector]) throws {
+        xOffset = try Int16(throwing: sidedef.xOffset)
+        yOffset = try Int16(throwing: sidedef.yOffset)
         upper = sidedef.upper.data
         lower = sidedef.lower.data
         middle = sidedef.middle.data
-        secnum = sectors.index(of: sidedef.sector) ?? -1
+        secnum = try Int16(throwing: sectors.index(of: sidedef.sector) ?? -1)
     }
 
     var serialized: [UInt8] {
@@ -68,15 +73,15 @@ final class Sidedef: IndividualItem {
     private(set) var linedefs = Set<Linedef>()
 
     init?(data: SidedefData, sectors: [Sector]) {
-        if !data.secnum.inRange(min: 0, max: sectors.count - 1) {
+        if !Int(data.secnum).inRange(min: 0, max: sectors.count - 1) {
             return nil
         }
-        xOffset = data.xOffset
-        yOffset = data.yOffset
+        xOffset = Int(data.xOffset)
+        yOffset = Int(data.yOffset)
         upper = TextureName(bytes: data.upper)
         lower = TextureName(bytes: data.lower)
         middle = TextureName(bytes: data.middle)
-        sector = sectors[data.secnum]
+        sector = sectors[Int(data.secnum)]
         super.init()
         sector.addSide(self)
     }

@@ -473,8 +473,8 @@ class Level
             updateDirty(&thingTracking)
         }
 
-        self.updateView()
-        self.document?.undoManager?.registerUndo {
+        updateView()
+        undo?.registerUndo {
             self.moveDragItems(positions: currentPositions)
         }
     }
@@ -689,92 +689,26 @@ class Level
     }
 
     ///
-    /// Adds a thing
-    ///
-    private func add(thing: Thing, index: Int) {
-        things.insert(thing, at: index)
-        self.document?.undoManager?.registerUndo {
-            self.delete(thing: thing)
-        }
-        updateDirty(&thingTracking)
-        updateView()
-    }
-
-    ///
-    /// Adds a new linedef
-    ///
-    private func add(linedef: Linedef, index: Int, v1: Vertex, v2: Vertex,
-                     s1: Sidedef?, s2: Sidedef?)
-    {
-        linedefs.insert(linedef, at: index)
-        linedef.s1 = s1
-        linedef.s2 = s2
-        linedef.v1 = v1
-        linedef.v2 = v2
-        document?.undoManager?.registerUndo {
-            self.delete(linedef: linedef)
-        }
-        updateDirty(&linedefTracking)
-        updateDirty(&nodeTracking)
-        updateView()
-    }
-
-    ///
-    /// Adds a deleted sidedef
-    ///
-    private func add(sidedef: Sidedef, index: Int, sector: Sector,
-                     s1lines: Set<Linedef>, s2lines: Set<Linedef>)
-    {
-        sidedefs.insert(sidedef, at: index)
-        s1lines.forEach { $0.s1 = sidedef }
-        s2lines.forEach { $0.s2 = sidedef }
-        sidedef.sector = sector
-
-        document?.undoManager?.registerUndo {
-            self.delete(sidedef: sidedef)
-        }
-
-        updateDirty(&sidedefTracking)
-        updateDirty(&nodeTracking)
-        updateView()
-    }
-
-    ///
-    /// Add back a vertex
-    ///
-    private func add(vertex: Vertex, index: Int) {
-        vertices.insert(vertex, at: index)
-        document?.undoManager?.registerUndo {
-            self.delete(vertex: vertex)
-        }
-        updateDirty(&vertexTracking)
-        updateDirty(&nodeTracking)
-        updateView()
-    }
-
-    ///
-    /// Add back a sector
-    ///
-    private func add(sector: Sector, index: Int) {
-        sectors.insert(sector, at: index)
-        document?.undoManager?.registerUndo {
-            self.delete(sector: sector)
-        }
-        updateDirty(&sectorTracking)
-        updateDirty(&nodeTracking)
-        updateView()
-    }
-
-    ///
     /// Deletes a thing and provides undo
     ///
     private func delete(thing: Thing) {
         guard let index = indexOf(array: things, item: thing) else {
             return
         }
+
+        // Adding it back
+        func add(thing: Thing, index: Int) {
+            things.insert(thing, at: index)
+            undo?.registerUndo {
+                self.delete(thing: thing)
+            }
+            updateDirty(&thingTracking)
+            updateView()
+        }
+
         things.remove(at: index)
-        self.document?.undoManager?.registerUndo {
-            self.add(thing: thing, index: index)
+        undo?.registerUndo {
+            add(thing: thing, index: index)
         }
         updateDirty(&thingTracking)
         updateView()
@@ -787,10 +721,23 @@ class Level
         guard let index = indexOf(array: sectors, item: sector) else {
             return
         }
+
         if sector.sidedefs.count == 0 {
+
+            // Adding it back
+            func add(sector: Sector, index: Int) {
+                sectors.insert(sector, at: index)
+                undo?.registerUndo {
+                    self.delete(sector: sector)
+                }
+                updateDirty(&sectorTracking)
+                updateDirty(&nodeTracking)
+                updateView()
+            }
+
             sectors.remove(at: index)
-            document?.undoManager?.registerUndo {
-                self.add(sector: sector, index: index)
+            undo?.registerUndo {
+                add(sector: sector, index: index)
             }
 
             updateDirty(&sectorTracking)
@@ -814,6 +761,25 @@ class Level
         guard let index = indexOf(array: sidedefs, item: sidedef) else {
             return
         }
+
+        // Adding it back
+        func add(sidedef: Sidedef, index: Int, sector: Sector,
+                 s1lines: Set<Linedef>, s2lines: Set<Linedef>)
+        {
+            sidedefs.insert(sidedef, at: index)
+            s1lines.forEach { $0.s1 = sidedef }
+            s2lines.forEach { $0.s2 = sidedef }
+            sidedef.sector = sector
+
+            undo?.registerUndo {
+                self.delete(sidedef: sidedef)
+            }
+
+            updateDirty(&sidedefTracking)
+            updateDirty(&nodeTracking)
+            updateView()
+        }
+
         let sector = sidedef.sector
         var s1lines = Set<Linedef>()
         var s2lines = Set<Linedef>()
@@ -841,9 +807,9 @@ class Level
         sidedef.sector.removeSide(sidedef)  // unref it before removing side
         sidedefs.remove(at: index)
 
-        document?.undoManager?.registerUndo {
-            self.add(sidedef: sidedef, index: index, sector: sector,
-                     s1lines: s1lines, s2lines: s2lines)
+        undo?.registerUndo {
+            add(sidedef: sidedef, index: index, sector: sector,
+                s1lines: s1lines, s2lines: s2lines)
         }
         if sector.sidedefs.count == 0 {
             delete(sector: sector)
@@ -882,6 +848,24 @@ class Level
         guard let index = indexOf(array: linedefs, item: linedef) else {
             return
         }
+
+        // Adding it back
+        func add(linedef: Linedef, index: Int, v1: Vertex, v2: Vertex,
+                 s1: Sidedef?, s2: Sidedef?)
+        {
+            linedefs.insert(linedef, at: index)
+            linedef.s1 = s1
+            linedef.s2 = s2
+            linedef.v1 = v1
+            linedef.v2 = v2
+            undo?.registerUndo {
+                self.delete(linedef: linedef)
+            }
+            updateDirty(&linedefTracking)
+            updateDirty(&nodeTracking)
+            updateView()
+        }
+
         // first unreference sidedefs
         let s1 = linedef.s1
         let s2 = linedef.s2
@@ -893,9 +877,8 @@ class Level
         linedef.v2.removeLine(linedef)
         // Check if sidedefs are orphaned. Then delete them
         linedefs.remove(at: index)
-        document?.undoManager?.registerUndo {
-            self.add(linedef: linedef, index: index, v1: v1, v2: v2,
-                     s1: s1, s2: s2)
+        undo?.registerUndo {
+            add(linedef: linedef, index: index, v1: v1, v2: v2, s1: s1, s2: s2)
         }
         if !keepVertices {
             if v1.linedefs.count == 0 {
@@ -947,11 +930,22 @@ class Level
             return
         }
 
+        // Adding it back
+        func add(vertex: Vertex, index: Int) {
+            vertices.insert(vertex, at: index)
+            undo?.registerUndo {
+                self.delete(vertex: vertex)
+            }
+            updateDirty(&vertexTracking)
+            updateDirty(&nodeTracking)
+            updateView()
+        }
+
         // Delete vertex if it's isolated
         if vertex.linedefs.count == 0 {
             vertices.remove(at: index)
-            document?.undoManager?.registerUndo {
-                self.add(vertex: vertex, index: index)
+            undo?.registerUndo {
+                add(vertex: vertex, index: index)
             }
             updateDirty(&vertexTracking)
             updateDirty(&nodeTracking)
@@ -980,8 +974,8 @@ class Level
             // vertex, then just fall through to normal deletion of adjacent
             // lines
             // Also avoid degenerating triangle sectors
-            if originVertex.linedefs.intersection(otherVertex.linedefs).count == 0
-            {
+            if originVertex.linedefs.intersection(otherVertex.linedefs).count == 0 {
+
                 // Delete the linedef
                 delete(linedef: lineToDelete, keepVertices: true)
 
@@ -989,8 +983,8 @@ class Level
                              target: otherVertex)
 
                 vertices.remove(at: index)
-                document?.undoManager?.registerUndo {
-                    self.add(vertex: vertex, index: index)
+                undo?.registerUndo {
+                    add(vertex: vertex, index: index)
                 }
 
                 updateDirty(&vertexTracking)
@@ -1027,7 +1021,7 @@ class Level
         linedef.s2 = nil
         linedef.s1 = s2
         linedef.s2 = s1
-        document?.undoManager?.registerUndo {
+        undo?.registerUndo {
             self.flip(linedef: linedef)
         }
 

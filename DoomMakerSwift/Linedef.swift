@@ -18,8 +18,14 @@
 
 import Foundation
 
-let LineFlagImpassable = 1
-let LineFlagTwoSided = 4
+/// Linedef flags. FIXME: vanilla for now.
+enum LineFlag {
+    static let impassable = 1
+    static let twoSided = 4
+    static let upperUnpeg = 8
+    static let lowerUnpeg = 16
+    
+}
 
 /// This is the structure needed for linedefs to load and save file. Separate
 /// from Linedef because of non-nullable constraints
@@ -110,6 +116,19 @@ final class Linedef: InteractiveItem {
         }
     }
 
+    subscript(side: Side) -> Sidedef? {
+        get {
+            return side == .front ? s1 : s2
+        }
+        set(value) {
+            if side == .front {
+                s1 = value
+            } else {
+                s2 = value
+            }
+        }
+    }
+
     init?(data: LinedefData, vertices: [Vertex], sidedefs: [Sidedef]) {
         if !Int(data.v1idx).inRange(min: 0, max: vertices.count - 1) ||
             !Int(data.v2idx).inRange(min: 0, max: vertices.count - 1)
@@ -168,5 +187,32 @@ final class Linedef: InteractiveItem {
             result.insert(sector)
         }
         return result
+    }
+
+    //==========================================================================
+    //
+    // MARK: utilities
+    //
+
+    ///
+    /// Like Doom's P_PointOnLineSide
+    ///
+    func lineSide(point: NSPoint) -> Side {
+        let dx = Int(v2.x) - Int(v1.x)
+        let dy = Int(v2.y) - Int(v1.y)
+        if dx == 0 {
+            if point.x <= CGFloat(v1.x) {
+                return Side(dy > 0)
+            }
+            return Side(dy < 0)
+        }
+        if dy == 0 {
+            if point.y <= CGFloat(v1.y) {
+                return Side(dx < 0)
+            }
+            return Side(dx > 0)
+        }
+        return Side((point.y - CGFloat(v1.y)) * CGFloat(dx) >=
+            CGFloat(dy) * (point.x - CGFloat(v1.x)))
     }
 }

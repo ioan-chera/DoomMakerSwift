@@ -260,3 +260,21 @@ func /• (left: Float, right: Float) -> Float {
 func /• (left: NSPoint, right: CGFloat) -> NSPoint {
     return NSPoint(x: left.x /• right, y: left.y /• right)
 }
+
+//
+// For line relative position
+//
+enum Side {
+    case front
+    case back
+    init(_ value: Int) {
+        self = value == 0 ? .front : .back
+    }
+    init(_ value: Bool) {
+        self = value ? .back : .front
+    }
+}
+
+prefix func ! (right: Side) -> Side {
+    return right == .front ? .back : .front
+}

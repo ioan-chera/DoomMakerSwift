@@ -444,6 +444,21 @@ class Level
     }
 
     ///
+    /// Check against merging vertices or split linedefs
+    ///
+    private func checkMoved(vertex: Vertex, previousPosition: NSPoint) {
+        // Check if it overlaps another vertex.
+        for checkVertex in vertices {
+            if checkVertex === vertex || !checkVertex.samePosition(vertex) {
+                continue
+            }
+            // Found one
+            merge(vertex: vertex, into: checkVertex,
+                  previousPosition: previousPosition)
+        }
+    }
+
+    ///
     /// Vertex movement operation
     ///
     private func moveDragItems(positions: [DraggedItem: NSPoint])
@@ -453,11 +468,14 @@ class Level
         var changeVertices = false
         var changeThings = false
 
+        var checkedVertices = [Vertex: NSPoint]()
+
         for (item, point) in positions {
             currentPositions[item] = NSPoint(item: item)
             item.position = point
             if item is Vertex {
                 changeVertices = true
+                checkedVertices[item as! Vertex] = currentPositions[item]
             } else if item is Thing {
                 changeThings = true
             }
@@ -473,10 +491,16 @@ class Level
             updateDirty(&thingTracking)
         }
 
-        updateView()
         undo?.registerUndo {
             self.moveDragItems(positions: currentPositions)
         }
+
+        // Now check for updating other stuff
+        for (vertex, point) in checkedVertices {
+            checkMoved(vertex: vertex, previousPosition: point)
+        }
+
+        updateView()
     }
 
     ///
@@ -662,30 +686,36 @@ class Level
     //
 
     ///
+    /// Fixes
+    ///
+    private func fixDuplicateLines(linedef: Linedef) {
+
+    }
+
+    ///
     /// Merge a vertex into another vertex, by transferring properties
     ///
-    private func merge(vertex v1: Vertex, into v2: Vertex) {
-        // Locate all linedefs from v1 and reattach them
+    private func merge(vertex v1: Vertex, into v2: Vertex,
+                       previousPosition: NSPoint)
+    {
+        if v1 === v2 {
+            return  // identical vertex? ignore
+        }
 
-        var v1lines = [Linedef]()
-        var v2lines = [Linedef]()
+        // Case where vertices are already adjacent
+        if let line = v1.connectingLine(with: v2) {
+            // We have a joining line, so just delete it
+            delete(linedef: line)
+        }
 
-        // need to add them first to list, then transfer values
+        // Move all linedefs from v1 to point their reference to v2
         for line in v1.linedefs {
-            if line.v1 === v1 {
-                v1lines.append(line)
-            } else if line.v2 === v1 {
-                v2lines.append(line)
-            }
+            changeVertex(linedef: line, source: v1, target: v2,
+                         previousPosition: previousPosition)
         }
 
-        for line in v1lines {
-            line.v1 = v2
-        }
-        for line in v2lines {
-            line.v2 = v2
-        }
-        removeFrom(array: &vertices, item: v1)
+        // Delete now-merged vertex
+        delete(vertex: v1)
     }
 
     ///
@@ -780,13 +810,36 @@ class Level
             updateView()
         }
 
+        // When deleting a side, do this action sometimes
+        func setSideTexture1Sided(sidedef: Sidedef, backSide: Sidedef) {
+            // Make sure the useful difference is positive
+            let deltaFloor = backSide.sector.floorheight - sidedef.sector.floorheight
+            let deltaCeiling = sidedef.sector.ceilingheight - backSide.sector.ceilingheight
+            let maxDelta = max(deltaFloor, deltaCeiling)
+            let minDelta = min(deltaFloor, deltaCeiling)
+            if maxDelta > 0 {
+                if maxDelta == deltaFloor {
+                    setSideTextures(sidedef: sidedef, middle: sidedef.lower)
+                } else {
+                    setSideTextures(sidedef: sidedef, middle: sidedef.upper)
+                }
+            } else {
+                if minDelta == deltaFloor {
+                    setSideTextures(sidedef: sidedef, middle: backSide.lower)
+                } else {
+                    setSideTextures(sidedef: sidedef, middle: backSide.upper)
+                }
+            }
+        }
+
         let sector = sidedef.sector
         var s1lines = Set<Linedef>()
         var s2lines = Set<Linedef>()
 
         while let linedef = sidedef.linedefs.first {
             if linedef.s1 === sidedef || linedef.s2 === sidedef {
-                setLineFlags(linedef: linedef, flags: (linedef.flags | LineFlagImpassable) & ~LineFlagTwoSided)
+                setLineFlags(linedef: linedef, flags: (linedef.flags |
+                    LineFlag.impassable) & ~LineFlag.twoSided)
             }
             if linedef.s1 === sidedef {
                 s1lines.insert(linedef)
@@ -901,25 +954,229 @@ class Level
     }
 
     ///
+    /// Changes sidedef sector
+    ///
+    private func set(sector: Sector, forSidedef sidedef: Sidedef) {
+        let currentSector = sidedef.sector
+        sidedef.sector = sector
+        undo?.registerUndo {
+            self.set(sector: currentSector, forSidedef: sidedef)
+        }
+        updateDirty(&sidedefTracking)
+        updateDirty(&nodeTracking)
+        updateView()
+    }
+
+    ///
+    /// Does all the work of transferring the sidedefs of merged lines.
+    ///
+    private func merge(sourceLine: Linedef, sourceSide: Side,
+                       targetLine: Linedef, targetSide: Side)
+    {
+        let sourceSector = sourceLine[sourceSide]?.sector
+        let targetSector = targetLine[targetSide]?.sector
+
+        if sourceSector === nil && targetSector === nil {
+            // Resulting an invalid linedef? Just delete them all.
+            delete(linedef: sourceLine)
+            delete(linedef: targetLine)
+            return
+        }
+
+        if sourceSector === nil {
+            // target sector not nil. Keep source line then.
+            delete(linedef: targetLine)
+            if let sidedef = sourceLine[!sourceSide] {
+                set(sector: targetSector!, forSidedef: sidedef)
+            }
+            return
+        }
+
+        if targetSector === nil {
+            delete(linedef: sourceLine)
+            if let sidedef = targetLine[!targetSide] {
+                set(sector: sourceSector!, forSidedef: sidedef)
+            }
+            return
+        }
+
+        guard let source = sourceSector, let target = targetSector else {
+            return
+        }
+
+        func setLineSide(linedef: Linedef, side: Side, to sidedef: Sidedef?) {
+            let currentSidedef = linedef[side]
+            linedef[side] = sidedef
+            undo?.registerUndo {
+                setLineSide(linedef: linedef, side: side, to: currentSidedef)
+            }
+            // Also clear reference
+            if currentSidedef?.linedefs.isEmpty == true {
+                delete(sidedef: currentSidedef!)
+            }
+            updateDirty(&linedefTracking)
+            updateDirty(&nodeTracking)
+            updateView()
+        }
+
+        func setSideTexture2Sided(sidedef: Sidedef) {
+            let lower = sidedef.lower.name == "-" ? sidedef.middle : nil
+            let upper = sidedef.upper.name == "-" ? sidedef.middle : nil
+            setSideTextures(sidedef: sidedef, upper: upper,
+                            middle: TextureName("-"), lower: lower)
+        }
+
+        // Case when there's void between them
+        if sourceLine[!sourceSide] === nil {
+            // Just assume the other linedef is correctly also pointing to void.
+            setLineSide(linedef: targetLine, side: !targetSide,
+                        to: sourceLine[sourceSide])
+            delete(linedef: sourceLine)
+
+            // Make it passable
+            setLineFlags(linedef: targetLine, flags: targetLine.flags &
+                ~LineFlag.impassable | LineFlag.twoSided)
+
+            // Change texture
+            if let sidedef = targetLine[targetSide] {
+                setSideTexture2Sided(sidedef: sidedef)
+            }
+            if let sidedef = targetLine[!targetSide] {
+                setSideTexture2Sided(sidedef: sidedef)
+            }
+
+            return  // that's it...
+        }
+
+        // Try to be robust...
+        if targetLine[!targetSide] === nil {
+            setLineSide(linedef: sourceLine, side: !sourceSide,
+                        to: targetLine[targetSide])
+            delete(linedef: targetLine)
+            setLineFlags(linedef: sourceLine, flags: sourceLine.flags &
+                ~LineFlag.impassable | LineFlag.twoSided)
+            if let sidedef = sourceLine[sourceSide] {
+                setSideTexture2Sided(sidedef: sidedef)
+            }
+            if let sidedef = sourceLine[!sourceSide] {
+                setSideTexture2Sided(sidedef: sidedef)
+            }
+            return
+        }
+
+        guard let sourceMid = sourceLine[!sourceSide]?.sector,
+            let targetMid = targetLine[!targetSide]?.sector else
+        {
+            return
+        }
+
+        // Void ruled out
+        // Now let's just assume the mid-sector is correctly set.
+        // Check the floor
+        let lower: TextureName?
+        let lowerUnpeg: Int
+        if source.floorheight < target.floorheight {
+            if targetMid.floorheight < target.floorheight {
+                // target's step is visible, so take that
+                lower = targetLine[!targetSide]?.lower
+                lowerUnpeg = targetLine.flags & LineFlag.lowerUnpeg
+            } else {
+                lower = sourceLine[sourceSide]?.lower
+                lowerUnpeg = sourceLine.flags & LineFlag.lowerUnpeg
+            }
+        } else {
+            if source.floorheight > sourceMid.floorheight {
+                lower = sourceLine[!sourceSide]?.lower
+                lowerUnpeg = sourceLine.flags & LineFlag.lowerUnpeg
+            } else {
+                lower = targetLine[targetSide]?.lower
+                lowerUnpeg = targetLine.flags & LineFlag.lowerUnpeg
+            }
+        }
+        let upper: TextureName?
+        let upperUnpeg: Int
+        if source.ceilingheight < target.ceilingheight {
+            if source.ceilingheight < sourceMid.ceilingheight {
+                // target's step is visible, so take that
+                upper = sourceLine[!sourceSide]?.upper
+                upperUnpeg = sourceLine.flags & LineFlag.upperUnpeg
+            } else {
+                upper = targetLine[targetSide]?.upper
+                upperUnpeg = targetLine.flags & LineFlag.upperUnpeg
+            }
+        } else {
+            if targetMid.ceilingheight > target.ceilingheight {
+                upper = targetLine[!targetSide]?.upper
+                upperUnpeg = targetLine.flags & LineFlag.upperUnpeg
+            } else {
+                upper = sourceLine[sourceSide]?.upper
+                upperUnpeg = sourceLine.flags & LineFlag.upperUnpeg
+            }
+        }
+
+        // Fuse flags now
+        let flags = (sourceLine.flags | targetLine.flags) &
+            ~(LineFlag.upperUnpeg | LineFlag.lowerUnpeg) | lowerUnpeg | upperUnpeg
+
+        // Now we're ready to delete stuff
+        delete(linedef: sourceLine)
+        setLineFlags(linedef: targetLine, flags: flags)
+        if let sidedef = targetLine[targetSide] {
+            setSideTextures(sidedef: sidedef,
+                            upper: sidedef.upper.name == "-" && upper?.name != "-" ? upper : nil,
+                            lower: sidedef.lower.name == "-" && lower?.name != "-" ? lower : nil)
+        }
+        if let sidedef = targetLine[!targetSide] {
+            setSideTextures(sidedef: sidedef,
+                            upper: sidedef.upper.name == "-" && upper?.name != "-" ? upper : nil,
+                            lower: sidedef.lower.name == "-" && lower?.name != "-" ? lower : nil)
+            set(sector: source, forSidedef: sidedef)
+        }
+    }
+
+    ///
     /// Moves a vertex from a line to a new vertex
     ///
-    private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex) {
+    private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex,
+                              previousPosition: NSPoint)
+    {
         let original: Vertex
+        let backVertex: Vertex
+        let mergeLineOptional: Linedef?
         if linedef.v1 === source {
             original = linedef.v1
+            backVertex = linedef.v2
+            mergeLineOptional = backVertex.connectingLine(with: target)
             linedef.v1 = target
         } else if linedef.v2 === source {
             original = linedef.v2
+            backVertex = linedef.v1
+            mergeLineOptional = backVertex.connectingLine(with: target)
             linedef.v2 = target
         } else {
             return
         }
         undo?.registerUndo {
             self.changeVertex(linedef: linedef, source: target,
-                              target: original)
+                              target: original, previousPosition: previousPosition)
         }
         updateDirty(&linedefTracking)
         updateDirty(&nodeTracking)
+        updateView()
+
+        // Now check merged lines. Only if it's meant to happen
+        guard let mergeLine = mergeLineOptional else
+        {
+            return
+        }
+
+        // Check which sides remain after merging linedefs
+        let targetOuterIndex = !mergeLine.lineSide(point: previousPosition)
+        let sourceOuterIndex = Side(backVertex === linedef.v2)
+
+        merge(sourceLine: linedef, sourceSide: sourceOuterIndex,
+              targetLine: mergeLine, targetSide: targetOuterIndex)
+
     }
 
     ///
@@ -980,7 +1237,8 @@ class Level
                 delete(linedef: lineToDelete, keepVertices: true)
 
                 changeVertex(linedef: lineToKeep, source: vertex,
-                             target: otherVertex)
+                             target: otherVertex,
+                             previousPosition: NSPoint(item: vertex))
 
                 vertices.remove(at: index)
                 undo?.registerUndo {
@@ -1043,6 +1301,14 @@ class Level
         updateView()
     }
 
+    private func addLineFlags(linedef: Linedef, flags: Int) {
+        setLineFlags(linedef: linedef, flags: linedef.flags | flags)
+    }
+
+    private func removeLineFlags(linedef: Linedef, flags: Int) {
+        setLineFlags(linedef: linedef, flags: linedef.flags & ~flags)
+    }
+
     ///
     /// Set sidedef textures
     ///
@@ -1074,30 +1340,6 @@ class Level
 
         updateDirty(&sidedefTracking)
         updateView()
-    }
-
-    ///
-    /// Switches texture to one-side-style
-    ///
-    private func setSideTexture1Sided(sidedef: Sidedef, backSide: Sidedef) {
-        // Make sure the useful difference is positive
-        let deltaFloor = backSide.sector.floorheight - sidedef.sector.floorheight
-        let deltaCeiling = sidedef.sector.ceilingheight - backSide.sector.ceilingheight
-        let maxDelta = max(deltaFloor, deltaCeiling)
-        let minDelta = min(deltaFloor, deltaCeiling)
-        if maxDelta > 0 {
-            if maxDelta == deltaFloor {
-                setSideTextures(sidedef: sidedef, middle: sidedef.lower)
-            } else {
-                setSideTextures(sidedef: sidedef, middle: sidedef.upper)
-            }
-        } else {
-            if minDelta == deltaFloor {
-                setSideTextures(sidedef: sidedef, middle: backSide.lower)
-            } else {
-                setSideTextures(sidedef: sidedef, middle: backSide.upper)
-            }
-        }
     }
 
     //==========================================================================

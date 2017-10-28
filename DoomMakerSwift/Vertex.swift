@@ -60,4 +60,8 @@ final class Vertex: DraggedItem, Serializable {
     func connectingLine(with vertex: Vertex) -> Linedef? {
         return linedefs.intersection(vertex.linedefs).first
     }
+
+    func samePosition(_ vertex: Vertex) -> Bool {
+        return x == vertex.x && y == vertex.y
+    }
 }

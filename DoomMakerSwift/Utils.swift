@@ -127,3 +127,14 @@ func makeTempPath(pattern: String, suffixSize: Int) -> URL? {
     close(fd)
     return url
 }
+
+infix operator &== : ComparisonPrecedence
+infix operator &!= : ComparisonPrecedence
+
+func &== (left: Int, right: Int) -> Bool {
+    return left & right != 0
+}
+
+func &!= (left: Int, right: Int) -> Bool {
+    return left & right == 0
+}

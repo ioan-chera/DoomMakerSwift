@@ -255,7 +255,7 @@ class LevelEditor {
                     }
                 }
 
-                if level.nodeTracking > 0 {
+                if level.nodeTracking > 0 || level.bspDesynced {
                     try nodeBuild(entry: entry)
                 }
                 level.cleanDirty()

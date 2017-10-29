@@ -75,7 +75,7 @@ struct LinedefData: Serializable {
 }
 
 /// Map linedef
-final class Linedef: InteractiveItem {
+final class Linedef: InteractiveItem, CustomStringConvertible {
     var flags: Int   // linedef bits
     var special: Int // linedef trigger special
     var tag: Int     // linedef trigger tag
@@ -214,5 +214,14 @@ final class Linedef: InteractiveItem {
         }
         return Side((point.y - CGFloat(v1.y)) * CGFloat(dx) >=
             CGFloat(dy) * (point.x - CGFloat(v1.x)))
+    }
+
+    //==========================================================================
+    //
+    // MARK: description
+    //
+
+    var description: String {
+        return "\(v1)-\(v2)"
     }
 }

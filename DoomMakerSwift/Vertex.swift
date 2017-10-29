@@ -18,7 +18,7 @@
 
 import Foundation
 
-final class Vertex: DraggedItem, Serializable {
+final class Vertex: DraggedItem, Serializable, CustomStringConvertible {
 
     private var mLinedefs = Set<Linedef>()
 
@@ -63,5 +63,12 @@ final class Vertex: DraggedItem, Serializable {
 
     func samePosition(_ vertex: Vertex) -> Bool {
         return x == vertex.x && y == vertex.y
+    }
+
+    //
+    // MARK: string representation
+    //
+    var description: String {
+        return "(\(x), \(y))"
     }
 }

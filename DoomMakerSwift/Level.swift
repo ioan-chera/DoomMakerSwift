@@ -444,6 +444,14 @@ class Level
     }
 
     ///
+    /// Splits a linedef by a given vertex
+    ///
+    private func split(linedef: Linedef, vertex: Vertex) {
+        changeVertex(linedef: linedef, source: linedef.v2, target: vertex)
+        // TODO: now we need to add it
+    }
+
+    ///
     /// Check against merging vertices or split linedefs
     ///
     private func checkMoved(vertex: Vertex) {
@@ -454,6 +462,13 @@ class Level
             }
             // Found one
             merge(vertex: vertex, into: checkVertex)
+        }
+
+        // Now see if it intersects the line
+        for linedef in linedefs {
+            if linedef.touchedByVertex(vertex) {
+                split(linedef: linedef, vertex: vertex)
+            }
         }
     }
 

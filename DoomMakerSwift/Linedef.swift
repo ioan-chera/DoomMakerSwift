@@ -216,6 +216,22 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
             CGFloat(dy) * (point.x - CGFloat(v1.x)))
     }
 
+    ///
+    /// Check if a vertex is inside this line
+    ///
+    func touchedByVertex(_ vertex: Vertex) -> Bool {
+        let pv = NSPoint(item: vertex)
+        let p1 = NSPoint(item: v1)
+        let p2 = NSPoint(item: v2)
+        let pmin = NSPoint(x: min(p1.x, p2.x), y: min(p1.y, p2.y))
+        let pmax = NSPoint(x: max(p1.x, p2.x), y: max(p1.y, p2.y))
+        if pv.x <= pmin.x || pv.y <= pmin.y || pv.x >= pmax.x || pv.y >= pmax.y {
+            return false
+        }
+        let proj = Geom.projection(point: pv, linep1: p1, linep2: p2)
+        return abs(proj.x - pv.x) < 1 && abs(proj.y - pv.y) < 1
+    }
+
     //==========================================================================
     //
     // MARK: description

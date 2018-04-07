@@ -446,15 +446,14 @@ class Level
     ///
     /// Check against merging vertices or split linedefs
     ///
-    private func checkMoved(vertex: Vertex, previousPosition: NSPoint) {
+    private func checkMoved(vertex: Vertex) {
         // Check if it overlaps another vertex.
         for checkVertex in vertices {
             if checkVertex === vertex || !checkVertex.samePosition(vertex) {
                 continue
             }
             // Found one
-            merge(vertex: vertex, into: checkVertex,
-                  previousPosition: previousPosition)
+            merge(vertex: vertex, into: checkVertex)
         }
     }
 
@@ -468,14 +467,14 @@ class Level
         var changeVertices = false
         var changeThings = false
 
-        var checkedVertices = [Vertex: NSPoint]()
+        var checkedVertices = Set<Vertex>()
 
         for (item, point) in positions {
             currentPositions[item] = NSPoint(item: item)
             item.position = point
             if item is Vertex {
                 changeVertices = true
-                checkedVertices[item as! Vertex] = currentPositions[item]
+                checkedVertices.insert(item as! Vertex)
             } else if item is Thing {
                 changeThings = true
             }
@@ -496,8 +495,8 @@ class Level
         }
 
         // Now check for updating other stuff
-        for (vertex, point) in checkedVertices {
-            checkMoved(vertex: vertex, previousPosition: point)
+        for vertex in checkedVertices {
+            checkMoved(vertex: vertex)
         }
 
         updateView()
@@ -695,8 +694,7 @@ class Level
     ///
     /// Merge a vertex into another vertex, by transferring properties
     ///
-    private func merge(vertex v1: Vertex, into v2: Vertex,
-                       previousPosition: NSPoint)
+    private func merge(vertex v1: Vertex, into v2: Vertex)
     {
         if v1 === v2 {
             return  // identical vertex? ignore
@@ -710,8 +708,7 @@ class Level
 
         // Move all linedefs from v1 to point their reference to v2
         for line in v1.linedefs {
-            changeVertex(linedef: line, source: v1, target: v2,
-                         previousPosition: previousPosition)
+            changeVertex(linedef: line, source: v1, target: v2)
         }
 
         // Delete now-merged vertex
@@ -1137,8 +1134,7 @@ class Level
     ///
     /// Moves a vertex from a line to a new vertex
     ///
-    private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex,
-                              previousPosition: NSPoint)
+    private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex)
     {
         let original: Vertex
         let backVertex: Vertex
@@ -1158,7 +1154,7 @@ class Level
         }
         undo?.registerUndo {
             self.changeVertex(linedef: linedef, source: target,
-                              target: original, previousPosition: previousPosition)
+                              target: original)
         }
         updateDirty(&linedefTracking)
         updateDirty(&nodeTracking)
@@ -1170,12 +1166,22 @@ class Level
             return
         }
 
-        // Check which sides remain after merging linedefs
-        let targetOuterSide = !mergeLine.lineSide(point: previousPosition)
-        let sourceOuterSide = linedef.lineSide(point: previousPosition)
+        for linedefSide in [Side.front, Side.back] {
+            for mergeLineSide in [Side.front, Side.back] {
+                if linedef[linedefSide]?.sector !==
+                    mergeLine[mergeLineSide]?.sector
+                {
+                    continue
+                }
+                merge(sourceLine: linedef, sourceSide: !linedefSide,
+                      targetLine: mergeLine, targetSide: !mergeLineSide)
+                return
+            }
+        }
 
-        merge(sourceLine: linedef, sourceSide: sourceOuterSide,
-              targetLine: mergeLine, targetSide: targetOuterSide)
+        // We couldn't find any corresponsdence, so just pick one
+        merge(sourceLine: linedef, sourceSide: Side.front,
+              targetLine: mergeLine, targetSide: Side.back)
 
     }
 
@@ -1237,8 +1243,7 @@ class Level
                 delete(linedef: lineToDelete, keepVertices: true)
 
                 changeVertex(linedef: lineToKeep, source: vertex,
-                             target: otherVertex,
-                             previousPosition: NSPoint(item: vertex))
+                             target: otherVertex)
 
                 vertices.remove(at: index)
                 undo?.registerUndo {

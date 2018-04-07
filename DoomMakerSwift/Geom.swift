@@ -22,7 +22,7 @@ import Foundation
 let π = Double.pi
 let πf = Float.pi
 
-class Geom {
+enum Geom {
 
     /// Checks if a line clips a rectangle, using Cohen-Sutherland's algorithm
     /// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm

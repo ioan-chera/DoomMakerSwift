@@ -384,9 +384,9 @@ class Level
             }
         case .things:
             for item in things {
-                let vertexPosition = NSPoint(item: item)
+                let thingPosition = NSPoint(item: item)
                 let thingRadius = CGFloat(item.info.radius)
-                let distance = position <-> vertexPosition
+                let distance = position <-> thingPosition
                 if distance < radius + thingRadius {
                     if distance < minDistance {
                         minDistance = distance

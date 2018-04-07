@@ -243,6 +243,7 @@ extension NSRect {
     }
 
     init(point1: NSPoint, point2: NSPoint) {
+        self.init()
         self.origin = point1
         self.size = NSSize()
         pointAdd(point2)

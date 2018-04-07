@@ -32,7 +32,7 @@ extension NSColor {
         }
 
         var rgbValue:UInt32 = 0
-        if ((cString.characters.count) != 6) {
+        if ((cString.count) != 6) {
             rgbValue = 0x808080
         } else {
             Scanner(string: cString).scanHexInt32(&rgbValue)

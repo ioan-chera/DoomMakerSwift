@@ -86,6 +86,28 @@ enum Geom {
             }
         }
     }
+
+    ///
+    /// Finds projection of point
+    ///
+    static func projection(point: NSPoint, linep1: NSPoint, linep2: NSPoint) -> NSPoint
+    {
+        let x = point.x
+        let y = point.y
+        let x1 = linep1.x
+        let y1 = linep1.y
+        let dx = linep2.x - x1
+        let dy = linep2.y - y1
+        let dxsq = dx * dx
+        let dysq = dy * dy
+        let deltax = -x * dxsq - x1 * dysq + (y1 - y) * dx * dy
+        let deltay = -y * dysq - y1 * dxsq + (x1 - x) * dy * dx
+        let delta = -dxsq - dysq
+        if delta != 0 {
+            return NSPoint(x: deltax / delta, y: deltay / delta)
+        }
+        return linep1   // if not possible, just return one point
+    }
 }
 
 /// NSPoint addition

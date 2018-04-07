@@ -1171,11 +1171,11 @@ class Level
         }
 
         // Check which sides remain after merging linedefs
-        let targetOuterIndex = !mergeLine.lineSide(point: previousPosition)
-        let sourceOuterIndex = linedef.lineSide(point: previousPosition)
+        let targetOuterSide = !mergeLine.lineSide(point: previousPosition)
+        let sourceOuterSide = linedef.lineSide(point: previousPosition)
 
-        merge(sourceLine: linedef, sourceSide: sourceOuterIndex,
-              targetLine: mergeLine, targetSide: targetOuterIndex)
+        merge(sourceLine: linedef, sourceSide: sourceOuterSide,
+              targetLine: mergeLine, targetSide: targetOuterSide)
 
     }
 

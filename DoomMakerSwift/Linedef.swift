@@ -129,6 +129,17 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
         }
     }
 
+    ///
+    /// Necessary default constructor for sets
+    ///
+    override init() {
+        flags = 0
+        special = 0
+        tag = 0
+        v1 = Vertex(x: 0, y: 0)
+        v2 = Vertex(x: 0, y: 0)
+    }
+
     init?(data: LinedefData, vertices: [Vertex], sidedefs: [Sidedef]) {
         if !Int(data.v1idx).inRange(min: 0, max: vertices.count - 1) ||
             !Int(data.v2idx).inRange(min: 0, max: vertices.count - 1)

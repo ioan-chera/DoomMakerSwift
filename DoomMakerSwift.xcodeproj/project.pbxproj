@@ -27,6 +27,7 @@
 		4F8A8D771E6C236700FCFC2A /* Sidedef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D761E6C236700FCFC2A /* Sidedef.swift */; };
 		4F8A8D791E6C36A900FCFC2A /* Sector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8A8D781E6C36A900FCFC2A /* Sector.swift */; };
 		4F97F9F91E694A6900C1155C /* Linedef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F97F9F81E694A6900C1155C /* Linedef.swift */; };
+		4F9CAEFA2201728E0035CE10 /* zdbsp in Resources */ = {isa = PBXBuildFile; fileRef = 4F9CAEF92201728E0035CE10 /* zdbsp */; };
 		4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */; };
 		4FA0A74D1C54C65E009F3980 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A74C1C54C65E009F3980 /* Document.swift */; };
 		4FA0A7501C54C65E009F3980 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA0A74E1C54C65E009F3980 /* Document.xib */; };
@@ -39,7 +40,6 @@
 		4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77D1C54E5E1009F3980 /* Level.swift */; };
 		4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980B1F1A8CF200BEEB8A /* Thing.swift */; };
 		4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */; };
-		4FB6981F1F1AB72400BEEB8A /* zdbsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FB6981E1F1AB72400BEEB8A /* zdbsp */; };
 		4FF7CACF1F9B48FA00A46851 /* MapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF7CACE1F9B48FA00A46851 /* MapItem.swift */; };
 /* End PBXBuildFile section */
 
@@ -81,6 +81,7 @@
 		4F8A8D761E6C236700FCFC2A /* Sidedef.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sidedef.swift; sourceTree = "<group>"; };
 		4F8A8D781E6C36A900FCFC2A /* Sector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sector.swift; sourceTree = "<group>"; };
 		4F97F9F81E694A6900C1155C /* Linedef.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Linedef.swift; sourceTree = "<group>"; };
+		4F9CAEF92201728E0035CE10 /* zdbsp */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = zdbsp; path = dep/zdbsp/build/zdbsp; sourceTree = SOURCE_ROOT; };
 		4FA0A7471C54C65E009F3980 /* DoomMakerSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoomMakerSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DoomMakerSwift/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A74C1C54C65E009F3980 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Document.swift; path = DoomMakerSwift/Document.swift; sourceTree = SOURCE_ROOT; };
@@ -99,7 +100,6 @@
 		4FA0A77D1C54E5E1009F3980 /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Level.swift; path = DoomMakerSwift/Level.swift; sourceTree = SOURCE_ROOT; };
 		4FB6980B1F1A8CF200BEEB8A /* Thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thing.swift; sourceTree = "<group>"; };
 		4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggedItem.swift; sourceTree = "<group>"; };
-		4FB6981E1F1AB72400BEEB8A /* zdbsp */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = zdbsp; path = submodules/zdbsp/build/zdbsp; sourceTree = SOURCE_ROOT; };
 		4FF7CACE1F9B48FA00A46851 /* MapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -131,7 +131,7 @@
 		4F683F1D1ED0BD3900D23D3E /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				4FB6981E1F1AB72400BEEB8A /* zdbsp */,
+				4F9CAEF92201728E0035CE10 /* zdbsp */,
 				4F683F1E1ED0BD4900D23D3E /* doom2.json */,
 			);
 			name = resources;
@@ -237,6 +237,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FA0A76F1C54C65E009F3980 /* Build configuration list for PBXNativeTarget "DoomMakerSwift" */;
 			buildPhases = (
+				4F9CAEE82200E2600035CE10 /* ShellScript */,
 				4FA0A7431C54C65E009F3980 /* Sources */,
 				4FA0A7441C54C65E009F3980 /* Frameworks */,
 				4FA0A7451C54C65E009F3980 /* Resources */,
@@ -298,7 +299,9 @@
 				TargetAttributes = {
 					4FA0A7461C54C65E009F3980 = {
 						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = 66L236F264;
 						LastSwiftMigration = 0900;
+						ProvisioningStyle = Automatic;
 					};
 					4FA0A75A1C54C65E009F3980 = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -340,7 +343,7 @@
 				4FA0A7521C54C65E009F3980 /* Assets.xcassets in Resources */,
 				4FA0A7501C54C65E009F3980 /* Document.xib in Resources */,
 				4FA0A7551C54C65E009F3980 /* MainMenu.xib in Resources */,
-				4FB6981F1F1AB72400BEEB8A /* zdbsp in Resources */,
+				4F9CAEFA2201728E0035CE10 /* zdbsp in Resources */,
 				4F683F1F1ED0BD4900D23D3E /* doom2.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,6 +363,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F9CAEE82200E2600035CE10 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n# set -e  # do this so it exits after first failure\n\nsource ~/.bash_profile\n\nif [ ! -d dep/zdbsp ]; then\n    mkdir dep\n    git clone https://github.com/rheit/zdbsp.git dep/zdbsp\n    mkdir dep/zdbsp/build\nfi\n\ncmake -S dep/zdbsp -B dep/zdbsp/build\nmake -C dep/zdbsp/build\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4FA0A7431C54C65E009F3980 /* Sources */ = {
@@ -552,11 +575,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 66L236F264;
 				INFOPLIST_FILE = DoomMakerSwift/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -565,11 +592,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 66L236F264;
 				INFOPLIST_FILE = DoomMakerSwift/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.i-chera.DoomMakerSwift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;

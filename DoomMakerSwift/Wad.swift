@@ -129,6 +129,6 @@ class Wad
             i += 1
         }
 
-        return Data(bytes:data);
+        return Data(data);
     }
 }

@@ -25,7 +25,7 @@ protocol MapViewDelegate: class {
     func mapViewRotationUpdated()
 }
 
-class MapView: NSView {
+class MapView: NSView, NSMenuItemValidation {
     weak var delegate: MapViewDelegate? {
         didSet {
             delegate?.mapViewGridSizeUpdated()
@@ -600,7 +600,7 @@ class MapView: NSView {
         level?.mode = Level.Mode.things
     }
 
-    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
         }
@@ -636,6 +636,6 @@ class MapView: NSView {
         if menuItem.action == #selector(MapView.delete(_:)) {
             return self.level != nil && self.level!.canDeleteSelection()
         }
-        return super.validateMenuItem(menuItem)
+        return false
     }
 }

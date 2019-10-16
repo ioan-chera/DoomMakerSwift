@@ -98,11 +98,11 @@ extension Array {
 }
 
 func indexOf<T:AnyObject>(array: [T], item: T?) -> Int? {
-    return array.index(where: {$0 === item})
+    return array.firstIndex(where: {$0 === item})
 }
 
 func removeFrom<T:AnyObject>(array: inout [T], item: T) {
-    if let index = array.index(where: {$0 === item}) {
+    if let index = array.firstIndex(where: {$0 === item}) {
         array.remove(at: index)
     }
 }

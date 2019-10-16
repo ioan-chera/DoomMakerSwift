@@ -51,18 +51,18 @@ struct LinedefData: Serializable {
     }
 
     init(linedef: Linedef, vertices: [Vertex], sidedefs: [Sidedef]) throws {
-        v1idx = try Int16(throwing: vertices.index(of: linedef.v1) ?? -1)
-        v2idx = try Int16(throwing: vertices.index(of: linedef.v2) ?? -1)
+        v1idx = try Int16(throwing: vertices.firstIndex(of: linedef.v1) ?? -1)
+        v2idx = try Int16(throwing: vertices.firstIndex(of: linedef.v2) ?? -1)
         flags = try Int16(throwing: linedef.flags)
         special = try Int16(throwing: linedef.special)
         tag = try Int16(throwing: linedef.tag)
         if let s1 = linedef.s1 {
-            s1idx = try Int16(throwing: sidedefs.index(of: s1) ?? -1)
+            s1idx = try Int16(throwing: sidedefs.firstIndex(of: s1) ?? -1)
         } else {
             s1idx = -1
         }
         if let s2 = linedef.s2 {
-            s2idx = try Int16(throwing: sidedefs.index(of: s2) ?? -1)
+            s2idx = try Int16(throwing: sidedefs.firstIndex(of: s2) ?? -1)
         } else {
             s2idx = -1
         }

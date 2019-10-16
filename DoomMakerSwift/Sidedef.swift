@@ -42,7 +42,7 @@ struct SidedefData: Serializable {
         upper = sidedef.upper.data
         lower = sidedef.lower.data
         middle = sidedef.middle.data
-        secnum = try Int16(throwing: sectors.index(of: sidedef.sector) ?? -1)
+        secnum = try Int16(throwing: sectors.firstIndex(of: sidedef.sector) ?? -1)
     }
 
     var serialized: [UInt8] {

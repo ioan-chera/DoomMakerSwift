@@ -28,9 +28,10 @@ protocol Serializable {
 /// Individual map item. It mainly is storable in sets
 ///
 class IndividualItem: Hashable {
-    var hashValue: Int {
-        return ObjectIdentifier(self).hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
     }
+
     static func == (lhs: IndividualItem, rhs: IndividualItem) -> Bool {
         return lhs === rhs
     }

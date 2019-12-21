@@ -33,6 +33,8 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     @IBOutlet var docWindow: NSWindow!
     @IBOutlet var levelChooser: NSPopUpButton!
     @IBOutlet var mapView: MapView!
+
+    @IBOutlet var statusBox: NSBox!
     @IBOutlet var gridLabel: NSTextField!
     @IBOutlet var zoomLabel: NSTextField!
     @IBOutlet var xyLabel: NSTextField!
@@ -51,11 +53,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         let haveLevel = self.currentLevel != nil
         self.currentLevel?.document = self
         self.mapView.isHidden = !haveLevel
-        self.gridLabel.isHidden = !haveLevel
-        self.zoomLabel.isHidden = !haveLevel
-        self.xyLabel.isHidden = !haveLevel
-        self.rotationLabel.isHidden = !haveLevel
-        self.modeLabel.isHidden = !haveLevel
+        statusBox.isHidden = !haveLevel
 
         // Get settings from reference
         if haveLevel {

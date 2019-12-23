@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Foundation
+
 ///
 /// Item that has to be saved and loaded from map
 ///
@@ -50,5 +52,64 @@ class InteractiveItem: IndividualItem {
     }
     var sectors: Set<Sector> {
         return Set()
+    }
+}
+
+///
+/// Dragged item. Used by things and vertices for proper display in the editor
+/// when dragging objects, without changing state until user releases the mouse
+/// button.
+///
+class DraggedItem: InteractiveItem {
+    var x, y: Int16 // coordinates to map area
+    private(set) var dragging = false
+    private var dragX: Int16 = 0, dragY: Int16 = 0
+    var apparentX: Int16 {
+        get {
+            return dragging ? dragX : x
+        }
+    }
+
+    var apparentY: Int16 {
+        get {
+            return dragging ? dragY : y
+        }
+    }
+
+    init(x: Int16, y: Int16) {
+        self.x = x
+        self.y = y
+    }
+
+    func setDragging(x: Int16, y: Int16) -> Bool {
+        dragging = dragging || x != self.x || y != self.y
+        dragX = x
+        dragY = y
+        return dragging
+    }
+
+    func setDragging(point: NSPoint) -> Bool {
+        return setDragging(x: Int16(round(point.x)), y: Int16(round(point.y)))
+    }
+
+    func endDragging() {
+        dragging = false
+    }
+
+    var position: NSPoint {
+        get {
+            return NSPoint(x: x, y: y)
+        }
+        set(value) {
+            x = Int16(round(value.x))
+            y = Int16(round(value.y))
+        }
+    }
+
+    //
+    // MARK: InteractiveItem
+    //
+    override var draggables: Set<DraggedItem> {
+        return Set([self])
     }
 }

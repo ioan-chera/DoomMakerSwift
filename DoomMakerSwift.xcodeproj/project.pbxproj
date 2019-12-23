@@ -39,7 +39,6 @@
 		4FA0A77C1C54D8A8009F3980 /* DataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */; };
 		4FA0A77E1C54E5E1009F3980 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A77D1C54E5E1009F3980 /* Level.swift */; };
 		4FB6980C1F1A8CF200BEEB8A /* Thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980B1F1A8CF200BEEB8A /* Thing.swift */; };
-		4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */; };
 		4FF7CACF1F9B48FA00A46851 /* MapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF7CACE1F9B48FA00A46851 /* MapItem.swift */; };
 /* End PBXBuildFile section */
 
@@ -99,7 +98,6 @@
 		4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataExtension.swift; path = DoomMakerSwift/DataExtension.swift; sourceTree = SOURCE_ROOT; };
 		4FA0A77D1C54E5E1009F3980 /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Level.swift; path = DoomMakerSwift/Level.swift; sourceTree = SOURCE_ROOT; };
 		4FB6980B1F1A8CF200BEEB8A /* Thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thing.swift; sourceTree = "<group>"; };
-		4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggedItem.swift; sourceTree = "<group>"; };
 		4FF7CACE1F9B48FA00A46851 /* MapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -204,7 +202,6 @@
 				4F7788381D37F5DD0012EFC6 /* DataReader.swift */,
 				4F00928E1E63260B002A4A04 /* DataWriter.swift */,
 				4FA0A74C1C54C65E009F3980 /* Document.swift */,
-				4FB6980D1F1A90DE00BEEB8A /* DraggedItem.swift */,
 				4F2CF8961F9FAAE400F9D4BB /* Errors.swift */,
 				4F7788451D38AF590012EFC6 /* Geom.swift */,
 				4FA0A77D1C54E5E1009F3980 /* Level.swift */,
@@ -390,7 +387,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F81A8761D3B7FD500D9EBA4 /* NSTextFieldExtension.swift in Sources */,
-				4FB6980E1F1A90DE00BEEB8A /* DraggedItem.swift in Sources */,
 				4F7788391D37F5DD0012EFC6 /* DataReader.swift in Sources */,
 				4F81A8781D3B8B6300D9EBA4 /* Preferences.swift in Sources */,
 				4FA0A7791C54CA42009F3980 /* Wad.swift in Sources */,

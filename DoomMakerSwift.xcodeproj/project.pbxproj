@@ -17,6 +17,7 @@
 		4F683F1F1ED0BD4900D23D3E /* doom2.json in Resources */ = {isa = PBXBuildFile; fileRef = 4F683F1E1ED0BD4900D23D3E /* doom2.json */; };
 		4F683F211ED0BEEC00D23D3E /* ThingConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F683F201ED0BEEC00D23D3E /* ThingConfig.swift */; };
 		4F683F231ED0C34100D23D3E /* NSColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F683F221ED0C34100D23D3E /* NSColorExtension.swift */; };
+		4F6E5EDA23B0BE240076A618 /* BSP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6E5ED923B0BE240076A618 /* BSP.swift */; };
 		4F7788351D36C2030012EFC6 /* Lump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788341D36C2030012EFC6 /* Lump.swift */; };
 		4F7788371D36C8C50012EFC6 /* LevelEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788361D36C8C50012EFC6 /* LevelEditor.swift */; };
 		4F7788391D37F5DD0012EFC6 /* DataReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7788381D37F5DD0012EFC6 /* DataReader.swift */; };
@@ -70,6 +71,7 @@
 		4F683F1E1ED0BD4900D23D3E /* doom2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = doom2.json; path = resources/doom2.json; sourceTree = "<group>"; };
 		4F683F201ED0BEEC00D23D3E /* ThingConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThingConfig.swift; sourceTree = "<group>"; };
 		4F683F221ED0C34100D23D3E /* NSColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSColorExtension.swift; sourceTree = "<group>"; };
+		4F6E5ED923B0BE240076A618 /* BSP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BSP.swift; sourceTree = "<group>"; };
 		4F7788341D36C2030012EFC6 /* Lump.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lump.swift; path = DoomMakerSwift/Lump.swift; sourceTree = SOURCE_ROOT; };
 		4F7788361D36C8C50012EFC6 /* LevelEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LevelEditor.swift; path = DoomMakerSwift/LevelEditor.swift; sourceTree = SOURCE_ROOT; };
 		4F7788381D37F5DD0012EFC6 /* DataReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataReader.swift; path = DoomMakerSwift/DataReader.swift; sourceTree = SOURCE_ROOT; };
@@ -198,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				4FA0A74A1C54C65E009F3980 /* AppDelegate.swift */,
+				4F6E5ED923B0BE240076A618 /* BSP.swift */,
 				4FA0A77B1C54D8A8009F3980 /* DataExtension.swift */,
 				4F7788381D37F5DD0012EFC6 /* DataReader.swift */,
 				4F00928E1E63260B002A4A04 /* DataWriter.swift */,
@@ -411,6 +414,7 @@
 				4F2064B61F9BBB98007C31C3 /* TextureName.swift in Sources */,
 				4F7788441D38A59A0012EFC6 /* MapView.swift in Sources */,
 				4FA0A74B1C54C65E009F3980 /* AppDelegate.swift in Sources */,
+				4F6E5EDA23B0BE240076A618 /* BSP.swift in Sources */,
 				4F97F9F91E694A6900C1155C /* Linedef.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

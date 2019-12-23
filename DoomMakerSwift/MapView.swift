@@ -35,7 +35,7 @@ class MapView: NSView, NSMenuItemValidation {
         }
     }
 
-    fileprivate var translate = NSPoint()
+    private var translate = NSPoint()
     var scale = CGFloat(1) {
         didSet {
             delegate?.mapViewScaleUpdated()
@@ -46,9 +46,9 @@ class MapView: NSView, NSMenuItemValidation {
             level?.gridRotation = self.rotate
         }
     }
-    fileprivate var rotatingGesture = false
+    private var rotatingGesture = false
 
-    fileprivate var trackingArea: NSTrackingArea?
+    private var trackingArea: NSTrackingArea?
 
     private var mouseViewPos = NSPoint()
     private var mouseGamePos = NSPoint() {
@@ -104,7 +104,7 @@ class MapView: NSView, NSMenuItemValidation {
         commonInit()
     }
 
-    fileprivate func commonInit() {
+    private func commonInit() {
         self.wantsLayer = true
         self.layer?.backgroundColor = NSColor.black.cgColor
         let area = NSTrackingArea(rect: self.bounds, options: [NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.inVisibleRect, NSTrackingArea.Options.mouseMoved], owner: self, userInfo: nil)
@@ -132,7 +132,7 @@ class MapView: NSView, NSMenuItemValidation {
         }
     }
 
-    fileprivate func drawGrid(_ dirtyRect: NSRect, context: CGContext) {
+    private func drawGrid(_ dirtyRect: NSRect, context: CGContext) {
 
         let gridf = CGFloat(gridSize) * scale   // for casting's sake
         if gridf <= 2 {
@@ -169,7 +169,7 @@ class MapView: NSView, NSMenuItemValidation {
 
 
 
-    fileprivate func drawLines(_ dirtyRect: NSRect, context: CGContext) {
+    private func drawLines(_ dirtyRect: NSRect, context: CGContext) {
         func transformed(_ p: NSPoint) -> NSPoint {
             return p.rotated(rotate) * scale + translate
         }
@@ -367,7 +367,7 @@ class MapView: NSView, NSMenuItemValidation {
     // Events
     //
 
-    fileprivate func capTranslation() {
+    private func capTranslation() {
         if translate.x / scale > 32768 {
             translate.x = 32768 * scale
         }
@@ -406,7 +406,7 @@ class MapView: NSView, NSMenuItemValidation {
     ///
     /// Handles magnification
     ///
-    fileprivate func doMagnification(_ amount: CGFloat, cursorpos: NSPoint) {
+    private func doMagnification(_ amount: CGFloat, cursorpos: NSPoint) {
         if (amount > 0 && self.scale >= Const.scaleMax) ||
             (amount < 0 && self.scale <= Const.scaleMin)
         {

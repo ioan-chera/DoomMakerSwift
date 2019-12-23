@@ -23,7 +23,7 @@ import Foundation
 ///
 class Lump
 {
-    fileprivate var _nameBytes: [UInt8]  // byte array up to 8 values
+    private var _nameBytes: [UInt8]  // byte array up to 8 values
     var data: [UInt8]
 
     var nameBytes: [UInt8] {

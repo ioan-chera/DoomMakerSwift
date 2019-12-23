@@ -127,20 +127,20 @@ class Level
         }
     }
 
-    fileprivate(set) var name: String
+    private(set) var name: String
 
-    fileprivate(set) var things: [Thing]
+    private(set) var things: [Thing]
     private(set) var linedefs: [Linedef]
     private(set) var linedefData: [LinedefData]
     private(set) var sidedefs: [Sidedef]
     private(set) var sidedefData: [SidedefData]
     private(set) var vertices: [Vertex]
-    fileprivate var segs: [Seg]
-    fileprivate var subsectors: [Subsector]
-    fileprivate var nodes: [Node]
+    private var segs: [Seg]
+    private var subsectors: [Subsector]
+    private var nodes: [Node]
     private(set) var sectors: [Sector]
-    fileprivate var reject: [UInt8]
-    fileprivate var blockmap: [Int]
+    private var reject: [UInt8]
+    private var blockmap: [Int]
 
     private(set) var bspVertices: [Vertex]
 

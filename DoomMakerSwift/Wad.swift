@@ -34,8 +34,8 @@ class Wad
         case pwad
     }
 
-    fileprivate(set) var type: WadType
-    fileprivate(set) var lumps: [Lump]
+    private(set) var type: WadType
+    private(set) var lumps: [Lump]
 
     init(inType: WadType = WadType.pwad)
     {

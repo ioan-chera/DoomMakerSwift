@@ -61,7 +61,7 @@ class LevelEditor {
         self.findLevels()
     }
 
-    fileprivate func findLevels() {
+    private func findLevels() {
         self.levels = []   // TODO: keep old level references
         var index = 0
         for levelLump in wad.lumps {

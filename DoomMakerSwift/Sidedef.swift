@@ -86,6 +86,17 @@ final class Sidedef: IndividualItem {
         sector.addSide(self)
     }
 
+    init(from sidedef: Sidedef) {
+        xOffset = sidedef.xOffset
+        yOffset = sidedef.yOffset
+        upper = sidedef.upper
+        lower = sidedef.lower
+        middle = sidedef.middle
+        self.sector = sidedef.sector
+        super.init()
+        sector.addSide(self)
+    }
+
     func addLine(_ line: Linedef) {
         linedefs.insert(line)
     }

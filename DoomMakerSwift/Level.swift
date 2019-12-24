@@ -381,8 +381,22 @@ class Level
     /// Splits a linedef by a given vertex
     ///
     private func split(linedef: Linedef, vertex: Vertex) {
+        // Vertex cases already managed in checkMoved
+        let v2 = linedef.v2
         changeVertex(linedef: linedef, source: linedef.v2, target: vertex)
-        // TODO: now we need to add it
+        let newLinedef = Linedef(from: linedef, v1: vertex, v2: v2)
+        add(linedef: newLinedef, index: linedefs.count, v1: vertex, v2: v2, s1: nil, s2: nil)
+        if let s1 = linedef.s1 {
+            let newFrontSide = Sidedef(from: s1)
+            // TODO: add offset by modulo-ing the texture width
+            add(sidedef: newFrontSide, index: sidedefs.count, sector: newFrontSide.sector,
+                s1lines: Set([newLinedef]), s2lines: Set())
+        }
+        if let s2 = linedef.s2 {
+            let newBackSide = Sidedef(from: s2)
+            add(sidedef: newBackSide, index: sidedefs.count, sector: newBackSide.sector,
+                s1lines: Set(), s2lines: Set([newLinedef]))
+        }
     }
 
     ///
@@ -731,29 +745,31 @@ class Level
     }
 
     ///
+    /// Add sidedef
+    ///
+    private func add(sidedef: Sidedef, index: Int, sector: Sector,
+                     s1lines: Set<Linedef>, s2lines: Set<Linedef>)
+    {
+        sidedefs.insert(sidedef, at: index)
+        s1lines.forEach { $0.s1 = sidedef }
+        s2lines.forEach { $0.s2 = sidedef }
+        sidedef.sector = sector
+
+        undo?.registerUndo {
+            self.delete(sidedef: sidedef)
+        }
+
+        updateDirty(&sidedefTracking)
+        updateDirty(&nodeTracking)
+        updateView()
+    }
+
+    ///
     /// Deletes a sidedef
     ///
     private func delete(sidedef: Sidedef) {
         guard let index = indexOf(array: sidedefs, item: sidedef) else {
             return
-        }
-
-        // Adding it back
-        func add(sidedef: Sidedef, index: Int, sector: Sector,
-                 s1lines: Set<Linedef>, s2lines: Set<Linedef>)
-        {
-            sidedefs.insert(sidedef, at: index)
-            s1lines.forEach { $0.s1 = sidedef }
-            s2lines.forEach { $0.s2 = sidedef }
-            sidedef.sector = sector
-
-            undo?.registerUndo {
-                self.delete(sidedef: sidedef)
-            }
-
-            updateDirty(&sidedefTracking)
-            updateDirty(&nodeTracking)
-            updateView()
         }
 
         // When deleting a side, do this action sometimes
@@ -807,7 +823,7 @@ class Level
         sidedefs.remove(at: index)
 
         undo?.registerUndo {
-            add(sidedef: sidedef, index: index, sector: sector, s1lines: s1lines, s2lines: s2lines)
+            self.add(sidedef: sidedef, index: index, sector: sector, s1lines: s1lines, s2lines: s2lines)
         }
         if sector.sidedefs.count == 0 {
             delete(sector: sector)
@@ -840,28 +856,30 @@ class Level
     }
 
     ///
+    /// Add a linedef
+    ///
+    func add(linedef: Linedef, index: Int, v1: Vertex, v2: Vertex,
+             s1: Sidedef?, s2: Sidedef?)
+    {
+        linedefs.insert(linedef, at: index)
+        linedef.s1 = s1
+        linedef.s2 = s2
+        linedef.v1 = v1
+        linedef.v2 = v2
+        undo?.registerUndo {
+            self.delete(linedef: linedef)
+        }
+        updateDirty(&linedefTracking)
+        updateDirty(&nodeTracking)
+        updateView()
+    }
+
+    ///
     /// Deletes a linedef
     ///
     private func delete(linedef: Linedef, keepVertices: Bool = false) {
         guard let index = indexOf(array: linedefs, item: linedef) else {
             return
-        }
-
-        // Adding it back
-        func add(linedef: Linedef, index: Int, v1: Vertex, v2: Vertex,
-                 s1: Sidedef?, s2: Sidedef?)
-        {
-            linedefs.insert(linedef, at: index)
-            linedef.s1 = s1
-            linedef.s2 = s2
-            linedef.v1 = v1
-            linedef.v2 = v2
-            undo?.registerUndo {
-                self.delete(linedef: linedef)
-            }
-            updateDirty(&linedefTracking)
-            updateDirty(&nodeTracking)
-            updateView()
         }
 
         // first unreference sidedefs
@@ -876,7 +894,7 @@ class Level
         // Check if sidedefs are orphaned. Then delete them
         linedefs.remove(at: index)
         undo?.registerUndo {
-            add(linedef: linedef, index: index, v1: v1, v2: v2, s1: s1, s2: s2)
+            self.add(linedef: linedef, index: index, v1: v1, v2: v2, s1: s1, s2: s2)
         }
         if !keepVertices {
             if v1.linedefs.count == 0 {

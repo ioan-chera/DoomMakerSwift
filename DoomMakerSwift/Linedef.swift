@@ -153,6 +153,17 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
         s2?.addLine(self)
     }
 
+    init(from linedef: Linedef, v1: Vertex, v2: Vertex) {
+        flags = linedef.flags
+        special = linedef.special
+        tag = linedef.tag
+        self.v1 = v1
+        self.v2 = v2
+        super.init()
+        v1.addLine(self)
+        v2.addLine(self)
+    }
+
     var frontsector: Sector? {
         get {
             return s1?.sector
@@ -227,9 +238,10 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
         let pv = NSPoint(item: vertex)
         let p1 = NSPoint(item: v1)
         let p2 = NSPoint(item: v2)
-        let pmin = NSPoint(x: min(p1.x, p2.x), y: min(p1.y, p2.y))
-        let pmax = NSPoint(x: max(p1.x, p2.x), y: max(p1.y, p2.y))
-        if pv.x <= pmin.x || pv.y <= pmin.y || pv.x >= pmax.x || pv.y >= pmax.y {
+        let bBox = NSRect(point1: p1, point2: p2)
+        if (bBox.width > 0 && (pv.x <= bBox.minX || pv.x >= bBox.maxX)) ||
+            (bBox.height > 0 && (pv.y <= bBox.minY || pv.y >= bBox.maxY))
+        {
             return false
         }
         let proj = Geom.projection(point: pv, linep1: p1, linep2: p2)

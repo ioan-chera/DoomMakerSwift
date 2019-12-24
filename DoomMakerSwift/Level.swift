@@ -397,6 +397,7 @@ class Level
             add(sidedef: newBackSide, index: sidedefs.count, sector: newBackSide.sector,
                 s1lines: Set(), s2lines: Set([newLinedef]))
         }
+        unifyVertexConnections(linedef: newLinedef)
     }
 
     ///
@@ -1101,6 +1102,9 @@ class Level
     /// Assuming two vertices have multiple connecting lines, it compactifies them into one, looking
     /// at context
     ///
+    private func unifyVertexConnections(linedef: Linedef) {
+        unifyVertexConnections(v1: linedef.v1, v2: linedef.v2)
+    }
     private func unifyVertexConnections(v1: Vertex, v2: Vertex) {
         // need it as an array to be ordered
         let connections = Array(v1.linedefs.intersection(v2.linedefs))

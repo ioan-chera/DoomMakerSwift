@@ -65,6 +65,15 @@ final class Vertex: DraggedItem, Serializable, CustomStringConvertible {
         return x == vertex.x && y == vertex.y
     }
 
+    func distance(vertex: Vertex) -> NSPoint {
+        return NSPoint(x: abs(x - vertex.x), y: abs(y - vertex.y))
+    }
+
+    func angle(to vertex: Vertex) -> Double {
+        // NOTE: use anglemod to be 100% sure it's in the expected range
+        return anglemod(atan2(Double(vertex.y) - Double(y), Double(vertex.x) - Double(x)))
+    }
+
     //
     // MARK: string representation
     //

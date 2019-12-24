@@ -149,15 +149,14 @@ class Level
     }
 
     ///
-    /// Fixes references prior to saving. Returns false on failure.
+    /// Fixes references prior to saving.
     ///
     func serializeItems() throws {
-        linedefData = try linedefs.map { line in
-            try LinedefData(linedef: line, vertices: vertices,
-                            sidedefs: sidedefs)
+        linedefData = try linedefs.map {
+            try LinedefData(linedef: $0, vertices: vertices, sidedefs: sidedefs)
         }
-        sidedefData = try sidedefs.map { side in
-            try SidedefData(sidedef: side, sectors: sectors)
+        sidedefData = try sidedefs.map {
+            try SidedefData(sidedef: $0, sectors: sectors)
         }
     }
 
@@ -166,10 +165,10 @@ class Level
     // MARK: VERTEX USER INTERACTION
     //
 
-    /// the vertex currently highlighted by the mouse
+    /// the item currently highlighted by the mouse
     private(set) weak var highlightedItem: InteractiveItem?
 
-    /// the vertex the user started holding down the mouse
+    /// the item the user started holding down the mouse
     private(set) weak var clickedDownItem: InteractiveItem?
 
     /// the map position the user started holding down the mouse
@@ -224,8 +223,7 @@ class Level
         self.blockmap = []
         self.mode = Mode.vertices
 
-        self.loadBlockmap(
-            wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
+        self.loadBlockmap(wad.lumps[lumpIndex + LumpOffset.blockmap.rawValue].data)
         setupSidedefs()
         setupLinedefs()
         checkBspVertices()
@@ -340,8 +338,7 @@ class Level
             for linedef in linedefs {
                 let p1 = NSPoint(item: linedef.v1)
                 let p2 = NSPoint(item: linedef.v2)
-                let box = NSRect(point1: p1, point2: p2)
-                    .insetBy(dx: -radius, dy: -radius)
+                let box = NSRect(point1: p1, point2: p2).insetBy(dx: -radius, dy: -radius)
                 if !NSPointInRect(position, box) {
                     continue
                 }
@@ -701,7 +698,7 @@ class Level
             return
         }
 
-        if sector.sidedefs.count == 0 {
+        if sector.sidedefs.isEmpty {
 
             // Adding it back
             func add(sector: Sector, index: Int) {
@@ -810,8 +807,7 @@ class Level
         sidedefs.remove(at: index)
 
         undo?.registerUndo {
-            add(sidedef: sidedef, index: index, sector: sector,
-                s1lines: s1lines, s2lines: s2lines)
+            add(sidedef: sidedef, index: index, sector: sector, s1lines: s1lines, s2lines: s2lines)
         }
         if sector.sidedefs.count == 0 {
             delete(sector: sector)
@@ -1084,6 +1080,98 @@ class Level
     }
 
     ///
+    /// Assuming two vertices have multiple connecting lines, it compactifies them into one, looking
+    /// at context
+    ///
+    private func unifyVertexConnections(v1: Vertex, v2: Vertex) {
+        // need it as an array to be ordered
+        let connections = Array(v1.linedefs.intersection(v2.linedefs))
+        if connections.count <= 1 {
+            return  // nothing to do if unconnected or correctly connected.
+        }
+        if connections.count >= 3 {
+            return  // NOTE: currently no support for more than 2 connection correction
+        }
+        // Now check which sidedefs win.
+        var rightLineSides = [(Linedef, Side)]()
+        var leftLineSides = [(Linedef, Side)]()
+
+        for line in connections {
+            if line.v1 === v1 {
+                rightLineSides.append((line, .front))
+                leftLineSides.append((line, .back))
+            } else {
+                rightLineSides.append((line, .back))
+                leftLineSides.append((line, .front))
+            }
+        }
+
+        let otherV2Lines = v2.linedefs.subtracting(connections)
+        let otherV1Lines = v1.linedefs.subtracting(connections)
+
+        ///
+        /// Common function to look up the correct line/side to merge
+        ///
+        func findAdjacentReferences(reversed: Bool) -> ((Linedef, Side), (Linedef, Side)) {
+            let otherLines = !reversed ? otherV2Lines : otherV1Lines
+            let startv = !reversed ? v1 : v2
+            let endv = !reversed ? v2 : v1
+            let leftLookup = !reversed ? leftLineSides : rightLineSides
+            let rightLookup = !reversed ? rightLineSides : leftLineSides
+
+            let baseAngle = startv.angle(to: endv)
+            var leftmostSector: Sector?
+            var rightmostSector: Sector?
+            var leftmostAngleDiff = -2 * π
+            var rightmostAngleDiff = +2 * π
+
+            var winningLeftLookupSide = leftLookup[0]
+            var winningRightLookupSide = rightLookup[0]
+
+            for line in otherLines {
+                let angle = endv.angle(to: line.otherVertex(from: endv)!)
+                let angleDiff = anglemod(angle - baseAngle)
+                if angleDiff > leftmostAngleDiff {
+                    leftmostAngleDiff = angleDiff
+                    leftmostSector = line.sidedefByVertex(side: .back, vertex: endv)?.sector
+                }
+                if angleDiff < rightmostAngleDiff {
+                    rightmostAngleDiff = angleDiff
+                    rightmostSector = line.sidedefByVertex(side: .front, vertex: endv)?.sector
+                }
+            }
+            for lineSide in leftLookup {
+                let sidedef = lineSide.0[lineSide.1]
+                if sidedef?.sector === leftmostSector {
+                    winningLeftLookupSide = lineSide
+                    break
+                }
+            }
+            for lineSide in rightLookup {
+                let sidedef = lineSide.0[lineSide.1]
+                if sidedef?.sector === rightmostSector {
+                    winningRightLookupSide = lineSide
+                    break
+                }
+            }
+            return !reversed ? (winningLeftLookupSide, winningRightLookupSide) :
+                               (winningRightLookupSide, winningLeftLookupSide)
+        }
+
+        let winning: ((Linedef, Side), (Linedef, Side))
+        if !otherV2Lines.isEmpty {
+            winning = findAdjacentReferences(reversed: false)
+        } else if !otherV1Lines.isEmpty {
+            winning = findAdjacentReferences(reversed: true)
+        } else {
+            winning = (leftLineSides[0], rightLineSides[0])
+        }
+
+        merge(sourceLine: winning.0.0, sourceSide: winning.0.1,
+              targetLine: winning.1.0, targetSide: winning.1.1)
+    }
+
+    ///
     /// Moves a vertex from a line to a new vertex
     ///
     private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex)
@@ -1113,28 +1201,11 @@ class Level
         updateView()
 
         // Now check merged lines. Only if it's meant to happen
-        guard let mergeLine = mergeLineOptional else
-        {
+        guard let mergeLine = mergeLineOptional else {
             return
         }
 
-        for linedefSide in [Side.front, Side.back] {
-            for mergeLineSide in [Side.front, Side.back] {
-                if linedef[linedefSide]?.sector !==
-                    mergeLine[mergeLineSide]?.sector
-                {
-                    continue
-                }
-                merge(sourceLine: linedef, sourceSide: !linedefSide,
-                      targetLine: mergeLine, targetSide: !mergeLineSide)
-                return
-            }
-        }
-
-        // We couldn't find any corresponsdence, so just pick one
-        merge(sourceLine: linedef, sourceSide: Side.front,
-              targetLine: mergeLine, targetSide: Side.back)
-
+        unifyVertexConnections(v1: mergeLine.v1, v2: mergeLine.v2)
     }
 
     ///

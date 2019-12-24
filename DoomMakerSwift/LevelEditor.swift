@@ -210,7 +210,7 @@ class LevelEditor {
     ///
     /// Holds data about each checkDirty action
     ///
-    struct MapItemUpdate {
+    private struct MapItemUpdate {
         let trackingVariable: Int
         let offset: Level.LumpOffset
         let list: [Serializable]

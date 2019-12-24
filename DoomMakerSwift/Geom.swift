@@ -301,3 +301,14 @@ enum Side {
 prefix func ! (right: Side) -> Side {
     return right == .front ? .back : .front
 }
+
+func anglemod(_ angle: Double) -> Double {
+    var res = angle
+    while res < -π {
+        res += 2 * π
+    }
+    while res >= π {
+        res -= 2 * π
+    }
+    return res
+}

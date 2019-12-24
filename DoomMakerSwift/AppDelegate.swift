@@ -25,6 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var linedefsModeItem: NSMenuItem!
     @IBOutlet var sectorsModeItem: NSMenuItem!
     @IBOutlet var thingsModeItem: NSMenuItem!
+    @IBOutlet var setGridMenu: NSMenu!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Load resources
@@ -37,16 +38,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
 
-    func updateMode(_ mode: Level.Mode) {
-        func check(_ val: Level.Mode) -> NSControl.StateValue {
-            return mode == val ? NSControl.StateValue.on : NSControl.StateValue.off
-        }
-        verticesModeItem.state = check(Level.Mode.vertices)
-        linedefsModeItem.state = check(Level.Mode.linedefs)
-        sectorsModeItem.state = check(Level.Mode.sectors)
-        thingsModeItem.state = check(Level.Mode.things)
-    }
-
     func appSupportDir() -> URL {
         let urls = FileManager.default.urls(for: .applicationSupportDirectory,
                                             in: .userDomainMask)
@@ -54,6 +45,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let subUrl = url.appendingPathComponent(Bundle.main.bundleIdentifier!)
         try! FileManager.default.createDirectory(at: subUrl, withIntermediateDirectories: true, attributes: nil)
         return subUrl
+    }
+
+    //
+    // MARK: MainMenu update status
+    //
+
+    func updateMode(_ mode: Level.Mode) {
+        func check(_ val: Level.Mode) -> NSControl.StateValue {
+            return mode == val ? .on : .off
+        }
+        verticesModeItem.state = check(Level.Mode.vertices)
+        linedefsModeItem.state = check(Level.Mode.linedefs)
+        sectorsModeItem.state = check(Level.Mode.sectors)
+        thingsModeItem.state = check(Level.Mode.things)
+    }
+
+    func updateGrid(density: Int) {
+        for i in 0 ..< setGridMenu.numberOfItems {
+            guard let item = setGridMenu.item(at: i) else {
+                continue
+            }
+            item.state = Int(atoi(item.title)) == density ? .on : .off
+        }
     }
 }
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15400" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15400"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -16,6 +16,7 @@
             <connections>
                 <outlet property="linedefsModeItem" destination="lD1-GP-NnA" id="L7L-M3-XXk"/>
                 <outlet property="sectorsModeItem" destination="znU-Fl-gGg" id="wUT-Bt-Rsl"/>
+                <outlet property="setGridMenu" destination="7c7-ei-8CP" id="aC9-c9-OeJ"/>
                 <outlet property="thingsModeItem" destination="56T-m6-jzO" id="NJ2-Ck-low"/>
                 <outlet property="verticesModeItem" destination="c0P-tq-nyP" id="hgW-7Z-0hp"/>
             </connections>
@@ -650,6 +651,68 @@ CA
                                     <action selector="decreaseGridDensity:" target="-1" id="zul-3x-Ovh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Set Grid Density" id="KMt-3Q-U8f">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Set Grid Density" id="7c7-ei-8CP">
+                                    <items>
+                                        <menuItem title="2x2" keyEquivalent="1" id="IuH-7f-5lz">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="CTf-k0-KH9"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="4x4" keyEquivalent="2" id="c97-wB-yP1">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="Tg9-PG-gxW"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="8x8" keyEquivalent="3" id="DCs-Se-IHV">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="MxD-BL-iUU"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="16x16" keyEquivalent="4" id="slz-dP-PMw">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="jN3-4E-FOb"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="32x32" keyEquivalent="5" id="rIR-Gp-QGd">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="gN1-Tw-XhF"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="64x64" keyEquivalent="6" id="7HX-6s-fZz">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="xhJ-ne-aXF"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="128x128" keyEquivalent="7" id="m40-Rp-gsm">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="lWJ-UQ-YWi"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="256x256" keyEquivalent="8" id="7gR-Vh-u6Q">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="Gp8-f1-ct6"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="512x512" keyEquivalent="9" id="aUG-ub-GgE">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setGridDensity:" target="-1" id="gHR-jb-LhB"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="x2b-ln-EIm"/>
                             <menuItem title="Zoom In" keyEquivalent="=" id="xFn-Gz-Qo1">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
@@ -746,6 +809,7 @@ CA
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="132" y="154"/>
         </menu>
     </objects>
 </document>

@@ -526,6 +526,16 @@ class MapView: NSView, NSMenuItemValidation {
         }
     }
 
+    @IBAction func setGridDensity(_ sender: Any?) {
+        guard let sender = sender as? NSMenuItem else {
+            NSSound.beep()
+            return
+        }
+        gridSize = Int(atoi(sender.title))
+        setNeedsDisplay(bounds)
+
+    }
+
     private func pointerPosition() -> NSPoint {
         guard let windowPos = self.window?.mouseLocationOutsideOfEventStream else {
             return NSPoint(x: self.bounds.size.width / 2, y: self.bounds.size.height / 2)   // default to centre
@@ -606,6 +616,9 @@ class MapView: NSView, NSMenuItemValidation {
         }
         if menuItem.action == #selector(MapView.decreaseGridDensity(_:)) {
             return self.gridSize < Const.gridMax
+        }
+        if menuItem.action == #selector(MapView.setGridDensity(_:)) {
+            return true
         }
         if menuItem.action == #selector(MapView.zoomIn(_:)) {
             return self.scale < Const.scaleMax

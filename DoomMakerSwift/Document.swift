@@ -103,6 +103,7 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
     func mapViewGridSizeUpdated() {
         self.gridLabel.setText("Grid Size: \(self.mapView.gridSize)")
         UserDefaults.standard.set(self.mapView.gridSize, forKey: Preferences.gridSize)
+        appDelegate().updateGrid(density: mapView.gridSize)
     }
 
     /// When the map is scaled, change the UI

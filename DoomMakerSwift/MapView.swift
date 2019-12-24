@@ -71,9 +71,11 @@ class MapView: NSView, NSMenuItemValidation {
         static let clickRange = CGFloat(16)
         static let gridColor = NSColor(red: 0, green: CGFloat(0.5),
                                        blue: CGFloat(0.5), alpha: 1)
+        static let gridColorBase = gridColor.withAlphaComponent(0.5)    // darker grid for real
         static let gridDefault = 8
         static let gridMax = 1024
         static let gridMin = 2
+        static let gridStandard = 64
         static let gridWidth = CGFloat(1) / (NSScreen.main?.backingScaleFactor
             ?? 1)
         static let highlightColour = NSColor.orange
@@ -132,16 +134,53 @@ class MapView: NSView, NSMenuItemValidation {
         }
     }
 
+    ///
+    /// Calculates the currently rotated and scaled grid
+    ///
+    private func transformed(_ p: NSPoint) -> NSPoint {
+        return p.rotated(rotate) * scale + translate
+    }
+
     private func drawGrid(_ dirtyRect: NSRect, context: CGContext) {
 
         let gridf = CGFloat(gridSize) * scale   // for casting's sake
         if gridf <= 2 {
-            Const.gridColor.setFill()
+            Const.gridColor.withAlphaComponent(0.5).setFill()
             dirtyRect.fill()
             return
         }
 
         context.setLineWidth(Const.gridWidth)
+
+        if Int(round(rotate)) % 90 != 0 {
+            // Draw the real grid too if not rotated
+            context.setStrokeColor(Const.gridColorBase.cgColor)
+
+            let mapCorners = [
+                gamePos(dirtyRect.origin),
+                gamePos(dirtyRect.origin + NSSize(width: 0, height: dirtyRect.height)),
+                gamePos(dirtyRect.origin + NSSize(width: dirtyRect.width, height: 0)),
+                gamePos(dirtyRect.origin + dirtyRect.size)
+            ]
+            let division = CGFloat(Const.gridStandard)
+
+            let bottomLeft = NSPoint(x: mapCorners.map { floor($0.x / division) }.min()!,
+                                     y: mapCorners.map { floor($0.y / division) }.min()!)
+            let topRight = NSPoint(x: mapCorners.map { floor($0.x / division) + 1 }.max()!,
+                                   y: mapCorners.map { floor($0.y / division) + 1 }.max()!)
+
+            let gridBBox = NSRect(point1: bottomLeft, point2: topRight)
+            for x in Int(gridBBox.minX)...Int(gridBBox.maxX) {
+                context.move(to: transformed(NSPoint(x: CGFloat(x), y: gridBBox.minY) * division))
+                context.addLine(to: transformed(NSPoint(x: CGFloat(x), y: gridBBox.maxY) * division))
+            }
+            for y in Int(gridBBox.minY)...Int(gridBBox.maxY) {
+                context.move(to: transformed(NSPoint(x: gridBBox.minX, y: CGFloat(y)) * division))
+                context.addLine(to: transformed(NSPoint(x: gridBBox.maxX, y: CGFloat(y)) * division))
+            }
+            context.strokePath()
+        }
+
         context.setStrokeColor(Const.gridColor.cgColor)
 
         let disp = translate - floor(translate / gridf) * gridf
@@ -151,29 +190,18 @@ class MapView: NSView, NSMenuItemValidation {
         let miny = ceil(dirtyRect.origin.y / gridf) * gridf - gridf
         let maxy = floor(dirtyRect.origin.y + dirtyRect.size.height / gridf) * gridf + 2 * gridf
 
-        var p: NSPoint
         for x in stride(from: minx, through: maxx, by: gridf) {
-            p = NSPoint(x: x, y: miny - gridf) + disp
-            context.move(to: CGPoint(x: p.x, y: p.y))
-            p = NSPoint(x: x, y: maxy + gridf) + disp
-            context.addLine(to: CGPoint(x: p.x, y: p.y))
+            context.move(to: NSPoint(x: x, y: miny - gridf) + disp)
+            context.addLine(to: NSPoint(x: x, y: maxy + gridf) + disp)
         }
         for y in stride(from: miny, through: maxy, by: gridf) {
-            p = NSPoint(x: minx - gridf, y: y) + disp
-            context.move(to: CGPoint(x: p.x, y: p.y))
-            p = NSPoint(x: maxx, y: y) + disp
-            context.addLine(to: CGPoint(x: p.x, y: p.y))
+            context.move(to: NSPoint(x: minx - gridf, y: y) + disp)
+            context.addLine(to: NSPoint(x: maxx, y: y) + disp)
         }
         context.strokePath()
     }
 
-
-
     private func drawLines(_ dirtyRect: NSRect, context: CGContext) {
-        func transformed(_ p: NSPoint) -> NSPoint {
-            return p.rotated(rotate) * scale + translate
-        }
-
         guard let level = self.level else {
             return
         }

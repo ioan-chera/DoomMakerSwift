@@ -878,7 +878,7 @@ class Level
     ///
     /// Deletes a linedef
     ///
-    private func delete(linedef: Linedef, keepVertices: Bool = false) {
+    private func delete(linedef: Linedef, keepIsolatedVertices: Bool = false) {
         guard let index = indexOf(array: linedefs, item: linedef) else {
             return
         }
@@ -897,7 +897,7 @@ class Level
         undo?.registerUndo {
             self.add(linedef: linedef, index: index, v1: v1, v2: v2, s1: s1, s2: s2)
         }
-        if !keepVertices {
+        if !keepIsolatedVertices {
             if v1.linedefs.count == 0 {
                 delete(vertex: v1)
             }
@@ -1238,7 +1238,9 @@ class Level
             return
         }
 
-        // Adding it back
+        ///
+        /// Adds a vertex back
+        ////
         func add(vertex: Vertex, index: Int) {
             vertices.insert(vertex, at: index)
             undo?.registerUndo {
@@ -1250,7 +1252,7 @@ class Level
         }
 
         // Delete vertex if it's isolated
-        if vertex.linedefs.count == 0 {
+        if vertex.linedefs.isEmpty {
             vertices.remove(at: index)
             undo?.registerUndo {
                 add(vertex: vertex, index: index)
@@ -1266,26 +1268,22 @@ class Level
         if vertex.linedefs.count == 2 {
 
             // Pick the longer linedef
-            let lines = Array(vertex.linedefs)
-            let lengths = lines.map { $0.length() }
-            let lineToDelete = lengths[0] < lengths[1] ? lines[0] : lines[1]
-            let lineToKeep = lengths[0] < lengths[1] ? lines[1] : lines[0]
+            let lines = vertex.linedefs.sorted { $0.length() < $1.length() }
+            let lineToDelete = lines[0]
+            let lineToKeep = lines[1]
 
             // Keep reference to other vertex
-            let otherVertex = lineToDelete.v1 === vertex ? lineToDelete.v2 :
-                lineToDelete.v1
-
-            let originVertex = lineToKeep.v1 === vertex ? lineToKeep.v2 :
-                lineToKeep.v1
+            let otherVertex = lineToDelete.otherVertex(from: vertex)!
+            let originVertex = lineToKeep.otherVertex(from: vertex)!
 
             // If the "shorter" linedef is actually a degenerate one without a
             // vertex, then just fall through to normal deletion of adjacent
             // lines
             // Also avoid degenerating triangle sectors
-            if originVertex.linedefs.intersection(otherVertex.linedefs).count == 0 {
-
-                // Delete the linedef
-                delete(linedef: lineToDelete, keepVertices: true)
+            if originVertex.connectingLine(with: otherVertex) === nil {
+                // Delete the linedef. Keep any terminal vertices available because we'll draw a new
+                // line from them
+                delete(linedef: lineToDelete, keepIsolatedVertices: true)
 
                 changeVertex(linedef: lineToKeep, source: vertex,
                              target: otherVertex)

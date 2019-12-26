@@ -656,13 +656,6 @@ class Level
     //
 
     ///
-    /// Fixes
-    ///
-    private func fixDuplicateLines(linedef: Linedef) {
-
-    }
-
-    ///
     /// Merge a vertex into another vertex, by transferring properties
     ///
     private func merge(vertex v1: Vertex, into v2: Vertex)
@@ -1126,13 +1119,9 @@ class Level
         var leftLineSides = [(Linedef, Side)]()
 
         for line in connections {
-            if line.v1 === v1 {
-                rightLineSides.append((line, .front))
-                leftLineSides.append((line, .back))
-            } else {
-                rightLineSides.append((line, .back))
-                leftLineSides.append((line, .front))
-            }
+            let side = line.rightSideBy(vertex: v1)!
+            rightLineSides.append((line, side))
+            leftLineSides.append((line, !side))
         }
 
         let otherV2Lines = v2.linedefs.subtracting(connections)
@@ -1208,25 +1197,30 @@ class Level
         guard let backVertex = linedef.otherVertex(from: source) else {
             return  // this way we check that source belonged to linedef
         }
-        let mergeLineOptional = backVertex.connectingLine(with: target)
-        if source === linedef.v1 {
-            linedef.v1 = target
-        } else {
-            linedef.v2 = target
+
+        ///
+        /// Performs the simple undoable change
+        ///
+        func performSimpleChange(linedef: Linedef, source: Vertex, target: Vertex) -> Linedef? {
+            let mergeLineOptional = backVertex.connectingLine(with: target)
+            if source === linedef.v1 {
+                linedef.v1 = target
+            } else {
+                linedef.v2 = target
+            }
+            undo?.registerUndo {
+                let _ = performSimpleChange(linedef: linedef, source: target, target: source)
+            }
+            updateDirty(&linedefTracking)
+            updateDirty(&nodeTracking)
+            updateView()
+            return mergeLineOptional
         }
-        undo?.registerUndo {
-            self.changeVertex(linedef: linedef, source: target, target: source)
-        }
-        updateDirty(&linedefTracking)
-        updateDirty(&nodeTracking)
-        updateView()
 
         // Now check merged lines. Only if it's meant to happen
-        guard let mergeLine = mergeLineOptional else {
-            return
+        if let mergeLine = performSimpleChange(linedef: linedef, source: source, target: target) {
+            unifyVertexConnections(linedef: mergeLine)
         }
-
-        unifyVertexConnections(linedef: mergeLine)
     }
 
     ///

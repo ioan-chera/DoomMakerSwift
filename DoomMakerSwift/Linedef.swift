@@ -268,6 +268,10 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
         return nil
     }
 
+    func rightSideBy(vertex: Vertex) -> Side? {
+        return vertex === v1 ? .front : vertex === v2 ? .back : nil
+    }
+
     //==========================================================================
     //
     // MARK: description

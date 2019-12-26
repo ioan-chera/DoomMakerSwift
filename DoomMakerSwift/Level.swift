@@ -426,44 +426,51 @@ class Level
     ///
     private func moveDragItems(positions: [DraggedItem: NSPoint])
     {
-        var currentPositions = [DraggedItem: NSPoint]()
+        ///
+        /// This is only the movement phase, without any fix going on after it. Returns any moved
+        /// vertices for subsequent use.
+        ///
+        func performSimpleMovement(positions: [DraggedItem: NSPoint]) -> Set<Vertex> {
+            var currentPositions = [DraggedItem: NSPoint]()
 
-        var changeVertices = false
-        var changeThings = false
+            var changeThings = false
+            var checkedVertices = Set<Vertex>()
 
-        var checkedVertices = Set<Vertex>()
-
-        for (item, point) in positions {
-            currentPositions[item] = NSPoint(item: item)
-            item.position = point
-            if item is Vertex {
-                changeVertices = true
-                checkedVertices.insert(item as! Vertex)
-            } else if item is Thing {
-                changeThings = true
+            for (item, point) in positions {
+                currentPositions[item] = NSPoint(item: item)
+                item.position = point
+                if item is Vertex {
+                    checkedVertices.insert(item as! Vertex)
+                } else if item is Thing {
+                    changeThings = true
+                }
             }
+
+            // Tracking vertex changes is more important, because of node-building
+            // considerations
+            if !checkedVertices.isEmpty {
+                updateDirty(&vertexTracking)
+                updateDirty(&nodeTracking)
+            }
+            if changeThings {
+                updateDirty(&thingTracking)
+            }
+
+            undo?.registerUndo {
+                let _ = performSimpleMovement(positions: currentPositions)
+            }
+
+            updateView()
+
+            return checkedVertices
         }
 
-        // Tracking vertex changes is more important, because of node-building
-        // considerations
-        if changeVertices {
-            updateDirty(&vertexTracking)
-            updateDirty(&nodeTracking)
-        }
-        if changeThings {
-            updateDirty(&thingTracking)
-        }
-
-        undo?.registerUndo {
-            self.moveDragItems(positions: currentPositions)
-        }
+        let checkedVertices = performSimpleMovement(positions: positions)
 
         // Now check for updating other stuff
         for vertex in checkedVertices {
             checkMoved(vertex: vertex)
         }
-
-        updateView()
     }
 
     ///
@@ -1198,25 +1205,17 @@ class Level
     ///
     private func changeVertex(linedef: Linedef, source: Vertex, target: Vertex)
     {
-        let original: Vertex
-        let backVertex: Vertex
-        let mergeLineOptional: Linedef?
-        if linedef.v1 === source {
-            original = linedef.v1
-            backVertex = linedef.v2
-            mergeLineOptional = backVertex.connectingLine(with: target)
+        guard let backVertex = linedef.otherVertex(from: source) else {
+            return  // this way we check that source belonged to linedef
+        }
+        let mergeLineOptional = backVertex.connectingLine(with: target)
+        if source === linedef.v1 {
             linedef.v1 = target
-        } else if linedef.v2 === source {
-            original = linedef.v2
-            backVertex = linedef.v1
-            mergeLineOptional = backVertex.connectingLine(with: target)
-            linedef.v2 = target
         } else {
-            return
+            linedef.v2 = target
         }
         undo?.registerUndo {
-            self.changeVertex(linedef: linedef, source: target,
-                              target: original)
+            self.changeVertex(linedef: linedef, source: target, target: source)
         }
         updateDirty(&linedefTracking)
         updateDirty(&nodeTracking)
@@ -1227,7 +1226,7 @@ class Level
             return
         }
 
-        unifyVertexConnections(v1: mergeLine.v1, v2: mergeLine.v2)
+        unifyVertexConnections(linedef: mergeLine)
     }
 
     ///

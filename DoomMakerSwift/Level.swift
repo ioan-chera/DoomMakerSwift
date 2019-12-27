@@ -455,27 +455,6 @@ class Level
             }
         }
 
-        let preSplitLinedefs = linedefs
-
-        for otherLine in preSplitLinedefs {
-            if otherLine === linedef {
-                continue
-            }
-            guard let point = linedef.intersection(linedef: otherLine) else {
-                continue
-            }
-            if point.x >= CGFloat(Int16.max) || point.x <= CGFloat(Int16.min) ||
-                point.y >= CGFloat(Int16.max) || point.y <= CGFloat(Int16.min)
-            {
-                continue
-            }
-            let vertex = Vertex(x: Int16(round(point.x)), y: Int16(round(point.y)))
-            add(vertex: vertex, index: vertices.count)
-            let postSplitLine = split(linedef: linedef, vertex: vertex)
-            splitLines.insert(postSplitLine)
-            let _ = split(linedef: otherLine, vertex: vertex)
-        }
-
         for line in splitLines {
             checkForSplits(linedef: line)
         }

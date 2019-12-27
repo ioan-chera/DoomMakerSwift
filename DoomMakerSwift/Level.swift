@@ -298,6 +298,29 @@ class Level
     //
 
     ///
+    /// Utility function to find nearest sector near a point. Used both in user interaction and when
+    /// resolving some sector references
+    ///
+    private func findNearestSector(position: NSPoint, ignoringUnmergedLines: Bool) -> Sector? {
+        var minDistance = CGFloat.greatestFiniteMagnitude
+        var nearestSector: Sector? = nil
+        for linedef in linedefs {
+            if ignoringUnmergedLines && linedef.isBundled {
+                continue
+            }
+            let p1 = NSPoint(item: linedef.v1)
+            let p2 = NSPoint(item: linedef.v2)
+            let distance = position.distanceToSegment(point1: p1, point2: p2)
+            if distance < minDistance {
+                minDistance = distance
+                let drill = (position - p1).drill(p2 - p1)
+                nearestSector = drill >= 0 ? linedef.frontsector : linedef.backsector
+            }
+        }
+        return nearestSector
+    }
+
+    ///
     /// Finds the nearest vertex to a point, within a radius
     ///
     private func findNearestItem(position: NSPoint, radius: CGFloat) ->
@@ -349,16 +372,7 @@ class Level
                 }
             }
         case .sectors:
-            for linedef in linedefs {
-                let p1 = NSPoint(item: linedef.v1)
-                let p2 = NSPoint(item: linedef.v2)
-                let distance = position.distanceToSegment(point1: p1, point2: p2)
-                if distance < minDistance {
-                    minDistance = distance
-                    let drill = (position - p1).drill(p2 - p1)
-                    nearestItem = drill >= 0 ? linedef.frontsector : linedef.backsector
-                }
-            }
+            nearestItem = findNearestSector(position: position, ignoringUnmergedLines: false)
         }
 
         return nearestItem
@@ -377,10 +391,13 @@ class Level
         }
     }
 
+    typealias OverlappedSet = Set<Set<Linedef>>
+    var overlapped = OverlappedSet()
+
     ///
     /// Splits a linedef by a given vertex
     ///
-    private func split(linedef: Linedef, vertex: Vertex) {
+    private func split(linedef: Linedef, vertex: Vertex) -> Linedef {
         // Vertex cases already managed in checkMoved
         let v2 = linedef.v2
         changeVertex(linedef: linedef, source: linedef.v2, target: vertex)
@@ -397,13 +414,15 @@ class Level
             add(sidedef: newBackSide, index: sidedefs.count, sector: newBackSide.sector,
                 s1lines: Set(), s2lines: Set([newLinedef]))
         }
-        unifyVertexConnections(linedef: newLinedef)
+        markOverlappedLines(linedef: newLinedef)
+        return newLinedef
     }
 
     ///
-    /// Check against merging vertices or split linedefs
+    /// Check against merging vertices or split linedefs.
+    /// Returns the same vertex or a possibly different one if a merge took place.
     ///
-    private func checkMoved(vertex: Vertex) {
+    private func checkMoved(vertex: Vertex) -> Vertex {
         // Check if it overlaps another vertex.
         for checkVertex in vertices {
             if checkVertex === vertex || !checkVertex.samePosition(vertex) {
@@ -411,14 +430,59 @@ class Level
             }
             // Found one
             merge(vertex: vertex, into: checkVertex)
+            // NOTE: do not waste time merging with all other vertices and return the remaining one
+            return checkVertex
         }
 
         // Now see if it intersects the line
         for linedef in linedefs {
             if linedef.touchedByVertex(vertex) {
-                split(linedef: linedef, vertex: vertex)
+                let _ = split(linedef: linedef, vertex: vertex)
             }
         }
+        return vertex   // we're sure the vertex isn't lost now
+    }
+
+    ///
+    /// Also check against moving linedefs into other vertices or other linedefs
+    ///
+    private func checkMoved(linedef: Linedef) {
+        var otherLines = [Linedef]()
+        for vertex in vertices {
+            if !vertex.linedefs.contains(linedef) && linedef.touchedByVertex(vertex) {
+                otherLines.append(split(linedef: linedef, vertex: vertex))
+            }
+        }
+        for line in otherLines {
+            checkMoved(linedef: line)
+        }
+    }
+
+    ///
+    /// Checks if we have overlapped lines and solves them
+    ///
+    private func resolveOverlappedLines() {
+        if overlapped.isEmpty {
+            return  // all OK
+        }
+
+        repeat {
+            var solved = OverlappedSet() // List here any successes
+            for bundle in overlapped {
+                if unifyOverlapped(bundle: bundle) {
+                    solved.insert(bundle)
+                }
+            }
+            // None got solved? Plan B
+            if solved.isEmpty {
+                for bundle in overlapped {
+                    unifyOverlappedToClosestSector(bundle: bundle)
+                }
+                overlapped.removeAll()
+                return
+            }
+            overlapped.subtract(solved)
+        } while !overlapped.isEmpty
     }
 
     ///
@@ -468,9 +532,17 @@ class Level
         let checkedVertices = performSimpleMovement(positions: positions)
 
         // Now check for updating other stuff
+        var involvedLines = Set<Linedef>()
         for vertex in checkedVertices {
-            checkMoved(vertex: vertex)
+            let involvedVertex = checkMoved(vertex: vertex)
+            // NOTE: "vertex" may be lost by now
+            involvedLines.formUnion(involvedVertex.linedefs)
         }
+        for line in involvedLines {
+            checkMoved(linedef: line)
+        }
+
+        resolveOverlappedLines()
     }
 
     ///
@@ -1099,38 +1171,43 @@ class Level
     }
 
     ///
-    /// Assuming two vertices have multiple connecting lines, it compactifies them into one, looking
-    /// at context
+    /// Check if current linedef got overlapped with another, and if so, put it in the set
     ///
-    private func unifyVertexConnections(linedef: Linedef) {
-        unifyVertexConnections(v1: linedef.v1, v2: linedef.v2)
+    private func markOverlappedLines(linedef: Linedef) {
+        let connections = linedef.v1.linedefs.intersection(linedef.v2.linedefs)
+        if connections.count >= 2{
+            overlapped.insert(connections)
+        }
     }
-    private func unifyVertexConnections(v1: Vertex, v2: Vertex) {
-        // need it as an array to be ordered
-        let connections = Array(v1.linedefs.intersection(v2.linedefs))
-        if connections.count <= 1 {
-            return  // nothing to do if unconnected or correctly connected.
-        }
-        if connections.count >= 3 {
-            return  // NOTE: currently no support for more than 2 connection correction
-        }
+
+    ///
+    /// Assuming two vertices have multiple connecting lines, it compactifies them into one, looking
+    /// at context. Returns true if it could be solved
+    ///
+    private func unifyOverlapped(bundle: Set<Linedef>) -> Bool {
+        // Assume bundle has at least 2 lines (i.e. is valid)
+        assert(bundle.count >= 2)
+
         // Now check which sidedefs win.
         var rightLineSides = [(Linedef, Side)]()
         var leftLineSides = [(Linedef, Side)]()
 
-        for line in connections {
+        let v1 = bundle.first!.v1
+        let v2 = bundle.first!.v2
+
+        for line in bundle {
             let side = line.rightSideBy(vertex: v1)!
             rightLineSides.append((line, side))
             leftLineSides.append((line, !side))
         }
 
-        let otherV2Lines = v2.linedefs.subtracting(connections)
-        let otherV1Lines = v1.linedefs.subtracting(connections)
+        let otherV2Lines = v2.linedefs.subtracting(bundle)
+        let otherV1Lines = v1.linedefs.subtracting(bundle)
 
         ///
         /// Common function to look up the correct line/side to merge
         ///
-        func findAdjacentReferences(reversed: Bool) -> ((Linedef, Side), (Linedef, Side)) {
+        func findAdjacentReferences(reversed: Bool) -> ((Linedef, Side), (Linedef, Side))? {
             let otherLines = !reversed ? otherV2Lines : otherV1Lines
             let startv = !reversed ? v1 : v2
             let endv = !reversed ? v2 : v1
@@ -1140,11 +1217,13 @@ class Level
             let baseAngle = startv.angle(to: endv)
             var leftmostSector: Sector?
             var rightmostSector: Sector?
+            var leftmostIsBundled = false
+            var rightmostIsBundled = false
             var leftmostAngleDiff = -2 * π
             var rightmostAngleDiff = +2 * π
 
-            var winningLeftLookupSide = leftLookup[0]
-            var winningRightLookupSide = rightLookup[0]
+            var winningLeftLookupSide: (Linedef, Side)? = nil
+            var winningRightLookupSide: (Linedef, Side)? = nil
 
             for line in otherLines {
                 let angle = endv.angle(to: line.otherVertex(from: endv)!)
@@ -1152,11 +1231,17 @@ class Level
                 if angleDiff > leftmostAngleDiff {
                     leftmostAngleDiff = angleDiff
                     leftmostSector = line.sidedefByVertex(side: .back, vertex: endv)?.sector
+                    leftmostIsBundled = line.isBundled
                 }
                 if angleDiff < rightmostAngleDiff {
                     rightmostAngleDiff = angleDiff
                     rightmostSector = line.sidedefByVertex(side: .front, vertex: endv)?.sector
+                    rightmostIsBundled = line.isBundled
                 }
+            }
+            // Abort if we're going to compare with an unresolved bundle
+            if leftmostIsBundled || rightmostIsBundled {
+                return nil
             }
             for lineSide in leftLookup {
                 let sidedef = lineSide.0[lineSide.1]
@@ -1172,21 +1257,70 @@ class Level
                     break
                 }
             }
-            return !reversed ? (winningLeftLookupSide, winningRightLookupSide) :
-                               (winningRightLookupSide, winningLeftLookupSide)
+            if winningLeftLookupSide == nil || winningRightLookupSide == nil {
+                return nil
+            }
+            return !reversed ? (winningLeftLookupSide!, winningRightLookupSide!) :
+                               (winningRightLookupSide!, winningLeftLookupSide!)
         }
 
-        let winning: ((Linedef, Side), (Linedef, Side))
+        var winning: ((Linedef, Side), (Linedef, Side))? = nil
         if !otherV2Lines.isEmpty {
             winning = findAdjacentReferences(reversed: false)
-        } else if !otherV1Lines.isEmpty {
+        }
+        if winning == nil && !otherV1Lines.isEmpty {
             winning = findAdjacentReferences(reversed: true)
-        } else {
-            winning = (leftLineSides[0], rightLineSides[0])
+        }
+        if winning == nil {
+            return false
         }
 
-        merge(sourceLine: winning.0.0, sourceSide: winning.0.1,
-              targetLine: winning.1.0, targetSide: winning.1.1)
+        merge(sourceLine: winning!.0.0, sourceSide: winning!.0.1,
+              targetLine: winning!.1.0, targetSide: winning!.1.1)
+        return true
+    }
+
+    ///
+    /// Unifies by finding the closest sector, if it wasn't possible to find adjacent lines
+    ///
+    private func unifyOverlappedToClosestSector(bundle: Set<Linedef>) {
+        assert(bundle.count >= 2)
+        let v1 = bundle.first!.v1
+        let v2 = bundle.first!.v2
+        let position = (NSPoint(item: v1) + NSPoint(item: v2)) / 2.0
+        // Now check which sidedefs win.
+
+        var rightLineSides = [(Linedef, Side)]()
+        var leftLineSides = [(Linedef, Side)]()
+        for line in bundle {
+            let side = line.rightSideBy(vertex: v1)!
+            rightLineSides.append((line, side))
+            leftLineSides.append((line, !side))
+        }
+
+        guard let sector = findNearestSector(position: position, ignoringUnmergedLines: true) else {
+            // If we're THIS bad not to find a sector, then just pick the first entries
+            merge(sourceLine: leftLineSides[0].0, sourceSide: leftLineSides[0].1,
+                  targetLine: rightLineSides[0].0, targetSide: rightLineSides[0].1)
+            return
+        }
+
+        var winningRightLineSide = rightLineSides[0]
+        var winningLeftLineSide = leftLineSides[0]
+        for lineSide in rightLineSides {
+            if lineSide.0[lineSide.1]?.sector === sector {
+                winningRightLineSide = lineSide
+                break
+            }
+        }
+        for lineSide in leftLineSides {
+            if lineSide.0[lineSide.1]?.sector === sector {
+                winningLeftLineSide = lineSide
+                break
+            }
+        }
+        merge(sourceLine: winningLeftLineSide.0, sourceSide: winningLeftLineSide.1,
+              targetLine: winningRightLineSide.0, targetSide: winningRightLineSide.1)
     }
 
     ///
@@ -1199,7 +1333,7 @@ class Level
         }
 
         ///
-        /// Performs the simple undoable change
+        /// Performs the simple undoable change. Returns a possible line which might get merged
         ///
         func performSimpleChange(linedef: Linedef, source: Vertex, target: Vertex) -> Linedef? {
             let mergeLineOptional = backVertex.connectingLine(with: target)
@@ -1219,7 +1353,7 @@ class Level
 
         // Now check merged lines. Only if it's meant to happen
         if let mergeLine = performSimpleChange(linedef: linedef, source: source, target: target) {
-            unifyVertexConnections(linedef: mergeLine)
+            markOverlappedLines(linedef: mergeLine)
         }
     }
 

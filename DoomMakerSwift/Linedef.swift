@@ -272,6 +272,13 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
         return vertex === v1 ? .front : vertex === v2 ? .back : nil
     }
 
+    ///
+    /// Checks if this linedef is currently overlapped with others linked to the same vertices
+    ///
+    var isBundled: Bool {
+        return v1.linedefs.intersection(v2.linedefs).count >= 2
+    }
+
     //==========================================================================
     //
     // MARK: description

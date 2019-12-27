@@ -108,6 +108,21 @@ enum Geom {
         }
         return linep1   // if not possible, just return one point
     }
+
+    ///
+    /// Find intersection point
+    ///
+    static func intersection(p00: NSPoint, p01: NSPoint, p10: NSPoint, p11: NSPoint) -> NSPoint? {
+        let divisor = (p00.x - p01.x) * (p10.y - p11.y) - (p00.y - p01.y) * (p10.x - p11.x)
+        if divisor == 0 {
+            return nil
+        }
+        let fact1 = p00.x * p01.y - p00.y * p01.x
+        let fact2 = p10.x * p11.y - p10.y * p11.x
+        let d1 = fact1 * (p10.x - p11.x) - (p00.x - p01.x) * fact2
+        let d2 = fact1 * (p10.y - p11.y) - (p00.y - p01.y) * fact2
+        return NSPoint(x: d1 / divisor, y: d2 / divisor)
+    }
 }
 
 /// NSPoint addition

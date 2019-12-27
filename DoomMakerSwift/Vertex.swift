@@ -27,6 +27,10 @@ final class Vertex: DraggedItem, Serializable, CustomStringConvertible {
         DataReader(data).short(&x).short(&y)
     }
 
+    override init(x: Int16, y: Int16) {
+        super.init(x: x, y: y)
+    }
+
     var serialized: [UInt8] {
         return DataWriter([]).short(x).short(y).data
     }

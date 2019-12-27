@@ -395,7 +395,7 @@ class Level
     var overlapped = OverlappedSet()
 
     ///
-    /// Splits a linedef by a given vertex
+    /// Splits a linedef by a given vertex. Returns the new linedef created past the vertex.
     ///
     private func split(linedef: Linedef, vertex: Vertex) -> Linedef {
         // Vertex cases already managed in checkMoved
@@ -446,15 +446,38 @@ class Level
     ///
     /// Also check against moving linedefs into other vertices or other linedefs
     ///
-    private func checkMoved(linedef: Linedef) {
-        var otherLines = [Linedef]()
+    private func checkForSplits(linedef: Linedef) {
+        var splitLines = Set<Linedef>()
         for vertex in vertices {
             if !vertex.linedefs.contains(linedef) && linedef.touchedByVertex(vertex) {
-                otherLines.append(split(linedef: linedef, vertex: vertex))
+                let otherLine = split(linedef: linedef, vertex: vertex)
+                splitLines.insert(otherLine)
             }
         }
-        for line in otherLines {
-            checkMoved(linedef: line)
+
+        let preSplitLinedefs = linedefs
+
+        for otherLine in preSplitLinedefs {
+            if otherLine === linedef {
+                continue
+            }
+            guard let point = linedef.intersection(linedef: otherLine) else {
+                continue
+            }
+            if point.x >= CGFloat(Int16.max) || point.x <= CGFloat(Int16.min) ||
+                point.y >= CGFloat(Int16.max) || point.y <= CGFloat(Int16.min)
+            {
+                continue
+            }
+            let vertex = Vertex(x: Int16(round(point.x)), y: Int16(round(point.y)))
+            add(vertex: vertex, index: vertices.count)
+            let postSplitLine = split(linedef: linedef, vertex: vertex)
+            splitLines.insert(postSplitLine)
+            let _ = split(linedef: otherLine, vertex: vertex)
+        }
+
+        for line in splitLines {
+            checkForSplits(linedef: line)
         }
     }
 
@@ -539,7 +562,7 @@ class Level
             involvedLines.formUnion(involvedVertex.linedefs)
         }
         for line in involvedLines {
-            checkMoved(linedef: line)
+            checkForSplits(linedef: line)
         }
 
         resolveOverlappedLines()
@@ -1358,6 +1381,20 @@ class Level
     }
 
     ///
+    /// Adds a vertex back
+    ///
+    func add(vertex: Vertex, index: Int) {
+        vertices.insert(vertex, at: index)
+        undo?.registerUndo {
+            print("delete(vertex:) from add(vertex:, index:)")
+            self.delete(vertex: vertex)
+        }
+        updateDirty(&vertexTracking)
+        updateDirty(&nodeTracking)
+        updateView()
+    }
+
+    ///
     /// Deletes a vertex
     ///
     private func delete(vertex: Vertex) {
@@ -1365,24 +1402,11 @@ class Level
             return
         }
 
-        ///
-        /// Adds a vertex back
-        ////
-        func add(vertex: Vertex, index: Int) {
-            vertices.insert(vertex, at: index)
-            undo?.registerUndo {
-                self.delete(vertex: vertex)
-            }
-            updateDirty(&vertexTracking)
-            updateDirty(&nodeTracking)
-            updateView()
-        }
-
         // Delete vertex if it's isolated
         if vertex.linedefs.isEmpty {
             vertices.remove(at: index)
             undo?.registerUndo {
-                add(vertex: vertex, index: index)
+                self.add(vertex: vertex, index: index)
             }
             updateDirty(&vertexTracking)
             updateDirty(&nodeTracking)
@@ -1417,7 +1441,7 @@ class Level
 
                 vertices.remove(at: index)
                 undo?.registerUndo {
-                    add(vertex: vertex, index: index)
+                    self.add(vertex: vertex, index: index)
                 }
 
                 updateDirty(&vertexTracking)

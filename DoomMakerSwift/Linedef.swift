@@ -248,6 +248,36 @@ final class Linedef: InteractiveItem, CustomStringConvertible {
         return abs(proj.x - pv.x) < 1 && abs(proj.y - pv.y) < 1
     }
 
+    ///
+    /// Returns an intersection point with another linedef, if available.
+    ///
+    func intersection(linedef: Linedef) -> NSPoint? {
+        // Do not allow adjacent lines
+        if v1.linedefs.union(v2.linedefs).isSuperset(of: [self, linedef]) {
+            return nil
+        }
+        let p00 = NSPoint(item: v1)
+        let p01 = NSPoint(item: v2)
+        let p10 = NSPoint(item: linedef.v1)
+        let p11 = NSPoint(item: linedef.v2)
+        guard let point = Geom.intersection(p00: p00, p01: p01, p10: p10, p11: p11) else {
+            return nil
+        }
+        var bBox = NSRect(point1: p00, point2: p01)
+        if (bBox.width > 0 && (point.x <= bBox.minX || point.x >= bBox.maxX)) ||
+            (bBox.height > 0 && (point.y <= bBox.minY || point.y >= bBox.maxY))
+        {
+            return nil
+        }
+        bBox = NSRect(point1: p10, point2: p11)
+        if (bBox.width > 0 && (point.x <= bBox.minX || point.x >= bBox.maxX)) ||
+            (bBox.height > 0 && (point.y <= bBox.minY || point.y >= bBox.maxY))
+        {
+            return nil
+        }
+        return point
+    }
+
     func otherVertex(from vertex: Vertex) -> Vertex? {
         if v1 === vertex {
             return v2

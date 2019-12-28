@@ -385,6 +385,12 @@ CA
                                     <action selector="joinSectors:" target="-1" id="8mA-oU-Dva"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Merge Sectors" keyEquivalent="J" id="0Xp-31-XQT">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="mergeSectors:" target="-1" id="pBB-6s-mFm"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

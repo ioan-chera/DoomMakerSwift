@@ -646,7 +646,11 @@ class MapView: NSView, NSMenuItemValidation {
     }
 
     @IBAction func joinSectors(_ sender: Any?) {
-        level?.joinSectors()
+        level?.joinSectors(merging: false)
+    }
+
+    @IBAction func mergeSectors(_ sender: Any?) {
+        level?.joinSectors(merging: true)
     }
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
@@ -691,7 +695,9 @@ class MapView: NSView, NSMenuItemValidation {
         if menuItem.action == #selector(MapView.flip(_:)) {
             return level?.mode == .linedefs && level?.interactedItems.isEmpty == false
         }
-        if menuItem.action == #selector(MapView.joinSectors(_:)) {
+        if menuItem.action == #selector(MapView.joinSectors(_:)) ||
+            menuItem.action == #selector(MapView.mergeSectors(_:))
+        {
             return level?.mode == .sectors && level!.interactedItems.count >= 2
         }
         return false

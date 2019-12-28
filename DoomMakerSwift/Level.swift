@@ -1510,7 +1510,7 @@ class Level
     ///
     /// Joins all selected sectors without merging them
     ///
-    func joinSectors() {
+    func joinSectors(merging: Bool) {
         if mode != .sectors {
             return
         }
@@ -1526,6 +1526,13 @@ class Level
                 let sides = sector.sidedefs
                 for side in sides {
                     set(sector: firstSector, forSidedef: side)
+                    if merging {
+                        for line in side.linedefs {
+                            if line.s1?.sector === firstSector && line.s2?.sector === firstSector {
+                                delete(linedef: line)
+                            }
+                        }
+                    }
                 }
                 delete(sector: sector)
             }

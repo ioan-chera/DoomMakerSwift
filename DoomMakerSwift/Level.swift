@@ -163,7 +163,7 @@ class Level
 
     //==========================================================================
     //
-    // MARK: VERTEX USER INTERACTION
+    // MARK: ITEM USER INTERACTION
     //
 
     /// the item currently highlighted by the mouse
@@ -187,6 +187,19 @@ class Level
     /// Dragged vertices set
     var draggedItems = Set<DraggedItem>()
     var draggingDone = false
+
+    ///
+    /// Returns either the selected items or the currently highlighted item, inside a set
+    ///
+    var interactedItems: Set<InteractiveItem> {
+        if !selectedItems.isEmpty {
+            return selectedItems
+        }
+        if let item = highlightedItem {
+            return Set([item])
+        }
+        return Set()    // empty
+    }
 
     //==========================================================================
     //
@@ -1480,14 +1493,10 @@ class Level
         if mode != .linedefs {
             return
         }
-        if !selectedItems.isEmpty {
-            for item in selectedItems {
-                if let linedef = item as? Linedef {
-                    flip(linedef: linedef)
-                }
+        for item in interactedItems {
+            if let linedef = item as? Linedef {
+                flip(linedef: linedef)
             }
-        } else if let linedef = highlightedItem as? Linedef {
-            flip(linedef: linedef)
         }
     }
 
@@ -1562,25 +1571,16 @@ class Level
             }
         }
 
-        var selectedVertices = [Vertex]()
-
-        if !selectedItems.isEmpty {
-            // Special case for vertices: prioritize the higher-degree nodes,
-            // because we want to keep linedefs alive if possible
-            if mode == .vertices {
-                for item in selectedItems {
-                    if let vertex = item as? Vertex {
-                        selectedVertices.append(vertex)
-                    }
-                }
-                // Keep the highest degree nodes first
-                selectedVertices.sort { v1, v2 in v1.linedefs.count > v2.linedefs.count }
-                selectedVertices.forEach { delete(vertex: $0) }
-            } else {
-                selectedItems.forEach { deleteHelper(item: $0) }
-            }
-        } else if let item = highlightedItem {
-            deleteHelper(item: item)
+        // Special case for vertices: prioritize the higher-degree nodes,
+        // because we want to keep linedefs alive if possible
+        let items = interactedItems
+        if mode == .vertices && items.count >= 2 {
+            var selectedVertices = Array(items.filter { $0 is Vertex }) as! [Vertex]
+            // Keep the highest degree nodes first
+            selectedVertices.sort { v1, v2 in v1.linedefs.count > v2.linedefs.count }
+            selectedVertices.forEach { delete(vertex: $0) }
+        } else {
+            items.forEach { deleteHelper(item: $0) }
         }
 
         clearSelection()

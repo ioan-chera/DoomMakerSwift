@@ -682,11 +682,10 @@ class MapView: NSView, NSMenuItemValidation {
             return self.level != nil && self.level!.canRedo()
         }
         if menuItem.action == #selector(MapView.delete(_:)) {
-            return self.level != nil && self.level!.canDeleteSelection()
+            return level?.interactedItems.isEmpty == false
         }
         if menuItem.action == #selector(MapView.flip(_:)) {
-            return level?.mode == .linedefs && (level?.highlightedItem !== nil ||
-                level?.selectedItems.isEmpty == false)
+            return level?.mode == .linedefs && level?.interactedItems.isEmpty == false
         }
         return false
     }

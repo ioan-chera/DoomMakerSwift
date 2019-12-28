@@ -645,6 +645,10 @@ class MapView: NSView, NSMenuItemValidation {
         level?.flipLinedefs()
     }
 
+    @IBAction func joinSectors(_ sender: Any?) {
+        level?.joinSectors()
+    }
+
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -686,6 +690,9 @@ class MapView: NSView, NSMenuItemValidation {
         }
         if menuItem.action == #selector(MapView.flip(_:)) {
             return level?.mode == .linedefs && level?.interactedItems.isEmpty == false
+        }
+        if menuItem.action == #selector(MapView.joinSectors(_:)) {
+            return level?.mode == .sectors && level!.interactedItems.count >= 2
         }
         return false
     }

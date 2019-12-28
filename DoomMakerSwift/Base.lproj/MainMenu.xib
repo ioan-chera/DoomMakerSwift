@@ -16,6 +16,7 @@
             <connections>
                 <outlet property="linedefMenu" destination="uXL-sH-iNf" id="VD7-yk-hvY"/>
                 <outlet property="linedefsModeItem" destination="lD1-GP-NnA" id="L7L-M3-XXk"/>
+                <outlet property="sectorMenu" destination="qBE-zN-rHF" id="2uf-bV-Gke"/>
                 <outlet property="sectorsModeItem" destination="znU-Fl-gGg" id="wUT-Bt-Rsl"/>
                 <outlet property="setGridMenu" destination="7c7-ei-8CP" id="aC9-c9-OeJ"/>
                 <outlet property="thingsModeItem" destination="56T-m6-jzO" id="NJ2-Ck-low"/>
@@ -369,6 +370,19 @@ CA
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="flip:" target="-1" id="9V7-r2-KFR"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Sector" id="qBE-zN-rHF">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Sector" id="EOv-v8-gzr">
+                        <items>
+                            <menuItem title="Join Sectors" keyEquivalent="j" id="bEC-ug-XJu">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="joinSectors:" target="-1" id="8mA-oU-Dva"/>
                                 </connections>
                             </menuItem>
                         </items>

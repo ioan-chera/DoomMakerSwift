@@ -28,6 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var setGridMenu: NSMenu!
 
     @IBOutlet var linedefMenu: NSMenuItem!
+    @IBOutlet var sectorMenu: NSMenuItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Load resources
@@ -68,6 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         thingsModeItem.state = check(.things)
 
         linedefMenu.isHidden = mode != .linedefs
+        sectorMenu.isHidden = mode != .sectors
     }
 
     func updateGrid(density: Int) {

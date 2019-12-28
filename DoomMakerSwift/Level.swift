@@ -168,6 +168,7 @@ class Level
 
     /// the item currently highlighted by the mouse
     private(set) weak var highlightedItem: InteractiveItem?
+    private(set) weak var firstSelectedItem: InteractiveItem?
 
     /// the item the user started holding down the mouse
     private(set) weak var clickedDownItem: InteractiveItem?
@@ -182,7 +183,13 @@ class Level
     var gridSize = CGFloat(0.0)
 
     /// Selected vertices set
-    private(set) var selectedItems = Set<InteractiveItem>()
+    private(set) var selectedItems = Set<InteractiveItem>() {
+        didSet {
+            if firstSelectedItem === nil || !selectedItems.contains(firstSelectedItem!) {
+                firstSelectedItem = selectedItems.first
+            }
+        }
+    }
 
     /// Dragged vertices set
     var draggedItems = Set<DraggedItem>()
@@ -1501,6 +1508,31 @@ class Level
     }
 
     ///
+    /// Joins all selected sectors without merging them
+    ///
+    func joinSectors() {
+        if mode != .sectors {
+            return
+        }
+        guard let firstSector = firstSelectedItem as? Sector else {
+            return
+        }
+
+        for item in selectedItems {
+            if item === firstSelectedItem {
+                continue
+            }
+            if let sector = item as? Sector {
+                let sides = sector.sidedefs
+                for side in sides {
+                    set(sector: firstSector, forSidedef: side)
+                }
+                delete(sector: sector)
+            }
+        }
+    }
+
+    ///
     /// Set linedef flags
     ///
     private func setLineFlags(linedef: Linedef, flags: Int) {
@@ -1584,10 +1616,6 @@ class Level
         }
 
         clearSelection()
-    }
-
-    func canDeleteSelection() -> Bool {
-        return !selectedItems.isEmpty || highlightedItem !== nil
     }
 
     //==========================================================================

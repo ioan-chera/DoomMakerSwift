@@ -27,6 +27,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var thingsModeItem: NSMenuItem!
     @IBOutlet var setGridMenu: NSMenu!
 
+    @IBOutlet var linedefMenu: NSMenuItem!
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Load resources
         let data = try! Data(contentsOf: Bundle.main.url(forResource: "doom2", withExtension: "json")!)
@@ -47,6 +49,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return subUrl
     }
 
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        linedefMenu.isHidden = true
+    }
+
     //
     // MARK: MainMenu update status
     //
@@ -55,10 +62,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         func check(_ val: Level.Mode) -> NSControl.StateValue {
             return mode == val ? .on : .off
         }
-        verticesModeItem.state = check(Level.Mode.vertices)
-        linedefsModeItem.state = check(Level.Mode.linedefs)
-        sectorsModeItem.state = check(Level.Mode.sectors)
-        thingsModeItem.state = check(Level.Mode.things)
+        verticesModeItem.state = check(.vertices)
+        linedefsModeItem.state = check(.linedefs)
+        sectorsModeItem.state = check(.sectors)
+        thingsModeItem.state = check(.things)
+
+        linedefMenu.isHidden = mode != .linedefs
     }
 
     func updateGrid(density: Int) {

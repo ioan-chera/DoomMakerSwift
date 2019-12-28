@@ -221,5 +221,16 @@ class Document: NSDocument, NSWindowDelegate, MapViewDelegate
         self.modeLabel.setText("Mode: \(mode)")
         appDelegate().updateMode(mode)
     }
+
+    //
+    // MARK: Window delegate
+    //
+    func windowDidBecomeKey(_ notification: Notification) {
+        guard let level = mapView?.level else {
+            appDelegate().updateMode(.none)
+            return
+        }
+        appDelegate().updateMode(level.mode)
+    }
 }
 

@@ -38,6 +38,7 @@ class Level
     }
 
     enum Mode {
+        case none
         case vertices
         case linedefs
         case sectors
@@ -373,6 +374,8 @@ class Level
             }
         case .sectors:
             nearestItem = findNearestSector(position: position, ignoringUnmergedLines: false)
+        default:
+            break
         }
 
         return nearestItem
@@ -649,6 +652,8 @@ class Level
             selectedItems.formUnion(linedefs as [InteractiveItem])
         case .sectors:
             selectedItems.formUnion(sectors as [InteractiveItem])
+        default:
+            break
         }
         document?.updateView()
     }
@@ -718,6 +723,8 @@ class Level
                     added = true
                 }
             }
+        default:
+            break
         }
         if added {
             document?.updateView()
@@ -1467,6 +1474,24 @@ class Level
     }
 
     ///
+    /// From user command
+    ///
+    func flipLinedefs() {
+        if mode != .linedefs {
+            return
+        }
+        if !selectedItems.isEmpty {
+            for item in selectedItems {
+                if let linedef = item as? Linedef {
+                    flip(linedef: linedef)
+                }
+            }
+        } else if let linedef = highlightedItem as? Linedef {
+            flip(linedef: linedef)
+        }
+    }
+
+    ///
     /// Set linedef flags
     ///
     private func setLineFlags(linedef: Linedef, flags: Int) {
@@ -1600,6 +1625,8 @@ class Level
         }
 
         switch newMode {
+        case .none:
+            break
         case .things:
         // TODO: update selected things
             break

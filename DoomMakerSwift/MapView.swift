@@ -638,6 +638,13 @@ class MapView: NSView, NSMenuItemValidation {
         level?.mode = Level.Mode.things
     }
 
+    //
+    // MARK: current mode setup
+    //
+    @IBAction func flip(_ sender: Any?) {
+        level?.flipLinedefs()
+    }
+
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MapView.increaseGridDensity(_:)) {
             return self.gridSize > Const.gridMin
@@ -676,6 +683,10 @@ class MapView: NSView, NSMenuItemValidation {
         }
         if menuItem.action == #selector(MapView.delete(_:)) {
             return self.level != nil && self.level!.canDeleteSelection()
+        }
+        if menuItem.action == #selector(MapView.flip(_:)) {
+            return level?.mode == .linedefs && (level?.highlightedItem !== nil ||
+                level?.selectedItems.isEmpty == false)
         }
         return false
     }
